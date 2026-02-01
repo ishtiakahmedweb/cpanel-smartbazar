@@ -117,7 +117,7 @@
         },
         {
             "type": "path",
-            "url": "packages/laravel-multi-ui"
+            "url": "packages/Laravel-Multi-Ui"
         }
     ]
 }

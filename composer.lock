@@ -2988,7 +2988,7 @@
             "version": "dev-master",
             "dist": {
                 "type": "path",
-                "url": "packages/laravel-multi-ui",
+                "url": "packages/Laravel-Multi-Ui",
                 "reference": "f0cb678d4cc47f6c4f79203ac31a7ea4665163d6"
             },
             "type": "package",

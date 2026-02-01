@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Menu;
+use Illuminate\Http\Request;
+
+class MenuController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
+
+        // Systematically ensure standard menus exist to prevent blank screen confusion
+        $standardMenus = [
+            'header-menu' => 'Header Navigation (Main Bar)',
+            'topbar-menu' => 'Topbar Navigation (Very Top)',
+            'quick-links' => 'Footer Links (Quick Links)',
+        ];
+
+        foreach ($standardMenus as $slug => $name) {
+            Menu::firstOrCreate(['slug' => $slug], ['name' => $name]);
+        }
+
+        return $this->view([
+            'menus' => Menu::all(),
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
+
+        return $this->view();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
+        $data = $request->validate([
+            'name' => ['required'],
+            'slug' => ['required', 'regex:/^[a-zA-Z0-9-]+$/', 'unique:menus'],
+        ], [
+            'slug.regex' => 'The link field may only contain letters, numbers, and hyphens. No spaces or special characters are allowed.',
+        ]);
+
+        return to_route('admin.menus.edit', Menu::create($data))->withSuccess('Menu Has Been Created.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Menu $menu)
+    {
+        abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
+
+        return $this->view([
+            'menu' => $menu,
+            'pages' => \App\Models\Page::all(['id', 'title', 'slug']),
+            'categories' => \App\Models\Category::all(['id', 'name', 'slug']),
+            'brands' => \App\Models\Brand::all(['id', 'name', 'slug']),
+        ]);
+    }
+}

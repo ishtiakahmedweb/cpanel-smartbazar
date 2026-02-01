@@ -1,0 +1,115 @@
+=== DEBUG MIGRATION LOG ===
+1. Database reset.
+2. Running migrations...
+
+   INFO  Preparing database.
+
+  Creating migration table ....... 34.60ms DONE
+
+   INFO  Running migrations.
+
+  2014_10_12_000000_create_users_table  86.02ms DONE
+  2018_11_06_222923_create_transactions_table  236.16ms DONE
+  2018_11_07_192923_create_transfers_table  317.06ms DONE
+  2018_11_15_124230_create_wallets_table  284.68ms DONE
+  2019_08_19_000000_create_failed_jobs_table  24.76ms DONE
+  2020_09_05_055627_create_slides_table  24.58ms DONE
+  2020_09_05_132720_create_categories_table  99.07ms DONE
+  2020_09_05_142606_create_brands_table  223.56ms DONE
+  2020_09_05_152538_create_products_table  215.60ms DONE
+  2020_09_06_045904_create_category_product_table  198.39ms DONE
+  2020_09_06_072209_create_images_table  23.01ms DONE
+  2020_09_07_030004_create_image_product_table  211.28ms DONE
+  2020_09_11_075847_create_orders_table  109.99ms DONE
+  2020_09_12_141825_create_home_sections_table  24.63ms DONE
+  2020_09_12_144701_create_category_home_section_table  438.83ms DONE
+  2020_09_15_071443_create_menus_table  67.46ms DONE
+  2020_09_15_071457_create_menu_items_table  126.42ms DONE
+  2020_09_15_134905_create_pages_table  45.50ms DONE
+  2020_09_16_105031_create_admins_table  46.71ms DONE
+  2020_09_19_023502_create_password_resets_table  49.40ms DONE
+  2020_09_19_062540_create_settings_table  30.16ms DONE
+  2020_09_23_161808_create_jobs_table  44.75ms DONE
+  2020_12_11_120455_create_category_menus_table  222.19ms DONE
+  2021_11_02_202021_update_wallets_uuid_table  3.22ms DONE
+  2022_01_26_122948_make_email_nullable_in_users_table  64.85ms DONE
+  2023_05_06_225120_add_staff_column_to_admins_table  35.22ms DONE
+  2023_05_06_231420_add_admin_id_column_to_orders_table  111.24ms DONE
+  2023_05_08_190220_add_status_at_column_to_orders_table  11.01ms DONE
+  2023_12_30_113122_extra_columns_removed  996.48ms DONE
+  2023_12_30_204610_soft_delete .. 36.67ms DONE
+  2024_01_24_185401_add_extra_column_in_transfer  10.32ms DONE
+  2024_02_11_154523_create_attributes_table  23.30ms DONE
+  2024_02_11_154545_create_options_table  114.22ms DONE
+  2024_02_12_162741_add_parent_id_column_to_products_table  115.03ms DONE
+  2024_02_12_164540_create_option_product_table  229.21ms DONE
+  2024_02_16_211454_create_activity_log_table  113.84ms DONE
+  2024_02_17_230800_create_reports_table  23.65ms DONE
+  2024_02_26_115125_create_sessions_table  110.69ms DONE
+  2024_02_27_110041_add_type_column_to_orders_table  78.35ms DONE
+  2024_03_02_010050_add_products_column_to_sections_table  119.77ms DONE
+  2024_03_02_104737_add_desc_img_columns_to_products_table  31.74ms DONE
+  2024_03_21_000000_add_reseller_fields_to_users_table  117.55ms DONE
+  2024_03_22_141000_category_menu  160.73ms DONE
+  2024_04_03_155236_add_image_id_column_to_brands_table  109.44ms DONE
+  2024_04_21_153831_add_order_column_to_image_product_table  16.73ms DONE
+  2024_04_23_152416_add_wholesale_column_to_products_table  10.78ms DONE
+  2024_06_09_000000_add_uuid_to_failed_jobs_table  46.82ms DONE
+  2024_09_04_214435_add_delivery_columns_to_products_table  32.62ms DONE
+  2024_11_17_163909_add_event_column_to_activity_log_table  15.30ms DONE
+  2024_11_17_163910_add_batch_uuid_column_to_activity_log_table  15.02ms DONE
+  2024_11_18_173407_create_pulse_tables  594.79ms DONE
+  2024_11_18_175450_create_telescope_entries_table  329.01ms DONE
+  2024_12_06_182847_create_cache_table  48.10ms DONE
+  2024_12_19_000000_add_unique_constraints_to_pivot_tables  103.75ms DONE
+  2025_01_17_170908_create_landings_page  228.68ms DONE
+  2025_02_13_103736_make_email_non_unique_in_users_table  22.72ms DONE
+  2025_02_26_094153_create_shoppingcart_table  23.92ms DONE
+  2025_02_26_114815_add_user_columns_to_shopping_cart_table  28.97ms DONE
+  2025_04_07_175950_add_resell_column_to_products_table  13.90ms DONE
+  2025_04_09_162159_add_last_order_received_at_column_to_admins_table  13.35ms DONE
+  2025_04_23_084613_make_user_a_reseller  185.72ms DONE
+  2025_06_11_201341_completed_to_delivered  2.56ms DONE
+  2025_06_13_160000_add_source_id_to_resources  339.91ms DONE
+  2025_07_14_121041_add_average_purchase_price_to_products_table  14.19ms DONE
+  2025_07_14_121050_create_purchases_table  165.82ms DONE
+  2025_07_14_162734_create_product_purchases_table  239.20ms DONE
+  2025_07_19_134457_create_coupons_table  408.00ms DONE
+  2025_07_19_150400_create_bkash_payments_table  66.06ms DONE
+  2025_07_19_150401_create_bkash_refunds_table  708.91ms DONE
+  2025_07_19_173658_add_shipped_at_to_orders_table  33.50ms DONE
+  2025_07_19_183734_add_is_enabled_to_brands_and_categories_tables  42.97ms DONE
+  2025_08_14_095306_add_shipping_cost_fields_to_users_table  24.04ms DONE
+  2025_08_15_010924_add_hot_sale_new_arrival_to_products_table  21.53ms DONE
+  2025_11_16_130732_convert_invoiced_order_status_to_packaging  1.08ms DONE
+  2025_11_23_155235_add_performance_indexes_for_products  291.52ms DONE
+  2025_11_25_234226_create_leads_table  26.33ms DONE
+  2025_11_26_195554_add_district_to_leads_table  16.12ms DONE
+  2025_12_02_011337_add_short_description_to_products_table  0.25ms DONE
+  2025_12_02_011340_add_seo_fields_to_products_table  0.20ms DONE
+  2025_12_02_011359_add_seo_fields_to_categories_table  0.22ms DONE
+  2025_12_02_011402_add_seo_fields_to_brands_table  0.20ms DONE
+  2025_12_02_011403_add_seo_fields_to_home_sections_table  0.18ms DONE
+  2025_12_02_011934_add_short_description_to_products_table  15.70ms DONE
+  2025_12_02_012107_create_seo_table  54.65ms DONE
+  2025_12_02_171904_create_reviews_table  64.84ms DONE
+  2025_12_02_171905_create_ratings_table  137.62ms DONE
+  2026_01_13_000000_add_type_fields_to_coupons_table  29.41ms DONE
+  2026_01_20_231600_create_districts_table  24.10ms DONE
+  2026_01_20_231606_create_areas_table  109.10ms DONE
+
+Migration return code: 0
+
+3. Checking products table indexes:
+   Index: PRIMARY | Column: id
+   Index: products_slug_unique | Column: slug
+   Index: products_sku_unique | Column: sku
+   Index: products_brand_id_foreign | Column: brand_id
+   Index: products_parent_id_foreign | Column: parent_id
+   Index: products_source_id_index | Column: source_id
+   Index: idx_products_active_id | Column: is_active
+   Index: idx_products_active_id | Column: id
+   Index: idx_products_price_active | Column: price
+   Index: idx_products_price_active | Column: is_active
+   Index: idx_products_stock_active | Column: stock_count
+   Index: idx_products_stock_active | Column: is_active

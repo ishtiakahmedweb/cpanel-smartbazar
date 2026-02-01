@@ -7,7 +7,6 @@ storage/
 /public/sitemap.xml
 /public/sitemaps/
 vendor
-.env
 .env.backup
 .env.production
 .phpactor.json

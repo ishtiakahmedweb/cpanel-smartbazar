@@ -45,6 +45,11 @@ trait HasCart
         $this->dispatch('dataLayer', [
             'event' => 'add_to_cart',
             'eventID' => generateEventId(),
+            'user_data' => [
+                'external_id' => auth('user')->check() ? (string) auth('user')->id() : '',
+                'fbp' => getFbCookie('_fbp'),
+                'fbc' => getFbCookie('_fbc'),
+            ],
             'ecommerce' => [
                 'currency' => 'BDT',
                 'value' => (float) ($price * $quantity),

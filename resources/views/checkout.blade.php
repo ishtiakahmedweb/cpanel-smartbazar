@@ -8,6 +8,15 @@ window.dataLayer.push({
   event: "begin_checkout",
   eventID: "{{ generateEventId() }}",
   pageType: "checkout",
+  user_data: {
+    external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : '' }}",
+    @if(auth('user')->check())
+    email: "{{ auth('user')->user()->email ?? '' }}",
+    phone: "{{ auth('user')->user()->phone ? formatPhone880(auth('user')->user()->phone) : '' }}",
+    @endif
+    fbp: "{{ getFbCookie('_fbp') }}",
+    fbc: "{{ getFbCookie('_fbc') }}"
+  },
   ecommerce: {
     currency: "BDT",
     value: {{ cart()->subTotal() }},

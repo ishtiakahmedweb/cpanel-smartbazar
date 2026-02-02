@@ -137,6 +137,73 @@ final class FeedController extends Controller
         }
     }
 
+    public function facebookXml(): StreamedResponse
+    {
+        Log::info('Facebook XML feed requested', [
+            'url' => request()->url(),
+            'user_agent' => request()->userAgent(),
+            'ip' => request()->ip(),
+        ]);
+
+        $headers = [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+        ];
+
+        $callback = function (): void {
+            try {
+                echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+                echo '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">' . PHP_EOL;
+                echo '<channel>' . PHP_EOL;
+                echo '<title>' . e(config('app.name', 'SmartBazar')) . '</title>' . PHP_EOL;
+                echo '<link>' . e(url('/')) . '</link>' . PHP_EOL;
+                echo '<description>Product Catalog</description>' . PHP_EOL;
+
+                // Process products in chunks for memory efficiency
+                Product::with(['brand', 'categories', 'images', 'variations'])
+                    ->where('is_active', true)
+                    ->whereNull('parent_id')
+                    ->chunk(100, function ($products): void {
+                        foreach ($products as $product) {
+                            try {
+                                $this->writeXmlItem($product, $product->id);
+                                
+                                // Process variants
+                                if ($product->variations->isNotEmpty()) {
+                                    foreach ($product->variations as $variant) {
+                                        $variant->brand = $product->brand;
+                                        $variant->categories = $product->categories;
+                                        $this->writeXmlItem($variant, $product->id);
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                Log::error('Error processing product in XML feed', [
+                                    'product_id' => $product->id,
+                                    'error' => $e->getMessage(),
+                                ]);
+                            }
+                        }
+                    });
+
+                echo '</channel>' . PHP_EOL;
+                echo '</rss>' . PHP_EOL;
+
+                Log::info('Facebook XML feed generated successfully');
+
+            } catch (\Exception $e) {
+                Log::error('Error generating Facebook XML feed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                
+                echo '<error>Failed to generate XML feed</error>' . PHP_EOL;
+            }
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function generateCsvContent($products): string
     {
         $output = fopen('php://temp', 'r+');
@@ -272,5 +339,44 @@ final class FeedController extends Controller
         }
 
         return number_format($numericPrice, 2);
+    }
+
+    private function writeXmlItem($product, $itemGroupId): void
+    {
+        $title = $this->formatTitle($product->var_name);
+        $description = $this->formatDescription($product->description);
+        $price = $this->formatPrice($product->price);
+        $sellingPrice = $this->formatPrice($product->selling_price);
+        $shippingInside = $this->formatPrice($product->shipping_inside);
+        $shippingOutside = $this->formatPrice($product->shipping_outside);
+
+        echo '<item>' . PHP_EOL;
+        echo '  <g:id>' . e($product->id) . '</g:id>' . PHP_EOL;
+        echo '  <g:title>' . e($title) . '</g:title>' . PHP_EOL;
+        echo '  <g:description>' . e($description) . '</g:description>' . PHP_EOL;
+        echo '  <g:link>' . e(route('products.show', $product->slug)) . '</g:link>' . PHP_EOL;
+        echo '  <g:image_link>' . e($product->base_image?->src ?? '') . '</g:image_link>' . PHP_EOL;
+        echo '  <g:availability>' . ($product->in_stock ? 'in stock' : 'out of stock') . '</g:availability>' . PHP_EOL;
+        echo '  <g:price>' . e($price) . ' BDT</g:price>' . PHP_EOL;
+        echo '  <g:sale_price>' . e($sellingPrice) . ' BDT</g:sale_price>' . PHP_EOL;
+        echo '  <g:brand>' . e($product->brand?->name ?? 'Unknown') . '</g:brand>' . PHP_EOL;
+        echo '  <g:condition>new</g:condition>' . PHP_EOL;
+        echo '  <g:google_product_category>' . e($product->category) . '</g:google_product_category>' . PHP_EOL;
+        echo '  <g:fb_product_category>' . e($product->category) . '</g:fb_product_category>' . PHP_EOL;
+        echo '  <g:quantity_to_sell_on_facebook>' . ($product->stock_count ?? 1) . '</g:quantity_to_sell_on_facebook>' . PHP_EOL;
+        echo '  <g:item_group_id>' . e($itemGroupId) . '</g:item_group_id>' . PHP_EOL;
+        echo '  <g:shipping>' . PHP_EOL;
+        echo '    <g:country>BD</g:country>' . PHP_EOL;
+        echo '    <g:region>Dhaka</g:region>' . PHP_EOL;
+        echo '    <g:service>Courier</g:service>' . PHP_EOL;
+        echo '    <g:price>' . e($shippingInside) . ' BDT</g:price>' . PHP_EOL;
+        echo '  </g:shipping>' . PHP_EOL;
+        echo '  <g:shipping>' . PHP_EOL;
+        echo '    <g:country>BD</g:country>' . PHP_EOL;
+        echo '    <g:region>Other</g:region>' . PHP_EOL;
+        echo '    <g:service>Courier</g:service>' . PHP_EOL;
+        echo '    <g:price>' . e($shippingOutside) . ' BDT</g:price>' . PHP_EOL;
+        echo '  </g:shipping>' . PHP_EOL;
+        echo '</item>' . PHP_EOL;
     }
 }

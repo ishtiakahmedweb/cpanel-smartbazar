@@ -149,5 +149,6 @@ Route::domain(env('ADMIN_DOMAIN'))->group(function () {
 // Feed routes
 Route::get('/feed/catalog', [FeedController::class, 'catalog'])->name('feed.catalog');
 Route::get('/feed/catalog-simple', [FeedController::class, 'catalogSimple'])->name('feed.catalog.simple');
+Route::get('/feed/facebook-xml', [FeedController::class, 'facebookXml'])->name('feed.facebook.xml');
 
 pageRoutes();

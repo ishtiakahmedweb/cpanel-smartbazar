@@ -9,6 +9,11 @@
       event: "view_item",
       eventID: "{{ generateEventId() }}",
       pageType: "product-page",
+      user_data: {
+        external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : '' }}",
+        fbp: "{{ getFbCookie('_fbp') }}",
+        fbc: "{{ getFbCookie('_fbc') }}"
+      },
       ecommerce: {
         currency: "BDT",
         value: {{ (float) $product->selling_price }},

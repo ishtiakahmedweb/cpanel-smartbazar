@@ -47,35 +47,22 @@ class Image extends Model
     protected function src(): Attribute
     {
         return Attribute::get(function () {
-            // 1. Calculate the relative path (strip any existing /storage/ prefix)
-            $purePath = ltrim(Str::after($this->path, '/storage/'), '/');
-            
-            // 2. Encode for URL safety
-            $encodedPath = Str::of($purePath)
-                ->dirname()
-                ->append('/')
-                ->append(rawurlencode(Str::of($purePath)->basename()));
+            if (!$this->path) return asset('assets/images/placeholder.png');
 
-            // 3. Final URL MUST start with /storage/ to match .htaccess rules
-            $finalUrlPath = '/storage/' . ltrim($encodedPath, '/');
-
-
-            // Fix: Check physical existence in storage/app/public
-            // DB contains '/storage/foo.jpg', we need 'foo.jpg' relative to storage root
-            $relativePath = Str::after($this->path, '/storage/');
-            
-            if (file_exists(storage_path('app/public/' . $relativePath))) {
-                return asset($finalUrlPath);
+            // 1. Clean the path (remove leading slashes or legacy /storage/ prefixes)
+            $cleanPath = ltrim($this->path, '/');
+            if (str_starts_with($cleanPath, 'storage/')) {
+                $cleanPath = substr($cleanPath, 8);
             }
 
+            // 2. URL Encode the filename part only
+            $dir = dirname($cleanPath);
+            $base = basename($cleanPath);
+            $encodedPath = ($dir === '.' ? '' : $dir . '/') . rawurlencode($base);
 
-            // Fallback for missing files or external sources
-            if ($this->source_id) {
-                 return config('app.oninda_url') . $finalUrlPath;
-            }
-            
-            // Return the constructed storage path anyway (so .htaccess can try to serve it)
-            return asset($finalUrlPath);
+            // 3. Return the standard public URL
+            // This expects public/storage -> storage/app/public symlink to exist
+            return asset('storage/' . $encodedPath);
         });
     }
 

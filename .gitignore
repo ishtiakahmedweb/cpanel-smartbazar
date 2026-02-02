@@ -2,8 +2,11 @@
 node_modules
 # /public/build
 /public/hot
-public/storage
-storage/
+/public/storage
+# storage/
+# Allow storage/app/public for migration/restoration
+!storage/app/public/
+!storage/app/public/**
 /public/sitemap.xml
 /public/sitemaps/
 # vendor - Included for deployment-ready repository

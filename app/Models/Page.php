@@ -11,6 +11,20 @@ class Page extends Model
     ];
 
     #[\Override]
+    public static function booted(): void
+    {
+        static::saved(function ($page): void {
+            cacheMemo()->forget('api_page:'.$page->slug);
+            cacheInvalidateNamespace('api_page');
+        });
+
+        static::deleted(function ($page): void {
+            cacheMemo()->forget('api_page:'.$page->slug);
+            cacheInvalidateNamespace('api_page');
+        });
+    }
+
+    #[\Override]
     public function getRouteKeyName()
     {
         return 'slug';

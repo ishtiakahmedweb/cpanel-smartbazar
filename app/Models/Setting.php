@@ -18,7 +18,12 @@ class Setting extends Model
         static::saved(function ($setting): void {
             // Store ONLY the value in cache, as the setting() helper expects
             cacheMemo()->put('settings:'.$setting->name, $setting->value);
-            Cache::forget('settings');
+            cacheMemo()->forget('settings'); // Invalidate the array cache from Setting::array()
+        });
+
+        static::deleted(function ($setting): void {
+            cacheMemo()->forget('settings:'.$setting->name);
+            cacheMemo()->forget('settings');
         });
     }
 

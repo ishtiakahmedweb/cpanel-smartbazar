@@ -63,7 +63,7 @@ class ApiController extends Controller
             }
         }
 
-        Artisan::call('optimize');
+        // Artisan::call('optimize'); // Removed to prevent 500 errors on shared hosting resource limits
 
         return back()->with('success', 'Cache has been cleared');
     }

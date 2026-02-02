@@ -1,5 +1,0 @@
-
-        '{{SINGULAR_KEBAB}}' => [
-            'driver'   => 'session',
-            'provider' => '{{PLURAL_KEBAB}}',
-        ],

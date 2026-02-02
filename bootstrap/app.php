@@ -59,17 +59,21 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'guest' => RedirectIfAuthenticated::class,
             'response.cache' => CacheResponse::class,
             'doNotCacheResponse' => \Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class,
-        ]);
+        ])
+            ->validateCsrfTokens(except: ['*']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\Illuminate\Database\QueryException $e, Request $request) {
-            // If the database is down or failing for any reason, show a friendly 503 page instead of 500
-            return response()->view('errors.503', [], 503);
+            // If the database is refused or unreachable, show a friendly 503 page instead of 500
+            if (str_contains($e->getMessage(), 'Connection refused') || str_contains($e->getMessage(), '2002')) {
+                return response()->view('errors.503', [], 503);
+            }
         });
 
         $exceptions->render(function (\PDOException $e, Request $request) {
-            // Catch low-level PDO exceptions (like connection refused) and show 503
-            return response()->view('errors.503', [], 503);
+            if (str_contains($e->getMessage(), 'Connection refused') || str_contains($e->getMessage(), '2002')) {
+                return response()->view('errors.503', [], 503);
+            }
         });
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {

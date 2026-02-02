@@ -114,22 +114,17 @@ class HomeSection extends Model
             }
         }
 
-        try {
-            return $paginate
-                ? $query->with([
-                    'reviews' => function ($q): void {
-                        $q->where('approved', true)->with('ratings');
-                    },
-                ])->paginate($paginate)
-                : $query->with([
-                    'reviews' => function ($q): void {
-                        $q->where('approved', true)->with('ratings');
-                    },
-                ])->get();
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('HomeSection products DB error: ' . $e->getMessage());
-            return $paginate ? new \Illuminate\Pagination\LengthAwarePaginator([], 0, $paginate) : collect();
-        }
+        return $paginate
+            ? $query->with([
+                'reviews' => function ($q): void {
+                    $q->where('approved', true)->with('ratings');
+                },
+            ])->paginate($paginate)
+            : $query->with([
+                'reviews' => function ($q): void {
+                    $q->where('approved', true)->with('ratings');
+                },
+            ])->get();
     }
 
     protected function casts(): array

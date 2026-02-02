@@ -230,13 +230,7 @@
     </div>
 @endif
 @if ($section->type == 'content')
-    @php
-        try {
-            $page = \App\Models\Page::find($section->data->page_id ?? null);
-        } catch (\Throwable $e) {
-            $page = null;
-        }
-    @endphp
+    @php($page = \App\Models\Page::find($section->data->page_id ?? null))
     @if($page)
     <div class="block">
         <div class="container">

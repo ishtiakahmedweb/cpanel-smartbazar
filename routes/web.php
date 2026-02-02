@@ -121,7 +121,12 @@ Route::group([], function (): void {
         Route::get('/categories', [ApiController::class, 'categories'])->name('categories');
         Route::get('/brands', [ApiController::class, 'brands'])->name('brands');
 
+        Route::get('/', HomeController::class)->name('/');
         Route::get('/sections/{section}/products', HomeSectionProductController::class)->name('home-sections.products');
+        Route::get('/shop', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+        Route::get('/categories/{category:slug}/products', CategoryProductController::class)->name('categories.products');
+        Route::get('/brands/{brand:slug}/products', BrandProductController::class)->name('brands.products');
     });
 
     Route::get('/thank-you', OrderTrackController::class)
@@ -137,20 +142,17 @@ Route::group([], function (): void {
     Route::get('cart', [App\Http\Controllers\Api\CartController::class, 'get'])->name('cart.get');
 });
 
-// Administrative Helpers (Restricted to Admin Domain)
-Route::domain(env('ADMIN_DOMAIN', 'camel.smartbazaarbd.xyz'))->group(function (): void {
-    Route::get('/storage-link', [ApiController::class, 'storageLink']);
-    Route::get('/scout-flush', [ApiController::class, 'scoutFlush']);
-    Route::get('/scout-import', [ApiController::class, 'scoutImport']);
-    Route::get('/link-optimize', [ApiController::class, 'linkOptimize']);
+Route::get('/storage-link', [ApiController::class, 'storageLink']);
+Route::get('/scout-flush', [ApiController::class, 'scoutFlush']);
+Route::get('/scout-import', [ApiController::class, 'scoutImport']);
+Route::get('/link-optimize', [ApiController::class, 'linkOptimize']);
 
-    Route::get('/fix', function () {
-        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-        return 'Caches Cleared!';
-    });
-
-    Route::get('/cache-clear', [ApiController::class, 'clearCache'])->name('clear.cache');
+Route::get('/fix', function () {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return 'Caches Cleared!';
 });
+
+Route::get('/cache-clear', [ApiController::class, 'clearCache'])->name('clear.cache');
 
 // Feed routes
 Route::get('/feed/catalog', [FeedController::class, 'catalog'])->name('feed.catalog');

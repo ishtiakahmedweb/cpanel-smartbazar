@@ -127,6 +127,25 @@ class Category extends Model
     }
 
     /**
+     * Get the full category path (breadcrumb).
+     * e.g., "Home \u0026 Garden \u003e Kitchen \u0026 Dining \u003e Kitchen Appliances"
+     */
+    protected function fullNamePath(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+            $path = [$this->name];
+            $parent = $this->parent;
+            
+            while ($parent) {
+                array_unshift($path, $parent->name);
+                $parent = $parent->parent;
+            }
+
+            return implode(' \u003e ', $path);
+        });
+    }
+
+    /**
      * Retrieve the model for route model binding.
      *
      * @param  mixed  $value

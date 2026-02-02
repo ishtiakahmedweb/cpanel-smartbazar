@@ -412,9 +412,9 @@ function cdn($url, int $w = 150, int $h = 150)
 
     // 1. Process Absolute URLs (Strip local domain to allow re-prefixing/fixing)
     if (str_starts_with($url ?? '', 'http')) {
-        $host = request()->getHost();
+        $host = app()->bound('request') ? request()->getHost() : parse_url(config('app.url'), PHP_URL_HOST);
         // If it's our own domain and NOT already processed by CDN tools
-        if (str_contains($url ?? '', $host) && !str_contains($url ?? '', '??tr=')) {
+        if (str_contains($url ?? '', (string) $host) && !str_contains($url ?? '', '??tr=')) {
             $url = ltrim(parse_url($url, PHP_URL_PATH), '/');
         } else {
             // Real external URL or placeholder, return as is

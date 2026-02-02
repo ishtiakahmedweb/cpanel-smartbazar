@@ -75,7 +75,9 @@ class AppServiceProvider extends ServiceProvider
             $model::observe(ResponseCacheObserver::class);
         });
 
-        \Illuminate\Support\Facades\View::share('logo', setting('logo'));
-        \Illuminate\Support\Facades\View::share('company', setting('company'));
+        if (! $this->app->runningInConsole()) {
+            \Illuminate\Support\Facades\View::share('logo', setting('logo'));
+            \Illuminate\Support\Facades\View::share('company', setting('company'));
+        }
     }
 }

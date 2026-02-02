@@ -1,48 +1,46 @@
-/.phpunit.cache
-node_modules
-# /public/build
-/public/hot
-/public/storage
+# /.phpunit.cache
+# node_modules
+# /public/hot
+# /public/storage
 # storage/
-# Allow storage/app/public for migration/restoration
-!storage/app/public/
-!storage/app/public/**
-/public/sitemap.xml
-/public/sitemaps/
+# !storage/app/public/
+# !storage/app/public/**
+# /public/sitemap.xml
+# /public/sitemaps/
 # vendor - Included for deployment-ready repository
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
-/.zed
-.qodo
+# .env.backup
+# .env.production
+# .phpactor.json
+# .phpunit.result.cache
+# Homestead.json
+# Homestead.yaml
+# auth.json
+# npm-debug.log
+# yarn-error.log
+# /.fleet
+# /.idea
+# /.vscode
+# /.zed
+# .qodo
 
-*.zip
-*.rar
+# *.zip
+# *.rar
 
-.early.coverage
+# .early.coverage
 
 # Editor-specific configuration (ensure all major editors are ignored)
-.DS_Store
-Thumbs.db
-/.vs
-/.history
-*.sublime-workspace
-*.sublime-project
-/.nova
-*.swp
-*.swo
-*~
+# .DS_Store
+# Thumbs.db
+# /.vs
+# /.history
+# *.sublime-workspace
+# *.sublime-project
+# /.nova
+# *.swp
+# *.swo
+# *~
 
 # MCP configuration (local tooling/config only)
-.mcp.json
-/.cursor
-/.junie
+# .mcp.json
+# /.cursor
+# /.junie

@@ -27,4 +27,102 @@
             </div>
         </div>
     </div>
+
+    <!-- Catalog Feeds Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mt-4 shadow-sm card">
+                <div class="text-white card-header bg-primary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Catalog Feeds (Live Status)</h5>
+                    @php
+                        $lastProductUpdate = \App\Models\Product::max('updated_at');
+                    @endphp
+                    @if($lastProductUpdate)
+                        <span class="badge badge-light" style="font-size: 11px;">
+                            <i class="fa fa-refresh mr-1"></i> Catalog Last Updated: {{ \Illuminate\Support\Carbon::parse($lastProductUpdate)->diffForHumans() }}
+                        </span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 alert alert-info">
+                        <i class="mr-2 fa fa-info-circle"></i>
+                        <strong>Real-time Tracking:</strong> The "Last Accessed" column shows when Facebook/Google last scanned your feed.
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Feed Type</th>
+                                    <th>Last Accessed</th>
+                                    <th>IP / Platform</th>
+                                    <th width="150">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $feeds = [
+                                        'facebook-xml' => ['name' => 'Facebook XML (RSS)', 'url' => url('/feed/facebook-xml')],
+                                        'catalog-csv' => ['name' => 'Standard CSV', 'url' => url('/feed/catalog')],
+                                        'catalog-simple-csv' => ['name' => 'Simple CSV', 'url' => url('/feed/catalog-simple')],
+                                    ];
+                                @endphp
+
+                                @foreach ($feeds as $key => $feed)
+                                    @php
+                                        $hit = cacheMemo()->get("feed_hit:{$key}");
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $feed['name'] }}</strong>
+                                            <br><small class="text-muted">{{ $feed['url'] }}</small>
+                                        </td>
+                                        <td>
+                                            @if($hit)
+                                                <span class="badge badge-success">{{ \Illuminate\Support\Carbon::parse($hit['time'])->diffForHumans() }}</span>
+                                                <br><small>{{ $hit['time'] }}</small>
+                                            @else
+                                                <span class="badge badge-light">Never accessed</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($hit)
+                                                <code>{{ $hit['ip'] }}</code>
+                                                <br><small class="text-truncate d-inline-block" style="max-width: 200px;">{{ $hit['ua'] }}</small>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-xs btn-outline-primary copy-link" data-link="{{ $feed['url'] }}">Copy</button>
+                                            <a href="{{ $feed['url'] }}" target="_blank" class="btn btn-xs btn-outline-info">View</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    runWhenJQueryReady(function($) {
+        $('.copy-link').on('click', function() {
+            const link = $(this).data('link');
+            const $btn = $(this);
+            
+            navigator.clipboard.writeText(link).then(function() {
+                const originalText = $btn.text();
+                $btn.text('Copied!');
+                $btn.addClass('btn-success').removeClass('btn-outline-primary');
+                
+                setTimeout(function() {
+                    $btn.text(originalText);
+                    $btn.addClass('btn-outline-primary').removeClass('btn-success');
+                }, 2000);
+            });
+        });
+    });
+</script>

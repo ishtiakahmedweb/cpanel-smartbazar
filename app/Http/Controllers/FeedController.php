@@ -12,12 +12,13 @@ final class FeedController extends Controller
 {
     public function catalog(): StreamedResponse
     {
-        // Log the request for debugging
         Log::info('Feed catalog requested', [
             'url' => request()->url(),
             'user_agent' => request()->userAgent(),
             'ip' => request()->ip(),
         ]);
+
+        $this->trackFeedHit('catalog-csv');
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -28,6 +29,9 @@ final class FeedController extends Controller
 
         $callback = function (): void {
             try {
+                if (ob_get_level() > 0) {
+                    ob_clean();
+                }
                 $file = fopen('php://output', 'w');
 
                 // Add BOM for UTF-8 to ensure proper encoding
@@ -100,6 +104,7 @@ final class FeedController extends Controller
     {
         try {
             Log::info('Simple feed catalog requested');
+            $this->trackFeedHit('catalog-simple-csv');
 
             $products = Product::with(['brand', 'categories', 'images', 'variations'])
                 ->where('is_active', true)
@@ -145,6 +150,8 @@ final class FeedController extends Controller
             'ip' => request()->ip(),
         ]);
 
+        $this->trackFeedHit('facebook-xml');
+
         $headers = [
             'Content-Type' => 'application/xml; charset=UTF-8',
             'Cache-Control' => 'no-cache, must-revalidate',
@@ -153,12 +160,18 @@ final class FeedController extends Controller
 
         $callback = function (): void {
             try {
+                // Clear any previous output buffers to ensure no junk scripts or characters leak in
+                if (ob_get_level() > 0) {
+                    ob_clean();
+                }
+
                 echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-                echo '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">' . PHP_EOL;
+                echo '<rss xmlns:g="http://base.google.com/ns/1.0" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">' . PHP_EOL;
                 echo '<channel>' . PHP_EOL;
                 echo '<title>' . e(config('app.name', 'SmartBazar')) . '</title>' . PHP_EOL;
-                echo '<link>' . e(url('/')) . '</link>' . PHP_EOL;
-                echo '<description>Product Catalog</description>' . PHP_EOL;
+                echo '<atom:link href="' . e(url(request()->path())) . '" rel="self" type="application/rss+xml" />' . PHP_EOL;
+                echo '<link>' . e(config('app.url')) . '</link>' . PHP_EOL;
+                echo '<description>Product Catalog Feed</description>' . PHP_EOL;
 
                 // Process products in chunks for memory efficiency
                 Product::with(['brand', 'categories', 'images', 'variations'])
@@ -253,13 +266,12 @@ final class FeedController extends Controller
             $product->in_stock ? 'in stock' : 'out of stock',
             'new',
             $price.' BDT',
-            route('products.show', $product->slug),
-            $product->base_image?->src ?? '',
-            $product->brand?->name ?? 'Unknown',
-            $product->category,
-            $product->category,
-            $product->stock_count ?? 1,
-            $sellingPrice.' BDT',
+            rtrim(config('app.url'), '/') . '/products/' . $product->slug,
+            $product->base_image ? (str_starts_with($product->base_image->src, 'http') ? $product->base_image->src : rtrim(config('app.url'), '/') . '/' . ltrim($product->base_image->src, '/')) : '',
+            $product->categories->first()?->full_name_path ?? 'Uncategorized',
+            $product->categories->first()?->full_name_path ?? 'Uncategorized',
+            $product->stock_count ?? 50,
+            ($product->price > $product->selling_price) ? $sellingPrice.' BDT' : '',
             now()->addDays(30)->format('Y-m-d\TH:i\Z').'/'.now()->addDays(60)->format('Y-m-d\TH:i\Z'),
             // Keep group stable across variants. Use provided parent identifier.
             $itemGroupId,
@@ -269,7 +281,7 @@ final class FeedController extends Controller
             'adult',
             '',
             '',
-            'BD:Dhaka::Courier:'.$shippingInside.' BDT;BD:Other::Courier:'.$shippingOutside.' BDT',
+            'BD:Dhaka::Courier:'.$shippingInside.' BDT,BD:Outside Dhaka::Courier:'.$shippingOutside.' BDT',
             '',
             '',
             '',
@@ -349,34 +361,58 @@ final class FeedController extends Controller
         $sellingPrice = $this->formatPrice($product->selling_price);
         $shippingInside = $this->formatPrice($product->shipping_inside);
         $shippingOutside = $this->formatPrice($product->shipping_outside);
+        $appUrl = rtrim(config('app.url'), '/');
+        $imageLink = $product->base_image ? (str_starts_with($product->base_image->src, 'http') ? $product->base_image->src : $appUrl . '/' . ltrim($product->base_image->src, '/')) : '';
+        $categoryPath = $product->categories->first()?->full_name_path ?? 'Uncategorized';
 
-        echo '<item>' . PHP_EOL;
-        echo '  <g:id>' . e($product->id) . '</g:id>' . PHP_EOL;
-        echo '  <g:title>' . e($title) . '</g:title>' . PHP_EOL;
-        echo '  <g:description>' . e($description) . '</g:description>' . PHP_EOL;
-        echo '  <g:link>' . e(route('products.show', $product->slug)) . '</g:link>' . PHP_EOL;
-        echo '  <g:image_link>' . e($product->base_image?->src ?? '') . '</g:image_link>' . PHP_EOL;
-        echo '  <g:availability>' . ($product->in_stock ? 'in stock' : 'out of stock') . '</g:availability>' . PHP_EOL;
-        echo '  <g:price>' . e($price) . ' BDT</g:price>' . PHP_EOL;
-        echo '  <g:sale_price>' . e($sellingPrice) . ' BDT</g:sale_price>' . PHP_EOL;
-        echo '  <g:brand>' . e($product->brand?->name ?? 'Unknown') . '</g:brand>' . PHP_EOL;
-        echo '  <g:condition>new</g:condition>' . PHP_EOL;
-        echo '  <g:google_product_category>' . e($product->category) . '</g:google_product_category>' . PHP_EOL;
-        echo '  <g:fb_product_category>' . e($product->category) . '</g:fb_product_category>' . PHP_EOL;
-        echo '  <g:quantity_to_sell_on_facebook>' . ($product->stock_count ?? 1) . '</g:quantity_to_sell_on_facebook>' . PHP_EOL;
-        echo '  <g:item_group_id>' . e($itemGroupId) . '</g:item_group_id>' . PHP_EOL;
-        echo '  <g:shipping>' . PHP_EOL;
-        echo '    <g:country>BD</g:country>' . PHP_EOL;
-        echo '    <g:region>Dhaka</g:region>' . PHP_EOL;
-        echo '    <g:service>Courier</g:service>' . PHP_EOL;
-        echo '    <g:price>' . e($shippingInside) . ' BDT</g:price>' . PHP_EOL;
-        echo '  </g:shipping>' . PHP_EOL;
-        echo '  <g:shipping>' . PHP_EOL;
-        echo '    <g:country>BD</g:country>' . PHP_EOL;
-        echo '    <g:region>Other</g:region>' . PHP_EOL;
-        echo '    <g:service>Courier</g:service>' . PHP_EOL;
-        echo '    <g:price>' . e($shippingOutside) . ' BDT</g:price>' . PHP_EOL;
-        echo '  </g:shipping>' . PHP_EOL;
-        echo '</item>' . PHP_EOL;
+        echo '  <item>' . PHP_EOL;
+        echo '    <g:id>' . e($product->id) . '</g:id>' . PHP_EOL;
+        echo '    <g:title>' . e($title) . '</g:title>' . PHP_EOL;
+        echo '    <g:description><![CDATA[' . $description . ']]></g:description>' . PHP_EOL;
+        echo '    <g:link>' . e($appUrl . '/products/' . $product->slug) . '</g:link>' . PHP_EOL;
+        echo '    <g:image_link>' . e($imageLink) . '</g:image_link>' . PHP_EOL;
+        echo '    <g:availability>' . ($product->in_stock ? 'in stock' : 'out of stock') . '</g:availability>' . PHP_EOL;
+        echo '    <g:inventory>' . e($product->in_stock ? ($product->stock_count > 0 ? $product->stock_count : 100) : 0) . '</g:inventory>' . PHP_EOL;
+        
+        // Price Logic: g:price is regular, g:sale_price is discounted
+        if ($product->price > $product->selling_price) {
+            echo '    <g:price>' . e($price) . ' BDT</g:price>' . PHP_EOL;
+            echo '    <g:sale_price>' . e($sellingPrice) . ' BDT</g:sale_price>' . PHP_EOL;
+        } else {
+            echo '    <g:price>' . e($sellingPrice) . ' BDT</g:price>' . PHP_EOL;
+        }
+
+        echo '    <g:brand>' . e($product->brand?->name ?? 'SmartBazar') . '</g:brand>' . PHP_EOL;
+        echo '    <g:condition>new</g:condition>' . PHP_EOL;
+        echo '    <g:google_product_category>' . e($categoryPath) . '</g:google_product_category>' . PHP_EOL;
+        echo '    <g:fb_product_category>' . e($categoryPath) . '</g:fb_product_category>' . PHP_EOL;
+        echo '    <g:quantity_to_sell_on_facebook>' . ($product->stock_count ?? 50) . '</g:quantity_to_sell_on_facebook>' . PHP_EOL;
+        echo '    <g:item_group_id>' . e($itemGroupId) . '</g:item_group_id>' . PHP_EOL;
+        
+        // Shipping Blocks
+        echo '    <g:shipping>' . PHP_EOL;
+        echo '      <g:country>BD</g:country>' . PHP_EOL;
+        echo '      <g:region>Dhaka</g:region>' . PHP_EOL;
+        echo '      <g:service>Standard</g:service>' . PHP_EOL;
+        echo '      <g:price>' . e($shippingInside) . ' BDT</g:price>' . PHP_EOL;
+        echo '    </g:shipping>' . PHP_EOL;
+        echo '    <g:shipping>' . PHP_EOL;
+        echo '      <g:country>BD</g:country>' . PHP_EOL;
+        echo '      <g:region>Outside Dhaka</g:region>' . PHP_EOL;
+        echo '      <g:service>Standard</g:service>' . PHP_EOL;
+        echo '      <g:price>' . e($shippingOutside) . ' BDT</g:price>' . PHP_EOL;
+        echo '    </g:shipping>' . PHP_EOL;
+        echo '  </item>' . PHP_EOL;
+    }
+
+    private function trackFeedHit(string $feedType): void
+    {
+        $hit = [
+            'time' => now()->toDateTimeString(),
+            'ip' => request()->ip(),
+            'ua' => request()->userAgent(),
+        ];
+
+        cacheMemo()->put("feed_hit:{$feedType}", $hit, now()->addDays(7));
     }
 }

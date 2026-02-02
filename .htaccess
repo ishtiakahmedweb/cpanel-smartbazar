@@ -20,29 +20,11 @@
 
     RewriteEngine On
 
+    # Intercept storage requests early to bypass the 'storage' folder conflict
+    RewriteRule ^storage/(.*)$ storage_link/$1 [L]
+
     # If the request is for the API or a specific resource, apply CORS headers
     RewriteCond %{REQUEST_URI} ^/api/ [NC]
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    Header set Access-Control-Max-Age "86400"
-
-    # Allow credentials if required (optional)
-    # Header set Access-Control-Allow-Credentials "true"
-
-    # Handle OPTIONS preflight request
-    RewriteCond %{REQUEST_METHOD} OPTIONS
-
-
-    RewriteCond %{HTTP_HOST} !^www\. [NC]
-    RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
-
-    RewriteCond %{REQUEST_FILENAME} -d [OR]
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteRule ^ ^$1 [N]
-
-    # Rewrite storage URLs to use the storage_link symlink
-    RewriteRule ^storage/(.*)$ storage_link/$1 [L]
 
     RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
     RewriteRule ^(.*)$ public/$1

@@ -24,7 +24,17 @@ trait ImageUploader
         if (data_get($arg, 'resize', true)) {
             $image = $image->{$arg['method'] ?? 'resize'}($arg['width'], $arg['height']);
         }
-        Storage::disk($arg['disk'] ?? 'public')->put($path, (string) $image->encode());
+        
+        $encodedImage = (string) $image->encode();
+        $isStored = Storage::disk($arg['disk'] ?? 'public')->put($path, $encodedImage);
+
+        if (!$isStored) {
+            \Illuminate\Support\Facades\Log::error("Failed to store image on disk: " . json_encode([
+                'path' => $path,
+                'disk' => $arg['disk'] ?? 'public',
+                'size' => strlen($encodedImage)
+            ]));
+        }
 
         return Storage::url($path);
     }

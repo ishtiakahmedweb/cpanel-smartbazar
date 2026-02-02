@@ -6,7 +6,7 @@ public/storage
 storage/
 /public/sitemap.xml
 /public/sitemaps/
-vendor
+# vendor - Included for deployment-ready repository
 .env.backup
 .env.production
 .phpactor.json

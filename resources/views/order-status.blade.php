@@ -2,7 +2,7 @@
 
 @title(request()->is('thank-you') ? 'অর্ডার সফল হয়েছে' : 'অর্ডারের অবস্থা')
 
-@if(request()->is('thank-you'))
+@if(($isNewPurchase ?? false) && request()->is('thank-you'))
 <script>
 window.dataLayer = window.dataLayer || [];
 window.dataLayer.push({

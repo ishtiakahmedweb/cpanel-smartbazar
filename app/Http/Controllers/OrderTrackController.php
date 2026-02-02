@@ -24,60 +24,63 @@ class OrderTrackController extends Controller
             return back()->withDanger('Invalid Tracking Info Or Order Record Was Deleted.');
         }
 
+        $isNewPurchase = false;
+
         if ($request->is('thank-you')) {
             $trackedKey = 'purchase_tracked_' . $order->id;
-            if (session()->has($trackedKey)) {
-                return redirect()->route('track-order', ['order' => $order->id]);
-            }
+            
+            // Define if this is a new purchase visit (not just refreshed)
+            $isNewPurchase = !session()->has($trackedKey);
 
-            if (GoogleTagManagerFacade::isEnabled()) {
-                $index = 0;
-                GoogleTagManagerFacade::set([
-                    'event' => 'purchase',
-                    'ecommerce' => [
-                        'transaction_id' => $order->id,
-                        'affiliation' => $request->getHost(),
-                        'value' => $order->data['subtotal'],
-                        'tax' => 0,
-                        'shipping' => $order->data['shipping_cost'],
-                        'currency' => 'BDT',
-                        'coupon' => '',
-                        'items' => array_values(array_map(fn ($product): array => [
-                            'item_id' => $product->id,
-                            'item_name' => $product->name,
-                            'affiliation' => $request->getHost(), // The store or affiliation (optional)
-                            'coupon' => '', // Any coupon code applied to the item
+            if ($isNewPurchase) {
+                if (GoogleTagManagerFacade::isEnabled()) {
+                    $index = 0;
+                    GoogleTagManagerFacade::set([
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'transaction_id' => $order->id,
+                            'affiliation' => $request->getHost(),
+                            'value' => $order->data['subtotal'],
+                            'tax' => 0,
+                            'shipping' => $order->data['shipping_cost'],
                             'currency' => 'BDT',
-                            'discount' => 0, // Any discount applied to the item
-                            'index' => $index++, // The item's index in the list
-                            // 'item_brand' => $product->brand,
-                            'item_category' => $product->category ?? '',
-                            'location_id' => 'BD', // The location associated with the item (optional)
-                            'price' => $product->price ?? 0,
-                            'quantity' => $product->quantity ?? 1,
-                        ], (array) $order->products)),
-                    ],
-                    'customer' => [
-                        'name' => $order->name,
-                        'email' => $order->email,
-                        'address' => $order->address,
-                        'country' => 'Bangladesh',
-                        'state' => 'N/A',
-                        'city' => 'N/A',
-                        'postal_code' => 'N/A',
-                        'phone' => $order->phone,
-                        'user_id' => $order->user_id,
-                        'first_name' => explode(' ', $order->name, 2)[0] ?? '',
-                        'last_name' => explode(' ', $order->name, 2)[1] ?? '',
-                    ],
-                ]);
+                            'coupon' => '',
+                            'items' => array_values(array_map(fn ($product): array => [
+                                'item_id' => $product->id,
+                                'item_name' => $product->name,
+                                'affiliation' => $request->getHost(),
+                                'coupon' => '',
+                                'currency' => 'BDT',
+                                'discount' => 0,
+                                'index' => $index++,
+                                'item_category' => $product->category ?? '',
+                                'location_id' => 'BD',
+                                'price' => $product->price ?? 0,
+                                'quantity' => $product->quantity ?? 1,
+                            ], (array) $order->products)),
+                        ],
+                        'customer' => [
+                            'name' => $order->name,
+                            'email' => $order->email,
+                            'address' => $order->address,
+                            'country' => 'Bangladesh',
+                            'state' => 'N/A',
+                            'city' => 'N/A',
+                            'postal_code' => 'N/A',
+                            'phone' => $order->phone,
+                            'user_id' => $order->user_id,
+                            'first_name' => explode(' ', $order->name, 2)[0] ?? '',
+                            'last_name' => explode(' ', $order->name, 2)[1] ?? '',
+                        ],
+                    ]);
+                }
+    
+                session()->put($trackedKey, true);
             }
-
-            session()->put($trackedKey, true);
         }
 
         if ($request->isMethod('GET')) {
-            return view('order-status', compact('order'));
+            return view('order-status', compact('order', 'isNewPurchase'));
         }
 
         if ($order->status != 'PENDING') {

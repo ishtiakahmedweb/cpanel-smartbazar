@@ -195,7 +195,7 @@
                                 @endphp
                                 <tr>
                                     <td>
-                                        <img src="{{ asset(optional($selectedVar->base_image)->src) }}"
+                                        <img src="{{ optional($selectedVar->base_image)->src }}"
                                             width="100" height="100" alt="">
                                     </td>
                                     <td>

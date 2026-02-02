@@ -31,7 +31,7 @@ class ProductController extends Controller
 
         $dt = DataTables::eloquent($query)
             ->addIndexColumn()
-            ->addColumn('image', fn (Product $product): string => '<img src="'.asset($product->base_image?->src).'" width="100" height="100" />')
+            ->addColumn('image', fn (Product $product): string => '<img src="'.($product->base_image?->src ?? asset('assets/images/placeholder.png')).'" width="100" height="100" />')
             ->editColumn('name', function (Product $product): string {
                 $variationCount = $product->variations->count();
                 $variationLabel = $variationCount > 0 ? ' <span class="badge badge-secondary">'.$variationCount.' variation'.($variationCount > 1 ? 's' : '').'</span>' : '';

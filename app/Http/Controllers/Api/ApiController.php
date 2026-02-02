@@ -351,7 +351,7 @@ class ApiController extends Controller
 
                     return array_merge($product->toArray(), [
                         'images' => $product->images->pluck('src')->toArray(),
-                        'base_image_url' => $product->base_image ? asset($product->base_image->src) : null,
+                        'base_image_url' => $product->base_image?->src,
                         'price' => $product->selling_price,
                         'compareAtPrice' => $product->price,
                         'badges' => [],

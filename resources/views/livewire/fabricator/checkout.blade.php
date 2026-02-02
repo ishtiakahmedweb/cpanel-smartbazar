@@ -153,7 +153,7 @@ $selectedOptionIds = $selectedProduct->options->pluck('id')->toArray();
                                                             <div class="wcf-item-image" style=""><img
                                                                     fetchpriority="high" decoding="async" width="300"
                                                                     height="300"
-                                                                    src="{{ asset($product->base_image->src) }}"
+                                                                    src="{{ $product->base_image?->src }}"
                                                                     class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail"
                                                                     alt="" /></div>
                                                             <div class="wcf-item-content-options">

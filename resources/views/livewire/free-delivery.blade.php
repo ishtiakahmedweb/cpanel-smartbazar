@@ -80,7 +80,7 @@
                         @foreach ($products as $product)
                             <tr>
                                 <td>
-                                    <img src="{{ asset(optional($product->base_image)->src) }}" width="100"
+                                    <img src="{{ optional($product->base_image)->src }}" width="100"
                                         height="100" alt="">
                                 </td>
                                 <td>

@@ -40,7 +40,7 @@ class ProductDetail extends Component
 
         if ($variation) {
             $this->selectedVar = $variation;
-            $this->dispatch('variantChanged', variantId: $variation->id, variantImageSrc: $variation->base_image ? asset($variation->base_image->src) : null);
+            $this->dispatch('variantChanged', variantId: $variation->id, variantImageSrc: $variation->base_image?->src);
         }
     }
 

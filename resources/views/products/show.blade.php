@@ -167,7 +167,7 @@
                 <div class="product__content">
                     <div class="xzoom-container d-flex flex-column">
                         <div class="original">
-                            <img class="xzoom" id="xzoom-default" src="{{ asset($product->base_image->src) }}"
+                            <img class="xzoom" id="xzoom-default" src="{{ $product->base_image?->src }}"
                                 xoriginal="{{ asset($product->base_image->src) }}" />
                             <div class="zoom-nav">
                                 <button class="zoom-control left">
@@ -267,7 +267,7 @@
                             @if ($product->desc_img && $product->desc_img_pos == 'before_content')
                                 <div class="text-center">
                                     @foreach ($product->images as $image)
-                                        <img src="{{ asset($image->src) }}" alt="{{ $product->name }}"
+                                        <img src="{{ $image->src }}" alt="{{ $product->name }}"
                                             class="my-2 border img-fluid">
                                     @endforeach
                                 </div>
@@ -278,7 +278,7 @@
                             @if ($product->desc_img && $product->desc_img_pos == 'after_content')
                                 <div class="text-center">
                                     @foreach ($product->images as $image)
-                                        <img src="{{ asset($image->src) }}" alt="{{ $product->name }}"
+                                        <img src="{{ $image->src }}" alt="{{ $product->name }}"
                                             class="my-2 border img-fluid">
                                     @endforeach
                                 </div>

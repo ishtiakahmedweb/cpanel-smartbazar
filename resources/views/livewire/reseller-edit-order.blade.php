@@ -148,7 +148,7 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-start">
-                                            <img src="{{ asset(optional($selectedVar->base_image)->src) }}"
+                                            <img src="{{ optional($selectedVar->base_image)->src }}"
                                                 width="80" height="80" alt=""
                                                 class="mr-1 rounded" style="object-fit: cover;">
                                             <div class="flex-grow-1">

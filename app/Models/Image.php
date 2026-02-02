@@ -47,15 +47,25 @@ class Image extends Model
     protected function src(): Attribute
     {
         return Attribute::get(function () {
+            // encoding logic
             $encodedPath = Str::of($this->path)
                 ->dirname()
                 ->append('/')
                 ->append(rawurlencode(Str::of($this->path)->basename()));
 
-            if ($this->source_id || ! file_exists(public_path($this->path))) {
-                return config('app.oninda_url').$encodedPath;
+            // Check if file exists in 'storage' folder (since we use the symbolic link)
+            // path is '19-Jan-2026/foo.jpg', so we check 'public/storage/19-Jan-2026/foo.jpg'
+            if (file_exists(public_path('storage/' . $this->path))) {
+                return asset('storage/' . $encodedPath);
             }
 
+            // Fallback to original logic if not found in storage
+            if ($this->source_id || ! file_exists(public_path($this->path))) {
+                 // return config('app.oninda_url').$encodedPath;
+                 // safer fallback for this specific user who has the files locally
+                 return asset('storage/' . $encodedPath);
+            }
+            
             return asset($encodedPath);
         });
     }

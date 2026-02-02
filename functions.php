@@ -442,8 +442,7 @@ function cdn($url, int $w = 150, int $h = 150)
 
     // 3. Prefix with storage/ ONLY if it's an uploaded file (not in whitelist and not already prefixed)
     if (!$isPublic && !str_starts_with($purePath ?? '', 'storage/')) {
-        // DIRECT PATH STRATEGY: Bypass symlink, go straight to physical folder
-        $purePath = 'storage/app/public/' . $purePath;
+        $purePath = 'storage/' . $purePath;
     }
 
     $baseUrl = asset($purePath);

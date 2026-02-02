@@ -48,27 +48,30 @@ class Image extends Model
     {
         return Attribute::get(function () {
             // encoding logic
-            // encoding logic
-            $encodedPath = Str::of($this->path)
+            // 1. Calculate the relative path (strip any existing /storage/ prefix)
+            $purePath = ltrim(Str::after($this->path, '/storage/'), '/');
+            
+            // 2. Encode for URL safety
+            $encodedPath = Str::of($purePath)
                 ->dirname()
                 ->append('/')
-                ->append(rawurlencode(Str::of($this->path)->basename()));
+                ->append(rawurlencode(Str::of($purePath)->basename()));
+
+            // 3. Final URL MUST start with /storage/ to match .htaccess rules
+            $finalUrlPath = '/storage/' . ltrim($encodedPath, '/');
 
             // Fix: Check physical existence in storage/app/public
-            // DB contains '/storage/foo.jpg', we need 'foo.jpg' relative to storage root
-            $relativePath = Str::after($this->path, '/storage/');
-            
-            if (file_exists(storage_path('app/public/' . $relativePath))) {
-                return asset($encodedPath);
+            if (file_exists(storage_path('app/public/' . $purePath))) {
+                return asset($finalUrlPath);
             }
 
             // Fallback for missing files or external sources
             if ($this->source_id) {
-                 return config('app.oninda_url').$encodedPath;
+                 return config('app.oninda_url') . $finalUrlPath;
             }
             
-            // Final fallback (even if missing locally, return asset link for rewrite rules to handle)
-            return asset($encodedPath);
+            // Return the constructed storage path anyway (so .htaccess can try to serve it)
+            return asset($finalUrlPath);
         });
     }
 

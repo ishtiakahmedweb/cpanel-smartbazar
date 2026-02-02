@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Extensions\DatabaseSessionHandler;
+use App\Helpers\ImageHelper;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\HomeSection;

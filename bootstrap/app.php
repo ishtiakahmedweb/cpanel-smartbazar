@@ -94,15 +94,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
 | Fix for cPanel Split Folder (backend and public_html)
 |--------------------------------------------------------------------------
 */
-/*
-|--------------------------------------------------------------------------
-| Fix for cPanel Split Folder (backend and public_html)
-|--------------------------------------------------------------------------
-*/
-$localPublic = __DIR__ . '/../public';
 $publicHtml = __DIR__ . '/../../public_html';
+$localPublic = __DIR__ . '/../public';
 
-if (file_exists($localPublic)) {
+// On Server (Linux), definitely prioritize public_html if it exists.
+// On Windows (Local), prioritize local public.
+if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && file_exists($publicHtml)) {
+    $app->usePublicPath($publicHtml);
+} elseif (file_exists($localPublic)) {
     $app->usePublicPath($localPublic);
 } elseif (file_exists($publicHtml)) {
     $app->usePublicPath($publicHtml);

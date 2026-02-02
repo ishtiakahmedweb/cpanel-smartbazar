@@ -34,5 +34,7 @@ class CheckoutController extends Controller
 
             return view('checkout');
         }
+
+        return redirect()->route('checkout');
     }
 }

@@ -144,92 +144,116 @@ if (! function_exists('cacheInvalidateNamespace')) {
 if (! function_exists('slides')) {
     function slides()
     {
-        return cacheMemo()->rememberForever('slides', function () {
-            return Slide::whereIsActive(1)->get([
-                'title', 'text', 'mobile_src', 'desktop_src', 'btn_name', 'btn_href',
-            ]);
-        });
+        try {
+            return cacheMemo()->rememberForever('slides', function () {
+                return Slide::whereIsActive(1)->get([
+                    'title', 'text', 'mobile_src', 'desktop_src', 'btn_name', 'btn_href',
+                ]);
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Slides DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
 if (! function_exists('sections')) {
     function sections()
     {
-        return cacheMemo()->rememberForever('homesections', function () {
-            return HomeSection::orderBy('order', 'asc')->get();
-        });
+        try {
+            return cacheMemo()->rememberForever('homesections', function () {
+                return HomeSection::orderBy('order', 'asc')->get();
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Sections DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
 if (! function_exists('categories')) {
     function categories()
     {
-        // Load categories with images only
-        $categoriesWithImages = Category::with('image')
-            ->where('is_enabled', true)
-            ->whereHas('image') // Only categories that have images
-            ->inRandomOrder()
-            ->get();
+        try {
+            return cacheMemo()->rememberForever('api_categories:all', function() {
+                // Load categories with images only
+                $categoriesWithImages = Category::with('image')
+                    ->where('is_enabled', true)
+                    ->whereHas('image') // Only categories that have images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Load categories without images and eager load their product images
-        $categoriesWithoutImages = Category::with('products.images')
-            ->where('is_enabled', true)
-            ->whereDoesntHave('image') // Only categories without images
-            ->inRandomOrder()
-            ->get();
+                // Load categories without images and eager load their product images
+                $categoriesWithoutImages = Category::with('products.images')
+                    ->where('is_enabled', true)
+                    ->whereDoesntHave('image') // Only categories without images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Merge the two collections and map for final processing
-        $categories = $categoriesWithImages->merge($categoriesWithoutImages);
+                // Merge the two collections and map for final processing
+                $categories = $categoriesWithImages->merge($categoriesWithoutImages);
 
-        return $categories->map(function ($category) {
-            if ($category->relationLoaded('image')) {
-                $image = $category->image;
-            } else {
-                $images = $category->products->pluck('images')->filter();
-                $image = $images->isEmpty() ? null : $images->random()->first();
-            }
+                return $categories->map(function ($category) {
+                    if ($category->relationLoaded('image')) {
+                        $image = $category->image;
+                    } else {
+                        $images = $category->products->pluck('images')->filter();
+                        $image = $images->isEmpty() ? null : $images->random()->first();
+                    }
 
-            // Set the image_src property with a fallback placeholder
-            $category->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
+                    // Set the image_src property with a fallback placeholder
+                    $category->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
 
-            return $category;
-        });
+                    return $category;
+                });
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Categories DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
 if (! function_exists('brands')) {
     function brands()
     {
-        // Load brands with images only
-        $brandsWithImages = Brand::with('image')
-            ->where('is_enabled', true)
-            ->whereHas('image') // Only brands that have images
-            ->inRandomOrder()
-            ->get();
+        try {
+            return cacheMemo()->rememberForever('api_brands:all', function() {
+                // Load brands with images only
+                $brandsWithImages = Brand::with('image')
+                    ->where('is_enabled', true)
+                    ->whereHas('image') // Only brands that have images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Load brands without images and eager load their product images
-        $brandsWithoutImages = Brand::with('products.images')
-            ->where('is_enabled', true)
-            ->whereDoesntHave('image') // Only brands without images
-            ->inRandomOrder()
-            ->get();
+                // Load brands without images and eager load their product images
+                $brandsWithoutImages = Brand::with('products.images')
+                    ->where('is_enabled', true)
+                    ->whereDoesntHave('image') // Only brands without images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Merge the two collections and map for final processing
-        $brands = $brandsWithImages->merge($brandsWithoutImages);
+                // Merge the two collections and map for final processing
+                $brands = $brandsWithImages->merge($brandsWithoutImages);
 
-        return $brands->map(function ($brand) {
-            if ($brand->relationLoaded('image')) {
-                $image = $brand->image;
-            } else {
-                $images = $brand->products->pluck('images')->filter();
-                $image = $images->isEmpty() ? null : $images->random()->first();
-            }
+                return $brands->map(function ($brand) {
+                    if ($brand->relationLoaded('image')) {
+                        $image = $brand->image;
+                    } else {
+                        $images = $brand->products->pluck('images')->filter();
+                        $image = $images->isEmpty() ? null : $images->random()->first();
+                    }
 
-            // Set the image_src property with a fallback placeholder
-            $brand->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
+                    // Set the image_src property with a fallback placeholder
+                    $brand->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
 
-            return $brand;
-        });
+                    return $brand;
+                });
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Brands DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
@@ -256,11 +280,16 @@ if (! function_exists('pageRoutes')) {
 if (! function_exists('setting')) {
     function setting($name, $default = null)
     {
-        return cacheMemo()->rememberForever('settings:'.$name, function () use ($name, $default) {
-            $setting = Setting::whereName($name)->first();
+        try {
+            return cacheMemo()->rememberForever('settings:'.$name, function () use ($name, $default) {
+                $setting = Setting::whereName($name)->first();
 
-            return $setting?->value ?? $default;
-        });
+                return $setting?->value ?? $default;
+            });
+        } catch (\Throwable $e) {
+            // Return default or fake object to prevent crashes on chained access like setting('show_option')->enabled
+            return $default ?? new class { public function __get($n) { return null; } };
+        }
     }
 }
 
@@ -503,116 +532,124 @@ function cart($id = null): CartInstance|CartItem|null
 
 function storeOrUpdateCart($phone = null, $name = '')
 {
-    if (! $phone = $phone ?? Cookie::get('phone', '')) {
-        return;
-    }
+    try {
+        if (! $phone = $phone ?? Cookie::get('phone', '')) {
+            return;
+        }
 
-    if (Str::startsWith($phone, '01')) {
-        $phone = '+88'.$phone;
-    } elseif (Str::startsWith($phone, '1')) {
-        $phone = '+880'.$phone;
-    }
+        if (Str::startsWith($phone, '01')) {
+            $phone = '+88'.$phone;
+        } elseif (Str::startsWith($phone, '1')) {
+            $phone = '+880'.$phone;
+        }
 
-    if (strlen($phone) != 14) {
-        return;
-    }
+        if (strlen($phone) != 14) {
+            return;
+        }
 
-    $content = cart()->content()->mapWithKeys(fn ($item) => [$item->options->parent_id => $item]);
+        $content = cart()->content()->mapWithKeys(fn ($item) => [$item->options->parent_id => $item]);
 
-    if ($content->isEmpty()) {
-        return;
-    }
+        if ($content->isEmpty()) {
+            return;
+        }
 
-    $identifier = session()->getId();
-    if ($cart = DB::table('shopping_cart')->where('phone', $phone)->first()) {
-        $identifier = $cart->identifier;
-    }
+        $identifier = session()->getId();
+        if ($cart = DB::table('shopping_cart')->where('phone', $phone)->first()) {
+            $identifier = $cart->identifier;
+        }
 
-    $cart = DB::table('shopping_cart')
-        ->where('identifier', $identifier)
-        ->first();
-
-    if ($cart) {
-        DB::table('shopping_cart')
+        $cart = DB::table('shopping_cart')
             ->where('identifier', $identifier)
-            ->update([
-                'identifier' => session()->getId(),
+            ->first();
+
+        if ($cart) {
+            DB::table('shopping_cart')
+                ->where('identifier', $identifier)
+                ->update([
+                    'identifier' => session()->getId(),
+                    'name' => Cookie::get('name', $name),
+                    'phone' => $phone,
+                    'content' => serialize($content->union(unserialize($cart->content))),
+                    'updated_at' => now(),
+                ]);
+
+            return;
+        }
+
+        DB::table('shopping_cart')
+            ->insert([
                 'name' => Cookie::get('name', $name),
                 'phone' => $phone,
-                'content' => serialize($content->union(unserialize($cart->content))),
+                'instance' => 'default',
+                'identifier' => session()->getId(),
+                'content' => serialize($content),
                 'updated_at' => now(),
             ]);
-
-        return;
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::warning('Cart persistence error: ' . $e->getMessage());
     }
-
-    DB::table('shopping_cart')
-        ->insert([
-            'name' => Cookie::get('name', $name),
-            'phone' => $phone,
-            'instance' => 'default',
-            'identifier' => session()->getId(),
-            'content' => serialize($content),
-            'updated_at' => now(),
-        ]);
 }
 
 function deleteOrUpdateCart()
 {
-    $phone = Cookie::get('phone', '');
-    $content = cart()->content()->mapWithKeys(fn ($item) => [$item->options->parent_id => $item]);
+    try {
+        $phone = Cookie::get('phone', '');
+        $content = cart()->content()->mapWithKeys(fn ($item) => [$item->options->parent_id => $item]);
 
-    if (Str::startsWith($phone, '01')) {
-        $phone = '+88'.$phone;
-    } elseif (Str::startsWith($phone, '1')) {
-        $phone = '+880'.$phone;
-    }
-
-    if (strlen($phone) != 14) {
-        return;
-    }
-
-    $identifier = session()->getId();
-    $cart = $cart = DB::table('shopping_cart')
-        ->where('phone', $phone)
-        ->first();
-    if ($cart) {
-        $identifier = $cart->identifier;
-    }
-
-    $cart = DB::table('shopping_cart')
-        ->where('identifier', $identifier)
-        ->first();
-
-    if ($cart) {
-        $content = unserialize($cart->content)->diffKeys($content);
-        if ($content->isEmpty()) {
-            return DB::table('shopping_cart')
-                ->where('identifier', $identifier)
-                ->delete();
+        if (Str::startsWith($phone, '01')) {
+            $phone = '+88'.$phone;
+        } elseif (Str::startsWith($phone, '1')) {
+            $phone = '+880'.$phone;
         }
-        DB::table('shopping_cart')
+
+        if (strlen($phone) != 14) {
+            return;
+        }
+
+        $identifier = session()->getId();
+        $cart = $cart = DB::table('shopping_cart')
+            ->where('phone', $phone)
+            ->first();
+        if ($cart) {
+            $identifier = $cart->identifier;
+        }
+
+        $cart = DB::table('shopping_cart')
             ->where('identifier', $identifier)
-            ->update([
+            ->first();
+
+        if ($cart) {
+            $content = unserialize($cart->content)->diffKeys($content);
+            if ($content->isEmpty()) {
+                return DB::table('shopping_cart')
+                    ->where('identifier', $identifier)
+                    ->delete();
+            }
+            DB::table('shopping_cart')
+                ->where('identifier', $identifier)
+                ->update([
+                    'name' => Cookie::get('name'),
+                    'phone' => $phone,
+                    'content' => serialize($content),
+                    'identifier' => session()->getId(),
+                    'updated_at' => now(),
+                ]);
+
+            return;
+        }
+
+        DB::table('shopping_cart')
+            ->insert([
                 'name' => Cookie::get('name'),
                 'phone' => $phone,
-                'content' => serialize($content),
+                'instance' => 'default',
                 'identifier' => session()->getId(),
+                'content' => serialize($content),
                 'updated_at' => now(),
             ]);
-
-        return;
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\Log::warning('Cart removal persistence error: ' . $e->getMessage());
     }
-
-    DB::table('shopping_cart')
-        ->insert([
-            'name' => Cookie::get('name'),
-            'phone' => $phone,
-            'instance' => 'default',
-            'identifier' => session()->getId(),
-            'content' => serialize($content),
-            'updated_at' => now(),
-        ]);
 }
 
 function isOninda(): bool

@@ -1,14 +1,4 @@
-// Storefront components: scroll handlers, add to cart, pagination, Alpine components
-runWhenJQueryReady(function($) {
-    // Attach dataLayer event listener only once globally
-    if (!window.__dataLayerListenerAttached) {
-        $(window).on('dataLayer.storefront', function(ev) {
-            for (let item of ev.detail) {
-                window.dataLayer.push(item);
-            }
-        });
-        window.__dataLayerListenerAttached = true;
-    }
+runWhenJQueryReady(function ($) {
 
     function onScroll() {
         const scrollTop = $(window).scrollTop();
@@ -20,7 +10,7 @@ runWhenJQueryReady(function($) {
         }
 
         if (scrollTop > 100) {
-            $('.departments').each(function() {
+            $('.departments').each(function () {
                 const $departments = $(this);
                 const instance = $departments.data('departmentsInstance');
 
@@ -55,10 +45,10 @@ runWhenJQueryReady(function($) {
 
     let scrollHandler = null;
     if (typeof onScroll === 'function') {
-        scrollHandler = function(e) {
+        scrollHandler = function (e) {
             try {
                 onScroll.call(window, e);
-            } catch(err) {
+            } catch (err) {
                 console.error('Scroll handler error:', err);
             }
         };
@@ -70,9 +60,9 @@ runWhenJQueryReady(function($) {
 });
 
 // Livewire navigation error handling
-(function() {
+(function () {
     if (window.Livewire) {
-        document.addEventListener('livewire:navigate-error', function(e) {
+        document.addEventListener('livewire:navigate-error', function (e) {
             const error = e.detail?.error || e.error;
             const targetUrl = e.detail?.url || window.location.href;
 
@@ -97,7 +87,7 @@ runWhenJQueryReady(function($) {
         let navigationStartTime = null;
         let navigationTimeout = null;
 
-        document.addEventListener('livewire:navigate', function(e) {
+        document.addEventListener('livewire:navigate', function (e) {
             navigationStartTime = Date.now();
             const targetUrl = e.detail?.url || window.location.href;
 
@@ -113,7 +103,7 @@ runWhenJQueryReady(function($) {
             }, 1000);
         });
 
-        document.addEventListener('livewire:navigated', function() {
+        document.addEventListener('livewire:navigated', function () {
             navigationStartTime = null;
             if (navigationTimeout) {
                 clearTimeout(navigationTimeout);
@@ -121,7 +111,7 @@ runWhenJQueryReady(function($) {
             }
         });
 
-        document.addEventListener('livewire:navigate-error', function() {
+        document.addEventListener('livewire:navigate-error', function () {
             navigationStartTime = null;
             if (navigationTimeout) {
                 clearTimeout(navigationTimeout);
@@ -130,7 +120,7 @@ runWhenJQueryReady(function($) {
         });
     }
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.departments__button')) {
             setTimeout(() => {
                 $('.departments').removeClass('departments--transition');
@@ -147,7 +137,7 @@ runWhenJQueryReady(function($) {
 
     window.__storefrontComponentsRegistered = true;
 
-    window.handleAddToCart = function(button) {
+    window.handleAddToCart = function (button) {
         const productId = button.getAttribute('data-product-id');
         const action = button.getAttribute('data-action') || 'add';
 
@@ -156,18 +146,18 @@ runWhenJQueryReady(function($) {
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
 
         fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: 1,
-                    instance: action === 'kart' ? 'kart' : 'default'
-                })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1,
+                instance: action === 'kart' ? 'kart' : 'default'
             })
+        })
             .then(response => response.json())
             .then(data => {
                 button.disabled = false;
@@ -258,7 +248,7 @@ runWhenJQueryReady(function($) {
                 }
             },
 
-            updateFilter() {},
+            updateFilter() { },
         }));
 
         Alpine.data('productCountDisplay', (totalProducts, initialCount) => ({
@@ -521,8 +511,7 @@ runWhenJQueryReady(function($) {
 
                 let priceHTML = '';
                 if (shouldHidePrice) {
-                    priceHTML = `<span class="product-card__new-price text-danger">${
-                            userIsGuest ? 'Login to see price' : 'Verify account to see price'
+                    priceHTML = `<span class="product-card__new-price text-danger">${userIsGuest ? 'Login to see price' : 'Verify account to see price'
                         }</span>`;
                 } else if (hasDiscount) {
                     priceHTML = `<span class="product-card__new-price">${formatPrice(productSellingPrice)}</span><span class="product-card__old-price">${formatPrice(productPrice)}</span>`;
@@ -551,9 +540,9 @@ runWhenJQueryReady(function($) {
                         <div class="product-card__actions">
                             <div class="product-card__availability">Availability:
                                 ${!product.should_track ?
-                                    '<span class="text-success">In Stock</span>' :
-                                    `<span class="text-${(product.stock_count || 0) > 0 ? 'success' : 'danger'}">${product.stock_count || 0} In Stock</span>`
-                                }
+                        '<span class="text-success">In Stock</span>' :
+                        `<span class="text-${(product.stock_count || 0) > 0 ? 'success' : 'danger'}">${product.stock_count || 0} In Stock</span>`
+                    }
                             </div>
                             <div class="product-card__prices ${hasDiscount ? 'has-special' : ''}">
                                 ${priceHTML}

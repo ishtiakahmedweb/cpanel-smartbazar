@@ -34,7 +34,6 @@
         "meilisearch/meilisearch-php": "^1.16.1",
         "ralphjsmit/laravel-seo": "^1.7.2",
         "spatie/laravel-activitylog": "^4.10.2",
-        "spatie/laravel-googletagmanager": "^2.8.1",
         "spatie/laravel-responsecache": "^7.7.2",
         "spatie/laravel-sitemap": "^7.3.8",
         "theihasan/laravel-bkash": "^1.3",

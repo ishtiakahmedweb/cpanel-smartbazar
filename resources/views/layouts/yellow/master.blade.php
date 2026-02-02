@@ -1343,9 +1343,20 @@
     <script>
     window.addEventListener('dataLayer', event => {
         window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-            ...event.detail,
-            eventID: event.detail.eventID || ('evt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now())
+        const data = event.detail;
+        
+        // Handle both single objects and arrays of objects
+        const items = Array.isArray(data) ? data : [data];
+        
+        items.forEach(item => {
+            if (!item) return;
+            
+            // Generate eventID if missing
+            if (!item.eventID) {
+                item.eventID = 'evt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            }
+            
+            window.dataLayer.push(item);
         });
     });
     </script>

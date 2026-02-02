@@ -403,17 +403,18 @@ function couriers()
     ]);
 }
 
-function cdn(?string $url, int $w = 150, int $h = 150)
+// function cdn($url, int $w = 150, int $h = 150) - Removed type hint to allow manual check
+function cdn($url, int $w = 150, int $h = 150)
 {
-    if (! $url) {
+    if (empty($url) || !is_string($url)) {
         return asset('https://placehold.co/600x600?text=No+Image');
     }
 
     // 1. Process Absolute URLs (Strip local domain to allow re-prefixing/fixing)
-    if (str_starts_with($url, 'http')) {
+    if (str_starts_with($url ?? '', 'http')) {
         $host = request()->getHost();
         // If it's our own domain and NOT already processed by CDN tools
-        if (str_contains($url, $host) && !str_contains($url, '??tr=')) {
+        if (str_contains($url ?? '', $host) && !str_contains($url ?? '', '??tr=')) {
             $url = ltrim(parse_url($url, PHP_URL_PATH), '/');
         } else {
             // Real external URL or placeholder, return as is
@@ -430,7 +431,7 @@ function cdn(?string $url, int $w = 150, int $h = 150)
     
     $isPublic = false;
     foreach ($corePrefixes as $prefix) {
-        if (str_starts_with($purePath, $prefix)) {
+        if (str_starts_with($purePath ?? '', $prefix)) {
             $isPublic = true;
             break;
         }
@@ -440,8 +441,9 @@ function cdn(?string $url, int $w = 150, int $h = 150)
     }
 
     // 3. Prefix with storage/ ONLY if it's an uploaded file (not in whitelist and not already prefixed)
-    if (!$isPublic && !str_starts_with($purePath, 'storage/')) {
-        $purePath = 'storage/' . $purePath;
+    if (!$isPublic && !str_starts_with($purePath ?? '', 'storage/')) {
+        // DIRECT PATH STRATEGY: Bypass symlink, go straight to physical folder
+        $purePath = 'storage/app/public/' . $purePath;
     }
 
     $baseUrl = asset($purePath);

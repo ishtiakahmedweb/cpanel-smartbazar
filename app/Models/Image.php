@@ -48,24 +48,26 @@ class Image extends Model
     {
         return Attribute::get(function () {
             // encoding logic
+            // encoding logic
             $encodedPath = Str::of($this->path)
                 ->dirname()
                 ->append('/')
                 ->append(rawurlencode(Str::of($this->path)->basename()));
 
-            // Check if file exists in 'storage' folder (since we use the symbolic link)
-            // path is '19-Jan-2026/foo.jpg', so we check 'public/storage/19-Jan-2026/foo.jpg'
-            if (file_exists(public_path('storage/' . $this->path))) {
-                return asset('storage/' . $encodedPath);
+            // Fix: Check physical existence in storage/app/public
+            // DB contains '/storage/foo.jpg', we need 'foo.jpg' relative to storage root
+            $relativePath = Str::after($this->path, '/storage/');
+            
+            if (file_exists(storage_path('app/public/' . $relativePath))) {
+                return asset($encodedPath);
             }
 
-            // Fallback to original logic if not found in storage
-            if ($this->source_id || ! file_exists(public_path($this->path))) {
-                 // return config('app.oninda_url').$encodedPath;
-                 // safer fallback for this specific user who has the files locally
-                 return asset('storage/' . $encodedPath);
+            // Fallback for missing files or external sources
+            if ($this->source_id) {
+                 return config('app.oninda_url').$encodedPath;
             }
             
+            // Final fallback (even if missing locally, return asset link for rewrite rules to handle)
             return asset($encodedPath);
         });
     }

@@ -24,7 +24,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         then: function () {
             $adminDomain = env('ADMIN_DOMAIN', 'camel.smartbazaarbd.xyz');
             
-            // 🔒 Strict Admin Routing: Force admin routes on subdomain
+            // ðŸ”’ Strict Admin Routing: Force admin routes on subdomain
             Route::middleware('web')
             ->domain($adminDomain)
                 ->group(function() {
@@ -95,5 +95,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
 |--------------------------------------------------------------------------
 */
 $app->usePublicPath(__DIR__ . '/../../public_html');
+
+// FORCE THE STORAGE PATH - THIS IS THE FIX
+if (file_exists('/home/smartbaz/storage')) {
+    $app->useStoragePath('/home/smartbaz/storage');
+} 
 
 return $app;

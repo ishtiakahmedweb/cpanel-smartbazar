@@ -25,7 +25,7 @@ use function Illuminate\Support\defer;
 
 class Checkout extends Component
 {
-    public $order = null;
+    // public $order = null; // Removed to prevent Livewire serialization issues with transaction result
 
     public $isFreeDelivery = false;
 
@@ -701,24 +701,24 @@ class Checkout extends Component
             if (!($transactionResult instanceof \App\Models\Order)) {
                  logger()->error('DB::transaction returned unexpected type: ' . get_class($transactionResult));
             }
-            $this->order = $transactionResult;
+            $order = $transactionResult;
 
-            if (! $this->order instanceof \App\Models\Order) {
+            if (! $order instanceof \App\Models\Order) {
                 logger()->error('Order creation failed - no order object returned');
                 return back()->with('error', 'অর্ডার তৈরি করা সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
             }
 
             if (config('app.instant_order_forwarding') && ! config('app.demo')) {
-                dispatch(new \App\Jobs\CallOnindaOrderApi($this->order->id));
+                dispatch(new \App\Jobs\CallOnindaOrderApi($order->id));
             }
 
             cart()->destroy();
             session()->flash('completed', 'প্রিয় '.$data['name'].', আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। অর্ডার করার জন্য ধন্যবাদ।');
 
-            logger()->info('Order successfully created', ['order_id' => $this->order->id]);
+            logger()->info('Order successfully created', ['order_id' => $order->id]);
 
             return to_route($this->getRedirectRoute(), [
-                'order' => $this->order?->getKey(),
+                'order' => $order?->getKey(),
             ]);
         } catch (ValidationException $e) {
             $this->dispatch('scroll-to-error');

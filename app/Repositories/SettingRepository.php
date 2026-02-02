@@ -20,6 +20,7 @@ class SettingRepository
             \cacheMemo()->forget('settings:'.$name);
         }
         \cacheMemo()->forget('settings');
+        \Spatie\ResponseCache\Facades\ResponseCache::clear();
     }
 
     public function get($name)

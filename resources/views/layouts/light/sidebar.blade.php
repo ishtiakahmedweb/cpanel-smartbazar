@@ -42,7 +42,11 @@
                             <i class="d-block" data-feather="shopping-cart"> </i>
                             <span class="d-block">Carts</span>
                             @php
-                                $count = DB::table('shopping_cart')->where('updated_at', '<', now()->subDay())->count();
+                                try {
+                                    $count = DB::table('shopping_cart')->where('updated_at', '<', now()->subDay())->count();
+                                } catch (\Throwable $e) {
+                                    $count = 0;
+                                }
                             @endphp
                             <span
                                 class="ml-auto text-white d-flex badge badge-primary align-items-center">{{ $count }}</span>
@@ -55,13 +59,17 @@
                             <i class="d-block" data-feather="shopping-bag"> </i>
                             <span class="d-block">Orders</span>
                             @php
-                                $count = \App\Models\Order::where('status', 'PENDING')
-                                    ->when(auth('admin')->user()->role_id == \App\Models\Admin::SALESMAN, function (
-                                        $query,
-                                    ) {
-                                        $query->where('admin_id', auth('admin')->id());
-                                    })
-                                    ->count();
+                                try {
+                                    $count = \App\Models\Order::where('status', 'PENDING')
+                                        ->when(auth('admin')->user()->role_id == \App\Models\Admin::SALESMAN, function (
+                                            $query,
+                                        ) {
+                                            $query->where('admin_id', auth('admin')->id());
+                                        })
+                                        ->count();
+                                } catch (\Throwable $e) {
+                                    $count = 0;
+                                }
                             @endphp
                             <span
                                 class="ml-auto text-white d-flex badge badge-primary pending-count align-items-center">{{ $count }}</span>
@@ -77,7 +85,11 @@
                     </li>
                     <li>
                         @php
-                            $pendingReviewsCount = \App\Models\Review::where('approved', false)->count();
+                            try {
+                                $pendingReviewsCount = \App\Models\Review::where('approved', false)->count();
+                            } catch (\Throwable $e) {
+                                $pendingReviewsCount = 0;
+                            }
                         @endphp
                         <a class="nav-link menu-title link-nav d-flex align-items-center {{ request()->is('admin/reviews*') ? 'active' : '' }}"
                             href="{{ route('admin.reviews.index') }}">
@@ -219,7 +231,11 @@
                     </li>
                     <li>
                         @php
-                            $todayLeadCount = \App\Models\Lead::whereDate('created_at', now()->toDateString())->count();
+                            try {
+                                $todayLeadCount = \App\Models\Lead::whereDate('created_at', now()->toDateString())->count();
+                            } catch (\Throwable $e) {
+                                $todayLeadCount = 0;
+                            }
                         @endphp
                         <a class="nav-link menu-title link-nav d-flex align-items-center {{ request()->is('admin/leads*') ? 'active' : '' }}"
                             href="{{ route('admin.leads.index') }}">

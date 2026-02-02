@@ -1,7 +1,7 @@
 <?php
 
-echo "<!DOCTYPE html><html><head><title>Deep Scan</title><style>body{font-family:sans-serif;max-width:900px;margin:2rem auto;padding:1rem} .card{background:#eee;padding:1rem;margin-bottom:1rem}</style></head><body>";
-echo "<h1>🕵️ Deep System Scan</h1>";
+echo "<!DOCTYPE html><html><head><title>Storage Write Test</title><style>body{font-family:sans-serif;max-width:900px;margin:2rem auto;padding:1rem} .card{background:#eee;padding:1rem;margin-bottom:1rem} .ok{color:green} .err{color:red}</style></head><body>";
+echo "<h1>🧪 Storage Write Test</h1>";
 
 // Load Laravel
 require __DIR__ . '/../vendor/autoload.php';
@@ -11,78 +11,61 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
-echo "<div class='card'><h2>1. Path Configuration & Symlinks</h2>";
-echo "<div><b>base_path():</b> " . base_path() . "</div>";
-echo "<div><b>storage_path():</b> " . storage_path() . "</div>";
+use Illuminate\Support\Facades\Storage;
 
-// Fix: Create 'storage_link' symlink because 'storage' folder exists (Laravel root)
-$target = storage_path('app/public');
-$link = base_path('storage_link'); // This is the magic link
-
-if (!file_exists($link)) {
-    echo "<div>Creating 'storage_link' symlink... ";
-    if (@symlink($target, $link)) {
-        echo "<span class='ok'>CREATED</span></div>";
-    } else {
-        echo "<span class='err'>FAILED (Try manual)</span></div>";
-    }
-} else {
-    echo "<div>'storage_link' symlink: <span class='ok'>EXISTS</span></div>";
-}
+echo "<div class='card'><h2>1. Config Dump</h2>";
+$config = config('filesystems.disks.public');
+echo "<pre>" . print_r($config, true) . "</pre>";
+echo "<div>storage_path(): " . storage_path() . "</div>";
 echo "</div>";
 
-echo "<div class='card'><h2>2. Storage Content (Recursive)</h2>";
-$target = storage_path('app/public');
-echo "<div>Scanning: $target</div>";
+echo "<div class='card'><h2>2. Write Test (Storage Facade)</h2>";
+$filename = 'write_test_' . time() . '.txt';
+$content = 'Test content written at ' . date('Y-m-d H:i:s');
 
-function listFolderFiles($dir, &$results = [], $prefix = '') {
-    if(!is_dir($dir)) return;
-    $files = scandir($dir);
-    foreach ($files as $key => $value) {
-        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
-        if ($value != "." && $value != "..") {
-            if (is_dir($path)) {
-                // $results[] = $prefix . $value . "/";
-                listFolderFiles($path, $results, $prefix . $value . "/");
-            } else {
-                $results[] = $prefix . $value . " (" . filesize($path) . " bytes)";
-            }
+try {
+    echo "<div>Attempting to write <b>$filename</b> to <b>public</b> disk...</div>";
+    
+    $result = Storage::disk('public')->put($filename, $content);
+    
+    if ($result) {
+        echo "<div>Result: <span class='ok'>SUCCESS (Returned true)</span></div>";
+        
+        $url = Storage::url($filename);
+        echo "<div>Generated URL: <b>$url</b></div>";
+        
+        $fullPath = storage_path('app/public/' . $filename);
+        if (file_exists($fullPath)) {
+            echo "<div>Physical File Check: <span class='ok'>FOUND at $fullPath</span></div>";
+        } else {
+            echo "<div>Physical File Check: <span class='err'>NOT FOUND at $fullPath</span></div>"; // If this happens, config is lying about root
         }
+        
+        // Cleanup
+        // Storage::disk('public')->delete($filename);
+    } else {
+        echo "<div>Result: <span class='err'>FAILED (Returned false)</span></div>";
     }
-    return $results;
-}
 
-if (file_exists($target)) {
-    $allFiles = listFolderFiles($target);
-    echo "<p>Found " . count($allFiles) . " files.</p>";
-    echo "<pre style='max-height:400px;overflow:auto'>";
-    foreach ($allFiles as $f) {
-        echo $f . "\n";
-    }
-    echo "</pre>";
-} else {
-    echo "STORAGE FOLDER MISSING!";
+} catch (\Exception $e) {
+    echo "<div>Exception: <span class='err'>" . $e->getMessage() . "</span></div>";
 }
 echo "</div>";
 
-echo "<div class='card'><h2>3. Image Logic Simulation</h2>";
-// Simulate checking a file
-if (count($allFiles) > 0) {
-    $firstFile = $allFiles[0];
-    // clean size info
-    $firstFile = explode(' (', $firstFile)[0];
+echo "<div class='card'><h2>3. Symlink Status</h2>";
+$link = base_path('storage_link');
+if (file_exists($link)) {
+    echo "<div>Link Exists: <span class='ok'>YES</span></div>";
+    echo "<div>Target: " . readlink($link) . "</div>";
     
-    $simulatedDbPath = "/storage/" . $firstFile; 
-    echo "<div><b>Simulated DB Path:</b> $simulatedDbPath</div>";
-    
-    $check1 = public_path($simulatedDbPath);
-    echo "<div>Check 1 (Direct): $check1 -> " . (file_exists($check1) ? "FOUND" : "NOT FOUND") . "</div>";
-    
-    $check2 = public_path(substr($simulatedDbPath, 1)); // no leading slash
-    echo "<div>Check 2 (No lead slash): $check2 -> " . (file_exists($check2) ? "FOUND" : "NOT FOUND") . "</div>";
-
-    $check3 = public_path('storage/' . $simulatedDbPath); // My bad fix
-    echo "<div>Check 3 (My Bad Fix): $check3 -> " . (file_exists($check3) ? "FOUND" : "NOT FOUND") . "</div>";
+    // Check if URL works via cURL? No, just link it
+    if (isset($url)) {
+        // Rewrite URL to use storage_link manually to test
+        $testUrl = str_replace('/storage/', '/storage_link/', $url);
+        echo "<div><a href='$testUrl' target='_blank'>Click to test Read Access via /storage_link/</a></div>";
+    }
+} else {
+    echo "<div>Link Exists: <span class='err'>NO</span> (Click 'Fix Storage' in previous tool or run command)</div>";
 }
 echo "</div>";
 

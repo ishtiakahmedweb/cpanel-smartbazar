@@ -16,10 +16,18 @@ class StorageFileController extends Controller
 
         $disk = Storage::disk('public');
 
-        if ($disk->exists($path)) {
-            return $disk->response($path);
+        // Absolute path to the file in the storage directory
+        $storagePath = storage_path('app/public/' . $path);
+
+        if (!file_exists($storagePath)) {
+            abort(404);
         }
 
-        abort(404);
+        $headers = [
+            'Content-Type' => mime_content_type($storagePath) ?: 'application/octet-stream',
+            // 'Content-Disposition' => 'inline; filename="' . basename($storagePath) . '"', // Optional: Force display behavior
+        ];
+
+        return response()->file($storagePath, $headers);
     }
 }

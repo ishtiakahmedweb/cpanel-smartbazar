@@ -409,23 +409,52 @@ function cdn(?string $url, int $w = 150, int $h = 150)
         return asset('https://placehold.co/600x600?text=No+Image');
     }
 
-    if (parse_url($url, PHP_URL_HOST) == 'placehold.co') {
+    // 1. Return early if it's already a full URL or processed (handles Image.php returning asset())
+    if (str_starts_with($url, 'http') || str_contains($url, '??tr=')) {
+        if (str_starts_with($url, 'http') && parse_url($url, PHP_URL_HOST) == 'placehold.co') {
+            return $url;
+        }
         return $url;
     }
 
+    $purePath = ltrim($url, '/');
+    
+    // 2. Identify Core Assets (whitelist) vs Uploaded Files
+    $corePrefixes = ['strokya', 'assets', 'css', 'js', 'build', 'fonts', 'vendor', 'images/banners'];
+    $publicFiles = ['payments.png', 'favicon.ico', 'favicon.png', 'tik-mark.png', 'robots.txt', 'logo.png'];
+    
+    $isPublic = false;
+    foreach ($corePrefixes as $prefix) {
+        if (str_starts_with($purePath, $prefix)) {
+            $isPublic = true;
+            break;
+        }
+    }
+    if (!$isPublic && in_array($purePath, $publicFiles)) {
+        $isPublic = true;
+    }
+
+    // 3. Prefix with storage/ ONLY if it's an uploaded file (not in whitelist and not already prefixed)
+    if (!$isPublic && !str_starts_with($purePath, 'storage/')) {
+        $purePath = 'storage/' . $purePath;
+    }
+
+    $baseUrl = asset($purePath);
+
+    // 4. Apply CDN logic if configured
     if ($username = config('services.gumlet.username')) {
-        return str_replace(request()->getHost(), $username.'.gumlet.io', $url).'?fit=resize&w='.$w.'&h='.$h;
+        return str_replace(request()->getHost(), $username.'.gumlet.io', $baseUrl).'?fit=resize&w='.$w.'&h='.$h;
     }
 
     if ($username = config('services.cloudinary.username')) {
-        return 'https://res.cloudinary.com/'.$username.'/image/fetch/w_'.$w.',h_'.$h.',c_thumb/f_webp/'.asset($url);
+        return 'https://res.cloudinary.com/'.$username.'/image/fetch/w_'.$w.',h_'.$h.',c_thumb/f_webp/'.$baseUrl;
     }
 
     if ($username = config('services.imagekit.username')) {
-        return str_replace(request()->getHost(), 'ik.imagekit.io/'.$username, $url).'??tr=w-'.$w.',h-'.$h;
+        return str_replace(request()->getHost(), 'ik.imagekit.io/'.$username, $baseUrl).'??tr=w-'.$w.',h-'.$h;
     }
 
-    return asset($url);
+    return $baseUrl;
 }
 
 if (! function_exists('cdnAsset')) {

@@ -51,10 +51,10 @@ class OrderTrackController extends Controller
                             'discount' => 0, // Any discount applied to the item
                             'index' => $index++, // The item's index in the list
                             // 'item_brand' => $product->brand,
-                            'item_category' => $product->category,
+                            'item_category' => $product->category ?? '',
                             'location_id' => 'BD', // The location associated with the item (optional)
-                            'price' => $product->price,
-                            'quantity' => $product->quantity,
+                            'price' => $product->price ?? 0,
+                            'quantity' => $product->quantity ?? 1,
                         ], (array) $order->products)),
                     ],
                     'customer' => [

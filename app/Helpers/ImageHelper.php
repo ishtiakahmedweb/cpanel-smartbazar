@@ -40,6 +40,12 @@ class ImageHelper
 
         // Use local asset URL - ensure proper storage path
         $cleanPath = ltrim($path, '/');
+        
+        // If the file already exists in public/, don't prefix with storage/
+        if (file_exists(public_path($cleanPath))) {
+            return asset($cleanPath);
+        }
+
         if (!str_starts_with($cleanPath, 'storage/')) {
             $cleanPath = 'storage/' . $cleanPath;
         }

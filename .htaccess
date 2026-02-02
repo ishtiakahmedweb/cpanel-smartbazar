@@ -18,15 +18,14 @@
         Header always set Access-Control-Allow-Origin "*"
     </FilesMatch>
 
+    DirectoryIndex index.php
+    Options -Indexes
     RewriteEngine On
 
     # 1. Early Intercept for Storage (Universal Fix)
     RewriteRule ^storage/(.*)$ storage_link/$1 [L]
 
-    # 2. Handle the root homepage explicitly
-    RewriteRule ^$ public/index.php [L]
-
-    # 3. Forward everything else into the public/ folder (if not already there)
+    # 2. Forward everything into the public/ folder
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

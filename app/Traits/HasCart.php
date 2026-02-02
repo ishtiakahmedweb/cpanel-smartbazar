@@ -39,31 +39,31 @@ trait HasCart
 
         storeOrUpdateCart();
 
-        // Fix: Use retailPrice if available, otherwise default to product selling price
-        $price = $retailPrice ?? $product->selling_price;
+    // CRITICAL: Always use selling_price for accurate ROAS (not retail_price, not wholesale)
+    $price = $product->selling_price;
 
-        $this->dispatch('dataLayer', [
-            'event' => 'add_to_cart',
-            'eventID' => generateEventId(),
-            'user_data' => [
-                'external_id' => auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', ''),
-                'fbp' => getFbCookie('_fbp'),
-                'fbc' => getFbCookie('_fbc'),
-            ],
-            'ecommerce' => [
-                'currency' => 'BDT',
-                'value' => (float) ($price * $quantity),
-                'items' => [
-                    [
-                        'item_id' => (string) $product->id,
-                        'item_name' => (string) $product->varName,
-                        'item_category' => (string) $product->category,
-                        'price' => (float) $price,
-                        'quantity' => (int) $quantity,
-                    ],
+    $this->dispatch('dataLayer', [
+        'event' => 'add_to_cart',
+        'eventID' => generateEventId(),
+        'user_data' => [
+            'external_id' => auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', ''),
+            'fbp' => getFbCookie('_fbp'),
+            'fbc' => getFbCookie('_fbc'),
+        ],
+        'ecommerce' => [
+            'currency' => 'BDT',
+            'value' => (float) ($price * $quantity),
+            'items' => [
+                [
+                    'item_id' => (string) $product->id,
+                    'item_name' => (string) $product->varName,
+                    'item_category' => (string) $product->category,
+                    'price' => (float) $price,
+                    'quantity' => (int) $quantity,
                 ],
             ],
-        ]);
+        ],
+    ]);
 
         $this->dispatch('cartUpdated');
         $this->dispatch('notify', ['message' => 'Product added to cart']);

@@ -1341,78 +1341,25 @@
     {{-- Facebook events moved to external file: strokya/js/facebook-events.js --}}
     {{-- xzoom click handler moved to: strokya/js/product-gallery.js --}}
     <script>
-    // Smart dataLayer handler with add_to_cart consolidation
-    (function() {
+    // Standard dataLayer handler - Meta recommended approach
+    window.addEventListener('dataLayer', event => {
         window.dataLayer = window.dataLayer || [];
+        const data = event.detail;
         
-        // Debounce storage for add_to_cart events
-        let addToCartQueue = {};
-        let debounceTimers = {};
+        // Handle both single objects and arrays of objects
+        const items = Array.isArray(data) ? data : [data];
         
-        window.addEventListener('dataLayer', event => {
-            const data = event.detail;
-            const items = Array.isArray(data) ? data : [data];
+        items.forEach(item => {
+            if (!item) return;
             
-            items.forEach(item => {
-                if (!item) return;
-                
-                // Special handling for add_to_cart events
-                if (item.event === 'add_to_cart' && item.ecommerce && item.ecommerce.items && item.ecommerce.items[0]) {
-                    const productItem = item.ecommerce.items[0];
-                    const productId = productItem.item_id;
-                    
-                    // Clear existing timer for this product
-                    if (debounceTimers[productId]) {
-                        clearTimeout(debounceTimers[productId]);
-                    }
-                    
-                    // Initialize or update queue for this product
-                    if (!addToCartQueue[productId]) {
-                        addToCartQueue[productId] = {
-                            event: 'add_to_cart',
-                            eventID: item.eventID,
-                            user_data: item.user_data,
-                            ecommerce: {
-                                currency: item.ecommerce.currency,
-                                value: 0,
-                                items: [{
-                                    item_id: productItem.item_id,
-                                    item_name: productItem.item_name,
-                                    item_category: productItem.item_category,
-                                    price: productItem.price,
-                                    quantity: 0
-                                }]
-                            }
-                        };
-                    }
-                    
-                    // Accumulate quantity and value (price * qty, NO SHIPPING)
-                    addToCartQueue[productId].ecommerce.items[0].quantity += productItem.quantity;
-                    addToCartQueue[productId].ecommerce.value += (productItem.price * productItem.quantity);
-                    
-                    // Update event ID to the latest one
-                    addToCartQueue[productId].eventID = item.eventID;
-                    
-                    // Set new timer - fire after 800ms of inactivity
-                    debounceTimers[productId] = setTimeout(() => {
-                        // Push the consolidated event
-                        window.dataLayer.push(addToCartQueue[productId]);
-                        
-                        // Clean up
-                        delete addToCartQueue[productId];
-                        delete debounceTimers[productId];
-                    }, 800);
-                    
-                } else {
-                    // For all other events, push immediately
-                    if (!item.eventID) {
-                        item.eventID = 'evt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-                    }
-                    window.dataLayer.push(item);
-                }
-            });
+            // Generate eventID if missing
+            if (!item.eventID) {
+                item.eventID = 'evt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            }
+            
+            window.dataLayer.push(item);
         });
-    })();
+    });
     
     </script>
 </body>

@@ -409,12 +409,15 @@ function cdn(?string $url, int $w = 150, int $h = 150)
         return asset('https://placehold.co/600x600?text=No+Image');
     }
 
-    // 1. Return early if it's already a full URL or processed (handles Image.php returning asset())
-    if (str_starts_with($url, 'http') || str_contains($url, '??tr=')) {
-        if (str_starts_with($url, 'http') && parse_url($url, PHP_URL_HOST) == 'placehold.co') {
+    // 1. Process Absolute URLs (Strip local domain to allow re-prefixing)
+    if (str_starts_with($url, 'http')) {
+        $host = request()->getHost();
+        if (str_contains($url, $host) && !str_contains($url, '??tr=')) {
+            $url = ltrim(parse_url($url, PHP_URL_PATH), '/');
+        } else {
+            // Real external URL or placeholder, return as is
             return $url;
         }
-        return $url;
     }
 
     $purePath = ltrim($url, '/');

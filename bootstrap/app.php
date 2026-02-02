@@ -59,8 +59,11 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'guest' => RedirectIfAuthenticated::class,
             'response.cache' => CacheResponse::class,
             'doNotCacheResponse' => \Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class,
-        ])
-            ->validateCsrfTokens(except: ['*']);
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            //
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\Illuminate\Database\QueryException $e, Request $request) {

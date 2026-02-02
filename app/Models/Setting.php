@@ -32,7 +32,7 @@ class Setting extends Model
         return Attribute::make(
             get: function ($value) {
                 if (is_null($value)) return null;
-                $decoded = json_decode((string) $value, true);
+                $decoded = json_decode((string) $value, false);
                 return (json_last_error() === JSON_ERROR_NONE) ? $decoded : $value;
             },
             set: function ($value) {

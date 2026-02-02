@@ -102,20 +102,18 @@ class Category extends Model
 
     public static function nested($count = 0, $enabledOnly = true)
     {
-        $query = self::whereNull('parent_id')
-            ->when($enabledOnly, fn ($query) => $query->where('is_enabled', true))
-            ->with(['childrens' => function ($category) use ($enabledOnly): void {
-                $category->when($enabledOnly, fn ($query) => $query->where('is_enabled', true))->with('childrens')->orderBy('order');
-            }])
-            ->withCount('childrens')
-            ->orderBy('order');
-        $count && $query->take($count);
+        return cacheMemo()->rememberForever('categories:nested:'.$count.':'.$enabledOnly, function () use ($count, $enabledOnly) {
+            $query = self::whereNull('parent_id')
+                ->when($enabledOnly, fn ($query) => $query->where('is_enabled', true))
+                ->with(['childrens' => function ($category) use ($enabledOnly): void {
+                    $category->when($enabledOnly, fn ($query) => $query->where('is_enabled', true))->with('childrens')->orderBy('order');
+                }])
+                ->withCount('childrens')
+                ->orderBy('order');
+            $count && $query->take($count);
 
-        if ($count) {
             return $query->get();
-        }
-
-        return cacheMemo()->rememberForever('categories:nested:'.$enabledOnly, fn () => $query->get());
+        });
     }
 
     public function products()

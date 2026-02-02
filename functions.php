@@ -164,72 +164,86 @@ if (! function_exists('sections')) {
 if (! function_exists('categories')) {
     function categories()
     {
-        // Load categories with images only
-        $categoriesWithImages = Category::with('image')
-            ->where('is_enabled', true)
-            ->whereHas('image') // Only categories that have images
-            ->inRandomOrder()
-            ->get();
+        try {
+            return cacheMemo()->rememberForever('api_categories:all', function() {
+                // Load categories with images only
+                $categoriesWithImages = Category::with('image')
+                    ->where('is_enabled', true)
+                    ->whereHas('image') // Only categories that have images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Load categories without images and eager load their product images
-        $categoriesWithoutImages = Category::with('products.images')
-            ->where('is_enabled', true)
-            ->whereDoesntHave('image') // Only categories without images
-            ->inRandomOrder()
-            ->get();
+                // Load categories without images and eager load their product images
+                $categoriesWithoutImages = Category::with('products.images')
+                    ->where('is_enabled', true)
+                    ->whereDoesntHave('image') // Only categories without images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Merge the two collections and map for final processing
-        $categories = $categoriesWithImages->merge($categoriesWithoutImages);
+                // Merge the two collections and map for final processing
+                $categories = $categoriesWithImages->merge($categoriesWithoutImages);
 
-        return $categories->map(function ($category) {
-            if ($category->relationLoaded('image')) {
-                $image = $category->image;
-            } else {
-                $images = $category->products->pluck('images')->filter();
-                $image = $images->isEmpty() ? null : $images->random()->first();
-            }
+                return $categories->map(function ($category) {
+                    if ($category->relationLoaded('image')) {
+                        $image = $category->image;
+                    } else {
+                        $images = $category->products->pluck('images')->filter();
+                        $image = $images->isEmpty() ? null : $images->random()->first();
+                    }
 
-            // Set the image_src property with a fallback placeholder
-            $category->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
+                    // Set the image_src property with a fallback placeholder
+                    $category->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
 
-            return $category;
-        });
+                    return $category;
+                });
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Categories DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
 if (! function_exists('brands')) {
     function brands()
     {
-        // Load brands with images only
-        $brandsWithImages = Brand::with('image')
-            ->where('is_enabled', true)
-            ->whereHas('image') // Only brands that have images
-            ->inRandomOrder()
-            ->get();
+        try {
+            return cacheMemo()->rememberForever('api_brands:all', function() {
+                // Load brands with images only
+                $brandsWithImages = Brand::with('image')
+                    ->where('is_enabled', true)
+                    ->whereHas('image') // Only brands that have images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Load brands without images and eager load their product images
-        $brandsWithoutImages = Brand::with('products.images')
-            ->where('is_enabled', true)
-            ->whereDoesntHave('image') // Only brands without images
-            ->inRandomOrder()
-            ->get();
+                // Load brands without images and eager load their product images
+                $brandsWithoutImages = Brand::with('products.images')
+                    ->where('is_enabled', true)
+                    ->whereDoesntHave('image') // Only brands without images
+                    ->inRandomOrder()
+                    ->get();
 
-        // Merge the two collections and map for final processing
-        $brands = $brandsWithImages->merge($brandsWithoutImages);
+                // Merge the two collections and map for final processing
+                $brands = $brandsWithImages->merge($brandsWithoutImages);
 
-        return $brands->map(function ($brand) {
-            if ($brand->relationLoaded('image')) {
-                $image = $brand->image;
-            } else {
-                $images = $brand->products->pluck('images')->filter();
-                $image = $images->isEmpty() ? null : $images->random()->first();
-            }
+                return $brands->map(function ($brand) {
+                    if ($brand->relationLoaded('image')) {
+                        $image = $brand->image;
+                    } else {
+                        $images = $brand->products->pluck('images')->filter();
+                        $image = $images->isEmpty() ? null : $images->random()->first();
+                    }
 
-            // Set the image_src property with a fallback placeholder
-            $brand->image_src = cdn($image->src ?? 'https://placehold.co/600x600?text=No+Product');
+                    // Set the image_src property with a fallback placeholder
+                    $brand->image_src = cdn($brand->src ?? 'https://placehold.co/600x600?text=No+Product');
 
-            return $brand;
-        });
+                    return $brand;
+                });
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Brands DB error: ' . $e->getMessage());
+            return collect();
+        }
     }
 }
 
@@ -256,11 +270,16 @@ if (! function_exists('pageRoutes')) {
 if (! function_exists('setting')) {
     function setting($name, $default = null)
     {
-        return cacheMemo()->rememberForever('settings:'.$name, function () use ($name, $default) {
-            $setting = Setting::whereName($name)->first();
+        try {
+            return cacheMemo()->rememberForever('settings:'.$name, function () use ($name, $default) {
+                $setting = Setting::whereName($name)->first();
 
-            return $setting?->value ?? $default;
-        });
+                return $setting?->value ?? $default;
+            });
+        } catch (\Throwable $e) {
+            // Return default or fake object to prevent crashes on chained access like setting('show_option')->enabled
+            return $default ?? new class { public function __get($n) { return null; } };
+        }
     }
 }
 

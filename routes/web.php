@@ -102,32 +102,25 @@ Route::group([], function (): void {
     Route::post('save-checkout-progress', [ApiController::class, 'saveCheckoutProgress']);
 
 
-    Route::get('/', HomeController::class)->name('/');
-    Route::get('/shop', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show');
-    Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+    // Consolidated Main Routes
+    Route::get('/', HomeController::class)->name('/')->middleware('response.cache');
+    Route::get('/shop', [ProductController::class, 'index'])->name('products.index')->middleware('response.cache');
+    Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show')->middleware('response.cache');
+    Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show')->middleware('response.cache');
     Route::post('/products/{product:slug}/reviews', [ReviewController::class, 'store'])->name('products.reviews.store');
     Route::get('/products/{product:slug}/reviews', [ReviewController::class, 'index'])->name('products.reviews.index');
     Route::get('/category/{category:slug}', CategoryProductController::class)->name('category.show');
-    Route::get('/categories/{category:slug}/products', CategoryProductController::class)->name('categories.products');
+    Route::get('/categories/{category:slug}/products', CategoryProductController::class)->name('categories.products')->middleware('response.cache');
     Route::get('/brand/{brand:slug}', BrandProductController::class)->name('brand.show');
-    Route::get('/brands/{brand:slug}/products', BrandProductController::class)->name('brands.products');
+    Route::get('/brands/{brand:slug}/products', BrandProductController::class)->name('brands.products')->middleware('response.cache');
+    Route::get('/categories', [ApiController::class, 'categories'])->name('categories')->middleware('response.cache');
+    Route::get('/brands', [ApiController::class, 'brands'])->name('brands')->middleware('response.cache');
+    Route::get('/sections/{section}/products', HomeSectionProductController::class)->name('home-sections.products')->middleware('response.cache');
+
     Route::view('/lead-form', 'leads.form')->name('leads.form');
     Route::post('/leads', [LeadController::class, 'store'])
         ->middleware('throttle:1,10')
         ->name('leads.store');
-
-    Route::middleware('response.cache')->group(function (): void {
-        Route::get('/categories', [ApiController::class, 'categories'])->name('categories');
-        Route::get('/brands', [ApiController::class, 'brands'])->name('brands');
-
-        Route::get('/', HomeController::class)->name('/');
-        Route::get('/sections/{section}/products', HomeSectionProductController::class)->name('home-sections.products');
-        Route::get('/shop', [ProductController::class, 'index'])->name('products.index');
-        Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
-        Route::get('/categories/{category:slug}/products', CategoryProductController::class)->name('categories.products');
-        Route::get('/brands/{brand:slug}/products', BrandProductController::class)->name('brands.products');
-    });
 
     Route::get('/thank-you', OrderTrackController::class)
         ->name('thank-you')
@@ -142,17 +135,18 @@ Route::group([], function (): void {
     Route::get('cart', [App\Http\Controllers\Api\CartController::class, 'get'])->name('cart.get');
 });
 
-Route::get('/storage-link', [ApiController::class, 'storageLink']);
-Route::get('/scout-flush', [ApiController::class, 'scoutFlush']);
-Route::get('/scout-import', [ApiController::class, 'scoutImport']);
-Route::get('/link-optimize', [ApiController::class, 'linkOptimize']);
-
-Route::get('/fix', function () {
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return 'Caches Cleared!';
+// Admin Helpers (Secured by domain)
+Route::domain(env('ADMIN_DOMAIN'))->group(function () {
+    Route::get('/storage-link', [ApiController::class, 'storageLink']);
+    Route::get('/scout-flush', [ApiController::class, 'scoutFlush']);
+    Route::get('/scout-import', [ApiController::class, 'scoutImport']);
+    Route::get('/link-optimize', [ApiController::class, 'linkOptimize']);
+    Route::get('/fix', function () {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        return 'Caches Cleared!';
+    });
+    Route::get('/cache-clear', [ApiController::class, 'clearCache'])->name('clear.cache');
 });
-
-Route::get('/cache-clear', [ApiController::class, 'clearCache'])->name('clear.cache');
 
 // Feed routes
 Route::get('/feed/catalog', [FeedController::class, 'catalog'])->name('feed.catalog');

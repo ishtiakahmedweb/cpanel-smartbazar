@@ -14,7 +14,6 @@ use App\Http\Controllers\ResellerController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\EnsureResellerIsVerified;
 use App\Http\Middleware\GoogleTagManagerMiddleware;
-use Hotash\FacebookPixel\MetaPixelMiddleware;
 use Hotash\LaravelMultiUi\Facades\MultiUi;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;

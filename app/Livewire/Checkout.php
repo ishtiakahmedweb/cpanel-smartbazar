@@ -25,7 +25,7 @@ use function Illuminate\Support\defer;
 
 class Checkout extends Component
 {
-    public ?Order $order = null;
+    public $order = null;
 
     public $isFreeDelivery = false;
 
@@ -554,7 +554,7 @@ class Checkout extends Component
                 'retail_discount' => $this->retailDiscount,
             ]);
 
-            $this->order = DB::transaction(function () use ($data, &$order, $fraud) {
+            $transactionResult = DB::transaction(function () use ($data, $fraud) {
                 // Prepare products data with validation
                 $productsData = [];
                 foreach (cart()->content() as $item) {
@@ -696,6 +696,12 @@ class Checkout extends Component
 
                 return $order;
             });
+
+            // LOGGING DEBUG FIX FOR TYPE ERROR
+            if (!($transactionResult instanceof \App\Models\Order)) {
+                 logger()->error('DB::transaction returned unexpected type: ' . get_class($transactionResult));
+            }
+            $this->order = $transactionResult;
 
             if (! $this->order instanceof \App\Models\Order) {
                 logger()->error('Order creation failed - no order object returned');

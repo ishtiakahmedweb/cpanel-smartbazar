@@ -63,6 +63,19 @@ $app = Application::configure(basePath: dirname(__DIR__))
             ->validateCsrfTokens(except: ['*']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (\Illuminate\Database\QueryException $e, Request $request) {
+            // If the database is refused or unreachable, show a friendly 503 page instead of 500
+            if (str_contains($e->getMessage(), 'Connection refused') || str_contains($e->getMessage(), '2002')) {
+                return response()->view('errors.503', [], 503);
+            }
+        });
+
+        $exceptions->render(function (\PDOException $e, Request $request) {
+            if (str_contains($e->getMessage(), 'Connection refused') || str_contains($e->getMessage(), '2002')) {
+                return response()->view('errors.503', [], 503);
+            }
+        });
+
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([

@@ -16,7 +16,8 @@ class Setting extends Model
     public static function booted(): void
     {
         static::saved(function ($setting): void {
-            cacheMemo()->put('settings:'.$setting->name, $setting);
+            // Store ONLY the value in cache, as the setting() helper expects
+            cacheMemo()->put('settings:'.$setting->name, $setting->value);
             Cache::forget('settings');
         });
     }
@@ -29,10 +30,16 @@ class Setting extends Model
     protected function value(): Attribute
     {
         return Attribute::make(
-            fn ($value): mixed => json_decode((string) $value),
-            fn ($value) => $this->attributes['value'] = json_encode(
-                is_array($value) ? array_merge((array) $this->value, $value) : $value
-            ),
+            get: function ($value) {
+                if (is_null($value)) return null;
+                $decoded = json_decode((string) $value, true);
+                return (json_last_error() === JSON_ERROR_NONE) ? $decoded : $value;
+            },
+            set: function ($value) {
+                // If it's an array, we might want to merge, but let's keep it simple for now
+                // to avoid the recursive loop from the previous implementation
+                return json_encode($value);
+            },
         );
     }
 }

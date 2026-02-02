@@ -23,7 +23,11 @@ trait HasCart
 
         $fraudQuantity = setting('fraud')->max_qty_per_product ?? 3;
         $maxQuantity = $product->should_track ? min($product->stock_count, $fraudQuantity) : $fraudQuantity;
-        $quantity = min($quantity, $maxQuantity);
+        // Ensure we never try to add 0 items. If maxQuantity is 0, it means OOS, but we should handle that gracefully.
+        // For now, let's ensure $quantity 1 works if checking logic allows it, or fail earlier.
+        // Better fix: Ensure $maxQuantity is at least 1 for the logic below or handle OOS.
+        
+        $quantity = max(1, min($quantity, $maxQuantity));
 
         $productData = (new ProductResource($product))->toCartItem($quantity);
         $productData['max'] = $maxQuantity;

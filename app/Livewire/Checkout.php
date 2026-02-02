@@ -559,7 +559,10 @@ class Checkout extends Component
                 $productsData = [];
                 foreach (cart()->content() as $item) {
                     $id = $item->id;
-                    $quantity = min($item->qty, $fraud->max_qty_per_product ?? 3);
+                    $maxQty = $fraud->max_qty_per_product ?? 3;
+                    // Fix: If max_qty_per_product is 0 (misconfiguration), don't block order. Ensure at least 1.
+                    $quantity = ($maxQty > 0) ? min($item->qty, $maxQty) : $item->qty;
+                    $quantity = max(1, $quantity);
 
                     if ($quantity <= 0) {
                         continue;

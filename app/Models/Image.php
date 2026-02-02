@@ -49,20 +49,8 @@ class Image extends Model
         return Attribute::get(function () {
             if (!$this->path) return asset('assets/images/placeholder.png');
 
-            // 1. Clean the path (remove leading slashes or legacy /storage/ prefixes)
-            $cleanPath = ltrim($this->path, '/');
-            if (str_starts_with($cleanPath, 'storage/')) {
-                $cleanPath = substr($cleanPath, 8);
-            }
-
-            // 2. URL Encode the filename part only
-            $dir = dirname($cleanPath);
-            $base = basename($cleanPath);
-            $encodedPath = ($dir === '.' ? '' : $dir . '/') . rawurlencode($base);
-
-            // 3. Return the standard public URL
-            // This expects public/storage -> storage/app/public symlink to exist
-            return asset('storage/' . $encodedPath);
+            // Use the cdn() helper function for consistent URL generation
+            return cdn($this->path);
         });
     }
 

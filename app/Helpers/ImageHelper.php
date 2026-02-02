@@ -28,13 +28,22 @@ class ImageHelper
         $cdnEnabled = Config::get('cdn.enabled', false);
         
         if ($cdnEnabled) {
-            // Use CDN URL
+            // Use CDN URL - ensure proper path handling
             $cdnUrl = Config::get('app.url', url('/'));
-            return $cdnUrl . '/' . ltrim($path, '/');
+            // Ensure path starts with storage/ for proper CDN handling
+            $cleanPath = ltrim($path, '/');
+            if (!str_starts_with($cleanPath, 'storage/')) {
+                $cleanPath = 'storage/' . $cleanPath;
+            }
+            return $cdnUrl . '/' . $cleanPath;
         }
 
-        // Use local asset URL
-        return asset($path);
+        // Use local asset URL - ensure proper storage path
+        $cleanPath = ltrim($path, '/');
+        if (!str_starts_with($cleanPath, 'storage/')) {
+            $cleanPath = 'storage/' . $cleanPath;
+        }
+        return asset($cleanPath);
     }
 }
 

@@ -441,7 +441,8 @@ function cdn($url, int $w = 150, int $h = 150)
     }
 
     // 3. Prefix with storage/ ONLY if it's an uploaded file (not in whitelist and not already prefixed)
-    if (!$isPublic && !str_starts_with($purePath ?? '', 'storage/')) {
+    // AND it doesn't exist in public/ directly
+    if (!$isPublic && !str_starts_with($purePath ?? '', 'storage/') && !file_exists(public_path($purePath))) {
         $purePath = 'storage/' . $purePath;
     }
 

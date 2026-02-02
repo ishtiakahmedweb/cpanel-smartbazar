@@ -11,12 +11,24 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
-echo "<div class='card'><h2>1. Path Configuration</h2>";
+echo "<div class='card'><h2>1. Path Configuration & Symlinks</h2>";
 echo "<div><b>base_path():</b> " . base_path() . "</div>";
-echo "<div><b>public_path():</b> " . public_path() . "</div>";
 echo "<div><b>storage_path():</b> " . storage_path() . "</div>";
-echo "<div><b>public_path('storage'):</b> " . public_path('storage') . "</div>";
-echo "<div><b>Exists?</b> " . (file_exists(public_path('storage')) ? "YES" : "NO") . "</div>";
+
+// Fix: Create 'storage_link' symlink because 'storage' folder exists (Laravel root)
+$target = storage_path('app/public');
+$link = base_path('storage_link'); // This is the magic link
+
+if (!file_exists($link)) {
+    echo "<div>Creating 'storage_link' symlink... ";
+    if (@symlink($target, $link)) {
+        echo "<span class='ok'>CREATED</span></div>";
+    } else {
+        echo "<span class='err'>FAILED (Try manual)</span></div>";
+    }
+} else {
+    echo "<div>'storage_link' symlink: <span class='ok'>EXISTS</span></div>";
+}
 echo "</div>";
 
 echo "<div class='card'><h2>2. Storage Content (Recursive)</h2>";

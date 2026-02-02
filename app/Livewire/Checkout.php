@@ -12,7 +12,6 @@ use App\Models\Product;
 use App\Models\User;
 use App\Notifications\User\AccountCreated;
 use App\Notifications\User\OrderPlaced;
-use App\Services\FacebookPixelService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
@@ -65,17 +64,8 @@ class Checkout extends Component
     public $coupon_discount = 0;
 
     /**
-     * When true, `retailDeliveryFee` was explicitly set by the user and
-     * should not be overridden by automatic shipping updates.
      */
     public bool $retailDeliveryFeeManuallySet = false;
-
-    protected $facebookService;
-
-    public function boot(FacebookPixelService $facebookService): void
-    {
-        $this->facebookService = $facebookService;
-    }
 
     public function hydrate(): void
     {
@@ -703,21 +693,6 @@ class Checkout extends Component
                         Cookie::queue(Cookie::make('last_order_at', now()->timestamp, 10 * 365 * 24 * 60)); // 10 years expiration
                     }
                 });
-
-                if (config('meta-pixel.meta_pixel') && $this->facebookService) {
-                    $this->facebookService->trackPurchase([
-                        'id' => $order->id,
-                        'total' => $order->data['subtotal'] + $order->data['retail_delivery_fee'],
-                    ], $data['products'], [
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'phone' => $user->phone_number,
-                        'external_id' => $user->id,
-                        'city' => $order->data['city_name'] ?? '',
-                        'address' => $data['address'],
-                        'country' => 'BD',
-                    ], $this);
-                }
 
                 return $order;
             });

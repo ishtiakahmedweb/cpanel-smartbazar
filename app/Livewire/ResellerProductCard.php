@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Product;
-use App\Services\FacebookPixelService;
 use App\Traits\HasCart;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -25,16 +24,8 @@ class ResellerProductCard extends Component
 
     public int $maxQuantity = 0;
 
-    protected $facebookService;
-
-    public function boot(FacebookPixelService $facebookService): void
-    {
-        $this->facebookService = $facebookService;
-    }
-
     public function mount(): void
     {
-        $this->facebookService ??= resolve(FacebookPixelService::class);
         $maxPerProduct = setting('fraud')->max_qty_per_product ?? 3;
         $this->maxQuantity = $this->product->should_track ? min($this->product->stock_count, $maxPerProduct) : $maxPerProduct;
         $this->retailPrice = $this->product->retailPrice();

@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\Attribute;
 use App\Models\Product;
-use App\Services\FacebookPixelService;
 use App\Traits\HasCart;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -25,16 +24,6 @@ class ProductDetail extends Component
 
     #[Validate('required|numeric|min:0')]
     public int $retailPrice = 0;
-
-    public bool $showBrandCategory = false;
-
-    protected $facebookService;
-
-    public function boot(FacebookPixelService $facebookService): void
-    {
-        $this->facebookService = $facebookService;
-    }
-
     public static function landing(Product $product): self
     {
         $component = new self;
@@ -76,7 +65,6 @@ class ProductDetail extends Component
 
     public function mount(): void
     {
-        $this->facebookService = app(FacebookPixelService::class);
         $maxPerProduct = setting('fraud')->max_qty_per_product ?? 3;
         if ($this->product->variations->isNotEmpty()) {
             $segmentSlug = request()->segment(2);

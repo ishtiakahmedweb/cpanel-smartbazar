@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Product;
-use App\Services\FacebookPixelService;
 use App\Traits\HasCart;
 use Livewire\Component;
 
@@ -12,18 +11,6 @@ class ProductCard extends Component
     use HasCart;
 
     public Product $product;
-
-    protected $facebookService;
-
-    public function boot(FacebookPixelService $facebookService): void
-    {
-        $this->facebookService = $facebookService;
-    }
-
-    public function mount(): void
-    {
-        $this->facebookService = app(FacebookPixelService::class);
-    }
 
     public function addToCart($instance = 'default')
     {

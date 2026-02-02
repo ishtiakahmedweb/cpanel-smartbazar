@@ -40,6 +40,10 @@
     RewriteCond %{REQUEST_FILENAME} -d [OR]
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ ^$1 [N]
+
+    # Rewrite storage URLs to use the storage_link symlink
+    RewriteRule ^storage/(.*)$ storage_link/$1 [L]
+
     RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
     RewriteRule ^(.*)$ public/$1
     RewriteCond %{REQUEST_FILENAME} !-d

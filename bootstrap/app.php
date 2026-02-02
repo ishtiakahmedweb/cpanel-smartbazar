@@ -94,7 +94,19 @@ $app = Application::configure(basePath: dirname(__DIR__))
 | Fix for cPanel Split Folder (backend and public_html)
 |--------------------------------------------------------------------------
 */
-$app->usePublicPath(__DIR__ . '/../../public_html');
+/*
+|--------------------------------------------------------------------------
+| Fix for cPanel Split Folder (backend and public_html)
+|--------------------------------------------------------------------------
+*/
+$localPublic = __DIR__ . '/../public';
+$publicHtml = __DIR__ . '/../../public_html';
+
+if (file_exists($localPublic)) {
+    $app->usePublicPath($localPublic);
+} elseif (file_exists($publicHtml)) {
+    $app->usePublicPath($publicHtml);
+}
 
 // FORCE THE STORAGE PATH - THIS IS THE FIX
 if (file_exists('/home/smartbaz/storage')) {

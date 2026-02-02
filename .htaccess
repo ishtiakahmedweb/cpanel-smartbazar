@@ -20,17 +20,16 @@
 
     RewriteEngine On
 
-    # Intercept storage requests early to bypass the 'storage' folder conflict
+    # 1. Early Intercept for Storage (Universal Fix)
     RewriteRule ^storage/(.*)$ storage_link/$1 [L]
 
-    # If the request is for the API or a specific resource, apply CORS headers
-    RewriteCond %{REQUEST_URI} ^/api/ [NC]
+    # 2. Redirect non-www to www (Standardize)
+    # RewriteCond %{HTTP_HOST} !^www\. [NC]
+    # RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
 
-    RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
-    RewriteRule ^(.*)$ public/$1
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ public/index.php
+    # 3. Everything else to public folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 # BEGIN cPanel-generated php ini directives, do not edit
 # Manual editing of this file may result in unexpected behavior.

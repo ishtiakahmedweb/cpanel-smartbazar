@@ -3,6 +3,7 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+header('Content-Type: text/plain; charset=utf-8');
 echo "Testing Laravel Bootstrap...\n";
 
 try {
@@ -20,9 +21,16 @@ try {
     
     echo "Attempting to handle homepage request...\n\n";
     $response = $kernel->handle($request);
-    echo "✓ Homepage loaded successfully!\n\n";
     
-    echo "Response status: " . $response->getStatusCode() . "\n";
+    echo "Response status: " . $response->getStatusCode() . "\n\n";
+    
+    if ($response->getStatusCode() === 500) {
+        echo "===== ERROR RESPONSE CONTENT =====\n\n";
+        echo $response->getContent();
+        echo "\n\n===== END ERROR CONTENT =====\n";
+    } else {
+        echo "✓ Homepage loaded successfully!\n";
+    }
     
 } catch (Throwable $e) {
     echo "❌ ERROR FOUND:\n\n";

@@ -409,9 +409,10 @@ function cdn(?string $url, int $w = 150, int $h = 150)
         return asset('https://placehold.co/600x600?text=No+Image');
     }
 
-    // 1. Process Absolute URLs (Strip local domain to allow re-prefixing)
+    // 1. Process Absolute URLs (Strip local domain to allow re-prefixing/fixing)
     if (str_starts_with($url, 'http')) {
         $host = request()->getHost();
+        // If it's our own domain and NOT already processed by CDN tools
         if (str_contains($url, $host) && !str_contains($url, '??tr=')) {
             $url = ltrim(parse_url($url, PHP_URL_PATH), '/');
         } else {
@@ -423,8 +424,9 @@ function cdn(?string $url, int $w = 150, int $h = 150)
     $purePath = ltrim($url, '/');
     
     // 2. Identify Core Assets (whitelist) vs Uploaded Files
-    $corePrefixes = ['strokya', 'assets', 'css', 'js', 'build', 'fonts', 'vendor', 'images/banners'];
-    $publicFiles = ['payments.png', 'favicon.ico', 'favicon.png', 'tik-mark.png', 'robots.txt', 'logo.png'];
+    // These should NOT get the /storage/ prefix
+    $corePrefixes = ['strokya', 'assets', 'css', 'js', 'build', 'fonts', 'vendor', 'images/banners', 'images/logos'];
+    $publicFiles = ['payments.png', 'favicon.ico', 'favicon.png', 'tik-mark.png', 'robots.txt', 'logo.png', 'logo.jpg', 'logo.jpeg'];
     
     $isPublic = false;
     foreach ($corePrefixes as $prefix) {
@@ -433,7 +435,7 @@ function cdn(?string $url, int $w = 150, int $h = 150)
             break;
         }
     }
-    if (!$isPublic && in_array($purePath, $publicFiles)) {
+    if (!$isPublic && in_array(basename($purePath), $publicFiles)) {
         $isPublic = true;
     }
 

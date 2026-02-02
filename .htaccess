@@ -22,8 +22,9 @@
     Options -Indexes
     RewriteEngine On
 
-    # 1. Early Intercept for Storage (Universal Fix)
-    RewriteRule ^storage/(.*)$ storage_link/$1 [L]
+    # 1. Early Intercept for Storage (Physical Direct Route)
+    # This bypasses the need for a /public/storage symlink and works even if the folder exists elsewhere
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
 
     # 2. Forward everything into the public/ folder
     RewriteCond %{REQUEST_URI} !^/public/

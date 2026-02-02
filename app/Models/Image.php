@@ -47,7 +47,6 @@ class Image extends Model
     protected function src(): Attribute
     {
         return Attribute::get(function () {
-            // encoding logic
             // 1. Calculate the relative path (strip any existing /storage/ prefix)
             $purePath = ltrim(Str::after($this->path, '/storage/'), '/');
             
@@ -60,10 +59,15 @@ class Image extends Model
             // 3. Final URL MUST start with /storage/ to match .htaccess rules
             $finalUrlPath = '/storage/' . ltrim($encodedPath, '/');
 
+
             // Fix: Check physical existence in storage/app/public
-            if (file_exists(storage_path('app/public/' . $purePath))) {
+            // DB contains '/storage/foo.jpg', we need 'foo.jpg' relative to storage root
+            $relativePath = Str::after($this->path, '/storage/');
+            
+            if (file_exists(storage_path('app/public/' . $relativePath))) {
                 return asset($finalUrlPath);
             }
+
 
             // Fallback for missing files or external sources
             if ($this->source_id) {

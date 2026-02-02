@@ -9,7 +9,7 @@ window.dataLayer.push({
   eventID: "{{ generateEventId() }}",
   pageType: "checkout",
   user_data: {
-    external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : '' }}",
+    external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', '') }}",
     @if(auth('user')->check())
     email: "{{ auth('user')->user()->email ?? '' }}",
     phone: "{{ auth('user')->user()->phone ? formatPhone880(auth('user')->user()->phone) : '' }}",
@@ -44,6 +44,78 @@ window.dataLayer.push({
       @endforeach
     ]
   }
+});
+
+// Real-time input scraping for Advanced Matching
+// Capture email/phone as guest types (critical for retargeting abandoners!)
+document.addEventListener('DOMContentLoaded', function() {
+    // Define the input fields to monitor
+    const fields = ['input[name="email"]', 'input[name="phone"]', 'input[name="name"]', 'select[name="city_id"]'];
+    
+    const captureUserData = function() {
+        const emailField = document.querySelector('input[name="email"]');
+        const phoneField = document.querySelector('input[name="phone"]');
+        const nameField = document.querySelector('input[name="name"]');
+        const cityField = document.querySelector('select[name="city_id"]');
+        
+        const userData = {
+            event: "user_data_update",
+            eventID: "evt_update_" + Math.random().toString(36).substr(2, 9) + "_" + Date.now(),
+            user_data: {
+                external_id: "{{ request()->cookie('guest_id', '') }}",
+                fbp: "{{ getFbCookie('_fbp') }}",
+                fbc: "{{ getFbCookie('_fbc') }}"
+            }
+        };
+        
+        // Add email if filled
+        if (emailField && emailField.value && emailField.value.includes('@')) {
+            userData.user_data.email = emailField.value.trim().toLowerCase();
+        }
+        
+        // Add phone if filled (normalize to 880 format)
+        if (phoneField && phoneField.value && phoneField.value.length >= 10) {
+            let phone = phoneField.value.replace(/[^\d]/g, '');
+            if (phone.startsWith('0')) {
+                phone = '88' + phone;
+            } else if (!phone.startsWith('880') && phone.length == 10) {
+                phone = '880' + phone;
+            }
+            userData.user_data.phone = phone;
+        }
+        
+        // Add first name if filled
+        if (nameField && nameField.value) {
+            const nameParts = nameField.value.trim().split(' ');
+            userData.user_data.first_name = nameParts[0].toLowerCase();
+            if (nameParts.length > 1) {
+                userData.user_data.last_name = nameParts[nameParts.length - 1].toLowerCase();
+            }
+        }
+        
+        // Add city if selected
+        if (cityField && cityField.value) {
+            const selectedOption = cityField.options[cityField.selectedIndex];
+            if (selectedOption && selectedOption.text) {
+                userData.user_data.city = selectedOption.text.toLowerCase();
+            }
+        }
+        
+        // Only push if we have at least one PII field filled
+        if (userData.user_data.email || userData.user_data.phone || userData.user_data.first_name) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push(userData);
+        }
+    };
+    
+    // Attach blur event listeners to all input fields
+    fields.forEach(function(selector) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.addEventListener('blur', captureUserData);
+            element.addEventListener('change', captureUserData);
+        }
+    });
 });
 </script>
 

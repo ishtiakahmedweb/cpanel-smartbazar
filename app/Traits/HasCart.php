@@ -46,7 +46,7 @@ trait HasCart
             'event' => 'add_to_cart',
             'eventID' => generateEventId(),
             'user_data' => [
-                'external_id' => auth('user')->check() ? (string) auth('user')->id() : '',
+                'external_id' => auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', ''),
                 'fbp' => getFbCookie('_fbp'),
                 'fbc' => getFbCookie('_fbc'),
             ],

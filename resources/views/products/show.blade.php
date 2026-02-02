@@ -10,7 +10,7 @@
       eventID: "{{ generateEventId() }}",
       pageType: "product-page",
       user_data: {
-        external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : '' }}",
+        external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', '') }}",
         fbp: "{{ getFbCookie('_fbp') }}",
         fbc: "{{ getFbCookie('_fbc') }}"
       },

@@ -52,6 +52,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\EnsureSpaResponse::class,
+            \App\Http\Middleware\EnsureGuestId::class,
         ]);
 
         $middleware->alias([

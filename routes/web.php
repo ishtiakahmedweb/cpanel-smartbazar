@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Session;
 // Security: Root route is handled conditionally along with HomeController below to support both frontend and backend domains
 // Route::get('/', function () { ... });
 
+// STORAGE PROXY (Bypasses Symlinks)
+Route::get('storage/{path}', [App\Http\Controllers\StorageFileController::class, 'show'])->where('path', '.*');
+
 Route::group([], function (): void {
     Route::group(['as' => 'user.'], function (): void {
 

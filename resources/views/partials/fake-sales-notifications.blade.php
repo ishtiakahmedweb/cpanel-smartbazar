@@ -199,60 +199,58 @@
     /* Mobile optimization */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            top: 20px; /* Position at TOP */
-            bottom: auto !important; /* Reset bottom */
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px); /* Center horizontal, offset vertical for anim */
+            top: auto;
+            bottom: 20px !important; /* Back to bottom */
+            left: 10px;
             right: auto;
             width: auto;
-            max-width: 320px;
-            border-left-width: 3px; /* Slightly thinner accent */
-            padding: 8px 12px;
-            border-radius: 50px; /* Pill shape for top notification */
+            max-width: 280px; /* Very compact width */
+            border-left-width: 3px;
+            padding: 10px;
+            border-radius: 6px; /* Boxy, not round */
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            align-items: center;
+            align-items: flex-start; /* Align top for box layout */
+            transform: translateY(20px);
         }
 
         .fake-sales-notification.show {
-            transform: translateX(-50%) translateY(0); /* Drop down animation */
+            transform: translateY(0); /* Slide up animation */
         }
 
-        /* Compact Layout for Pill Shape */
+        /* Compact Layout */
         .fake-sales-content {
             align-items: center;
             width: 100%;
         }
 
         .fake-sales-image-wrapper {
-            width: 36px; /* Ultra small avatar */
-            height: 36px;
-            border-radius: 50%; /* Circle image */
+            width: 45px; /* Slightly larger than the pill version but still small */
+            height: 45px;
+            border-radius: 4px; /* Boxy image */
             margin-right: 10px;
-            border: none;
-            background: #f0f0f0;
+            border: 1px solid #eee;
+            background: #fff;
         }
 
         .fake-sales-text {
-            padding-right: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            padding-right: 15px; /* Space for close button */
+            display: block;
         }
 
         .fs-name {
-            font-size: 12px;
-            margin-bottom: 0;
+            font-size: 13px;
+            margin-bottom: 2px;
             line-height: 1.2;
         }
 
         .fs-verified {
-            display: none; /* Hide verified badge on mobile to save space */
+            display: none; /* Keep hidden on mobile to save space */
         }
 
         .fs-action {
-            font-size: 11px;
-            margin-top: 1px;
-            line-height: 1.2;
+            font-size: 12px;
+            margin-top: 0;
+            line-height: 1.3;
         }
 
         /* Show plain text instead of link on mobile */
@@ -262,21 +260,28 @@
         #fs-product-text {
             display: inline !important;
             font-weight: 600;
-            color: #444;
-            max-width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            vertical-align: bottom;
+            color: #333;
+            /* Allow wrapping on mobile box view */
+            white-space: normal; 
+            overflow: visible;
         }
 
         .fs-time {
-            display: none; /* Hide time on mobile to keep it clean */
+            display: block; /* Show time again for box view */
+            font-size: 10px;
+            margin-top: 2px;
+            color: #999;
         }
         
-        /* Hide close button on mobile, it autoslides anyway and takes space */
         .fs-close {
-            display: none; 
+            display: block; /* Show close button again */
+            width: 20px;
+            height: 20px;
+            top: -5px;
+            right: -5px;
+            font-size: 16px;
+            background: #fff;
+            box-shadow: -1px 1px 3px rgba(0,0,0,0.05);
         }
     }
 </style>

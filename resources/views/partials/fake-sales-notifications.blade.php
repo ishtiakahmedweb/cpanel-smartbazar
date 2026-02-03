@@ -1,7 +1,7 @@
 @php
     // Fetch random products for the fake notifications
-    // We get 50 active products with their base image
-    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products', 3600, function () {
+    // Cache for 60 minutes
+    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products_v2', 3600, function () {
         return \App\Models\Product::where('is_active', true)
             ->whereNotNull('slug')
             ->with(['images' => function($query) {
@@ -13,9 +13,9 @@
             ->map(function ($product) {
                 return [
                     'name' => $product->name,
-                    'image' => $product->base_image->src ?? asset('logo.png'), // Fallback to logo if no image
+                    'image' => $product->base_image->src ?? asset('logo.png'), 
                     'url' => route('products.show', $product->slug),
-                    'time' => 'Just now', // Placeholder, will be randomized in JS
+                    'time' => 'Just now', 
                 ];
             });
     });
@@ -31,12 +31,12 @@
             <p class="fs-name">
                 <span id="fs-customer"></span> 
                 <span class="fs-verified">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="var(--primary, #28a745)" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg> Verified
                 </span>
             </p>
-            <p class="fs-action">Purchased <a href="#" id="fs-product-link"><span id="fs-product"></span></a></p>
+            <p class="fs-action">অর্ডার করেছেন: <a href="#" id="fs-product-link"><span id="fs-product"></span></a></p>
             <p class="fs-time"><small id="fs-time"></small></p>
         </div>
         <button id="fs-close" class="fs-close" aria-label="Close">&times;</button>
@@ -46,33 +46,37 @@
 <style>
     .fake-sales-notification {
         position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 10000; /* Increased z-index */
+        bottom: 25px;
+        left: 25px;
+        z-index: 99999;
         background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        max-width: 320px;
-        width: calc(100% - 40px);
-        padding: 12px;
-        font-family: 'Hind Siliguri', 'Inter', sans-serif;
-        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 10px rgba(0,0,0,0.05); /* Softer, deeper shadow */
+        max-width: 380px;
+        width: auto;
+        padding: 16px;
+        font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+        overflow: visible;
         opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transform: translateY(20px) scale(0.98);
+        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); /* Smoother bezier */
         pointer-events: none;
-        border-left: 4px solid var(--primary, #28a745);
+        border-left: 5px solid var(--primary, #28a745);
+        display: flex;
+        flex-direction: column;
+        background-color: rgba(255, 255, 255, 0.98); /* Slight transparency */
+        backdrop-filter: blur(10px); /* Glassmorphism effect */
     }
 
     .fake-sales-notification.show {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
         pointer-events: auto;
     }
 
     .fake-sales-content {
         display: flex;
-        align-items: flex-start; /* Changed to start for better text wrap handling */
+        align-items: flex-start;
         position: relative;
     }
 
@@ -80,11 +84,12 @@
         flex-shrink: 0;
         width: 60px;
         height: 60px;
-        border-radius: 6px;
+        border-radius: 8px;
         overflow: hidden;
-        background: #f8f9fa;
-        margin-right: 12px;
-        border: 1px solid #eee;
+        background: #fff;
+        margin-right: 15px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     .fake-sales-image {
@@ -95,15 +100,16 @@
 
     .fake-sales-text {
         flex-grow: 1;
-        line-height: 1.3;
-        font-size: 13px;
+        line-height: 1.4;
+        font-size: 14px;
+        padding-right: 20px;
     }
 
     .fs-name {
         font-weight: 700;
-        font-size: 13px;
-        color: #333;
-        margin: 0 0 2px 0;
+        font-size: 15px;
+        color: #222;
+        margin: 0 0 3px 0;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -113,35 +119,39 @@
         display: inline-flex;
         align-items: center;
         background: #e8f5e9;
-        color: var(--primary, #28a745);
+        color: #2e7d32;
         font-size: 10px;
-        padding: 1px 4px;
-        border-radius: 3px;
-        margin-left: 6px;
-        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 12px;
+        margin-left: 8px;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
+        border: 1px solid #c8e6c9;
     }
     
     .fs-verified svg {
-        margin-right: 2px;
+        margin-right: 3px;
+        margin-top: -1px;
     }
 
     .fs-action {
         color: #555;
         margin: 0;
-        line-height: 1.4;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     .fs-action a {
         color: var(--primary, #0056b3);
         text-decoration: none;
         font-weight: 600;
-        display: block; /* Product name on new line for clarity */
+        display: block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 200px;
+        margin-top: 2px;
     }
     
     .fs-action a:hover {
@@ -150,172 +160,213 @@
 
     .fs-time {
         font-size: 11px;
-        color: #999;
-        margin: 2px 0 0;
+        color: #888;
+        margin: 4px 0 0;
         display: block;
+        font-weight: 500;
     }
 
     .fs-close {
         position: absolute;
-        top: -10px;
-        right: -10px;
-        background: transparent;
-        border: none;
-        font-size: 18px;
-        line-height: 1;
+        top: -12px;
+        right: -12px;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         color: #ccc;
-        padding: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        z-index: 10;
+        padding: 0;
     }
 
     .fs-close:hover {
         color: #333;
+        background: #f8f9fa;
+        transform: scale(1.1);
     }
 
     /* Mobile optimization */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 20px !important; /* Force bottom position */
-            left: 20px;
+            bottom: 60px !important; /* Move up slightly on mobile to avoid covering nav bar */
+            left: 15px;
+            right: 15px;
             width: auto;
-            max-width: calc(100% - 40px);
-            right: auto;
+            max-width: none;
+            border-left-width: 4px;
+            padding: 12px;
+            border-radius: 10px;
+        }
+        
+        .fs-action a {
+            max-width: 220px;
+        }
+
+        .fs-name {
+            font-size: 14px;
         }
     }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const fakeSalesData = {
-            products: @json($fakeSaleProducts),
-            people: [
-                { name: 'Rafiqul Islam', location: 'Dhaka' },
-                { name: 'Sumaiya Akter', location: 'Chittagong' },
-                { name: 'Md. Hasan', location: 'Sylhet' },
-                { name: 'Fatema Begum', location: 'Rajshahi' },
-                { name: 'Abdul Karim', location: 'Khulna' },
-                { name: 'Nusrat Jahan', location: 'Barisal' },
-                { name: 'Sharmin Sultana', location: 'Comilla' },
-                { name: 'Mohammad Ali', location: 'Mymensingh' },
-                { name: 'Ayesha Siddiqua', location: 'Rangpur' },
-                { name: 'Kamrul Hasan', location: 'Gazipur' },
-                { name: 'Farhana Yasmin', location: 'Narayanganj' },
-                { name: 'Rubel Hossain', location: 'Tangail' },
-                { name: 'Jannatul Ferdous', location: 'Bogra' },
-                { name: 'Arifur Rahman', location: 'Jessore' },
-                { name: 'Shaila Parvin', location: 'Dinajpur' },
-                { name: 'Sojib Khan', location: 'Savar' },
-                { name: 'Tania Ahmed', location: 'Noakhali' },
-                { name: 'Imran Hossain', location: 'Feni' },
-                { name: 'Salma Khatun', location: 'Kushtia' },
-                { name: 'Rakib Hasan', location: 'Pabna' },
-                { name: 'Nasrin Akter', location: 'Faridpur' },
-                { name: 'Mahbubur Rahman', location: 'Jamalpur' },
-                { name: 'Tasnim Jahan', location: 'Cox\'s Bazar' },
-                { name: 'Ripon Mia', location: 'Brahmanbaria' },
-                { name: 'Sabina Yasmin', location: 'Narsingdi' },
-                { name: 'Zahid Hasan', location: 'Sirajganj' },
-                { name: 'Moushumi Akter', location: 'Naogaon' },
-                { name: 'Al-Amin', location: 'Manikganj' },
-                { name: 'Sadia Islam', location: 'Munshiganj' },
-                { name: 'Foysal Ahmed', location: 'Habiganj' },
-                { name: 'Rina Begum', location: 'Lakshmipur' },
-                { name: 'Shahidul Islam', location: 'Sherpur' },
-                { name: 'Rokia Sultana', location: 'Netrokona' },
-                { name: 'Masud Rana', location: 'Chandpur' },
-                { name: 'Laila Arjumand', location: 'Joypurhat' },
-                { name: 'Tariqul Islam', location: 'Natore' },
-                { name: 'Nahid Hasan', location: 'Magura' },
-                { name: 'Rumana Parvin', location: 'Bagerhat' },
-                { name: 'Monir Hossain', location: 'Satkhira' },
-                { name: 'Samira Khan', location: 'Chuadanga' },
-                { name: 'Kawsar Ahmed', location: 'Meherpur' },
-                { name: 'Juthi Akter', location: 'Jhenaidah' },
-                { name: 'Sabbir Hossain', location: 'Narail' },
-                { name: 'Popy Rani', location: 'Bhola' },
-                { name: 'Asaduzzaman', location: 'Patuakhali' },
-                { name: 'Rokeya Begum', location: 'Barguna' },
-                { name: 'Sohel Rana', location: 'Pirojpur' },
-                { name: 'Munni Akter', location: 'Jhalokati' },
-                { name: 'Mizanur Rahman', location: 'Sunamganj' },
-                { name: 'Shirin Akter', location: 'Moulvibazar' }
-            ],
-            times: [
-                'Just now', '1 minute ago', '2 minutes ago', '5 minutes ago', 
-                '10 minutes ago', '15 minutes ago', '20 minutes ago', '30 minutes ago',
-                '45 minutes ago', '1 hour ago'
-            ]
-        };
+    (function() {
+        // Global variable to track the timeout so we can clear it on navigation
+        if (typeof window.fakeSalesTimeout === 'undefined') {
+            window.fakeSalesTimeout = null;
+        }
 
-        const notification = document.getElementById('fake-sales-notification');
-        if (!notification || fakeSalesData.products.length === 0) return;
+        function initFakeSales() {
+            // Clear any existing timeout to prevent double loops
+            if (window.fakeSalesTimeout) {
+                clearTimeout(window.fakeSalesTimeout);
+                window.fakeSalesTimeout = null;
+            }
 
-        const imgEl = document.getElementById('fs-image');
-        const customerEl = document.getElementById('fs-customer');
-        const productEl = document.getElementById('fs-product');
-        const productLinkEl = document.getElementById('fs-product-link');
-        const timeEl = document.getElementById('fs-time');
-        const closeBtn = document.getElementById('fs-close');
+            // Data
+            const products = @json($fakeSaleProducts);
+            if (!products || products.length === 0) return;
 
-        // Close button handler
-        closeBtn.addEventListener('click', function() {
-            hideNotification();
-            // Wait longer if manually closed
-            setTimeout(cycleNotification, 20000); 
+            const people = [
+                { name: 'রফিকুল ইসলাম', location: 'ঢাকা' },
+                { name: 'সুমাইয়া আক্তার', location: 'চট্টগ্রাম' },
+                { name: 'মোঃ হাসান', location: 'সিলেট' },
+                { name: 'ফাতেমা বেগম', location: 'রাজশাহী' },
+                { name: 'আব্দুল করিম', location: 'খুলনা' },
+                { name: 'নুসরাত জাহান', location: 'বরিশাল' },
+                { name: 'শারমিন সুলতানা', location: 'কুমিল্লা' },
+                { name: 'মোহাম্মদ আলী', location: 'ময়মনসিংহ' },
+                { name: 'আয়েশা সিদ্দিকা', location: 'রংপুর' },
+                { name: 'কামরুল হাসান', location: 'গাজীপুর' },
+                { name: 'ফারহানা ইয়াসমিন', location: 'নারায়ণগঞ্জ' },
+                { name: 'রুবেল হোসেন', location: 'টাঙ্গাইল' },
+                { name: 'জান্নাতুল ফেরদৌস', location: 'বগুড়া' },
+                { name: 'আরিফুর রহমান', location: 'যশোর' },
+                { name: 'শায়লা পারভীন', location: 'দিনাজপুর' },
+                { name: 'সজীব খান', location: 'সাভার' },
+                { name: 'তানিয়া আহমেদ', location: 'নোয়াখালী' },
+                { name: 'ইমরান হোসেন', location: 'ফেনী' },
+                { name: 'সালমা খাতুন', location: 'কুষ্টিয়া' },
+                { name: 'রাকিব হাসান', location: 'পাবনা' },
+                { name: 'নাসরিন আক্তার', location: 'ফরিদপুর' },
+                { name: 'মাহবুবুর রহমান', location: 'জামালপুর' },
+                { name: 'তাসনিম জাহান', location: 'কক্সবাজার' },
+                { name: 'রিপন মিয়া', location: 'ব্রাহ্মণবাড়িয়া' },
+                { name: 'সাবিনা ইয়াসমিন', location: 'নরসিংদী' },
+                { name: 'জাহিদ হাসান', location: 'সিরাজগঞ্জ' },
+                { name: 'মৌসুমী আক্তার', location: 'নওগাঁ' },
+                { name: 'আল-আমিন', location: 'মানিকগঞ্জ' },
+                { name: 'সাদিয়া ইসলাম', location: 'মুন্সীগঞ্জ' },
+                { name: 'ফয়সাল আহমেদ', location: 'হবিগঞ্জ' },
+                { name: 'রিনা বেগম', location: 'লক্ষ্মীপুর' }
+            ];
+
+            const times = [
+                'এইমাত্র', '১ মিনিট আগে', '২ মিনিট আগে', '৫ মিনিট আগে', 
+                '১০ মিনিট আগে', '১৫ মিনিট আগে', '২০ মিনিট আগে', '৩০ মিনিট আগে',
+                '৪৫ মিনিট আগে', '১ ঘণ্টা আগে'
+            ];
+
+            const notification = document.getElementById('fake-sales-notification');
+            if (!notification) return;
+
+            const imgEl = document.getElementById('fs-image');
+            const customerEl = document.getElementById('fs-customer');
+            const productEl = document.getElementById('fs-product');
+            const productLinkEl = document.getElementById('fs-product-link');
+            const timeEl = document.getElementById('fs-time');
+            const closeBtn = document.getElementById('fs-close');
+
+            // Re-attach listener correctly
+            const newCloseBtn = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+            
+            newCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                hideNotification();
+                // Restart cycle after 20s
+                if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
+                window.fakeSalesTimeout = setTimeout(cycleNotification, 20000); 
+            });
+
+            function getRandomItem(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function showNotification() {
+                const product = getRandomItem(products);
+                const person = getRandomItem(people);
+                const time = getRandomItem(times);
+
+                if(imgEl) imgEl.src = product.image;
+                if(customerEl) customerEl.textContent = `${person.name}, ${person.location}`;
+                if(productEl) productEl.textContent = product.name;
+                if(productLinkEl) productLinkEl.href = product.url;
+                if(timeEl) timeEl.textContent = time;
+
+                notification.style.display = 'flex';
+                // Small delay to ensure display:flex applies before opacity
+                requestAnimationFrame(() => {
+                    notification.classList.add('show');
+                });
+
+                // Hide after 5 seconds
+                if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
+                window.fakeSalesTimeout = setTimeout(hideNotification, 5000);
+            }
+
+            function hideNotification() {
+                const notif = document.getElementById('fake-sales-notification');
+                if (notif) {
+                    notif.classList.remove('show');
+                    setTimeout(() => {
+                        notif.style.display = 'none';
+                    }, 500);
+                }
+            }
+
+            function cycleNotification() {
+                // Fixed 5s delay as requested
+                const delay = 5000;
+                
+                if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
+                window.fakeSalesTimeout = setTimeout(() => {
+                    showNotification();
+                    // Schedule next
+                    window.fakeSalesTimeout = setTimeout(cycleNotification, 5000 + 1000 + 500); // 5s display + 1s transition + buffer
+                }, delay);
+            }
+
+            // Start cycle
+            cycleNotification();
+        }
+
+        // Run on initial load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFakeSales);
+        } else {
+            initFakeSales();
+        }
+        
+        // Run on Livewire navigation (SPA feel)
+        document.addEventListener('livewire:navigated', initFakeSales);
+        
+        // Cleanup BEFORE navigating away
+        document.addEventListener('livewire:navigating', function() {
+            if (window.fakeSalesTimeout) {
+                clearTimeout(window.fakeSalesTimeout);
+                window.fakeSalesTimeout = null;
+            }
+            const notif = document.getElementById('fake-sales-notification');
+            if (notif) notif.classList.remove('show');
         });
 
-        function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        function showNotification() {
-            // Select random data
-            const product = getRandomItem(fakeSalesData.products);
-            const person = getRandomItem(fakeSalesData.people);
-            const time = getRandomItem(fakeSalesData.times);
-
-            // Populate DOM
-            imgEl.src = product.image;
-            customerEl.textContent = `${person.name}, ${person.location}`;
-            productEl.textContent = product.name;
-            productLinkEl.href = product.url;
-            timeEl.textContent = time;
-
-            // Show
-            notification.style.display = 'block';
-            // Slight delay to allow display:block to apply before opacity transition
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-
-            // Hide after ~5 seconds
-            setTimeout(hideNotification, 5000);
-        }
-
-        function hideNotification() {
-            notification.classList.remove('show');
-            // Wait for transition to finish before hiding display
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 500);
-        }
-
-        function cycleNotification() {
-            // FIXED DELAY: 5 seconds (not random anymore)
-            const delay = 5000;
-            
-            setTimeout(() => {
-                showNotification();
-                // Schedule next cycle after this one finishes (delay + display time + transition)
-                setTimeout(cycleNotification, 5000 + 1000); 
-            }, delay);
-        }
-
-        // Add version timestamp to prevent cache issues
-        console.log('Fake Sales Notification v1.2 Loaded');
-
-        // Start the first cycle
-        cycleNotification();
-    });
+    })();
 </script>
 @endif

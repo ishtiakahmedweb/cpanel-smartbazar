@@ -36,9 +36,10 @@
                     </svg> Verified
                 </span>
             </p>
-            <p class="fs-action">অর্ডার করেছেন: 
+            <p class="fs-action">
+                <span class="fs-label">অর্ডার করেছেন:</span> 
                 <a href="#" id="fs-product-link"><span id="fs-product"></span></a>
-                <span id="fs-product-text" style="display:none;"></span> <!-- Plain text for mobile -->
+                <span id="fs-product-text"></span> <!-- Plain text for mobile -->
             </p>
             <p class="fs-time"><small id="fs-time"></small></p>
         </div>
@@ -70,6 +71,10 @@
         flex-direction: column;
         background-color: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(10px);
+    }
+    
+    #fs-product-text {
+        display: none;
     }
 
     .fake-sales-notification.show {
@@ -275,6 +280,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
             color: #555;
+            display: flex; /* Use flex to align items */
+            align-items: center;
+        }
+        
+        .fs-label {
+            display: none; /* Hide 'Order placed' text on mobile */
         }
 
         /* Show plain text instead of link on mobile */
@@ -283,19 +294,20 @@
         }
         #fs-product-text {
             display: inline-block !important; 
-            font-weight: 600;
-            color: #333;
+            font-weight: 700; /* Bold product name */
+            color: #000; /* Darker color for emphasis */
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             vertical-align: bottom;
+            font-size: 13px; /* Slightly larger product name */
         }
 
         .fs-time {
             display: block;
             font-size: 10px;
             margin-top: 2px;
-            color: #999;
+            color: #888;
             line-height: 1;
         }
         

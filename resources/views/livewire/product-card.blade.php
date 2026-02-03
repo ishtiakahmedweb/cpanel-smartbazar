@@ -1,8 +1,25 @@
 <div class="product-card" data-id="{{ $product->id }}"
-    data-max="{{ $product->should_track ? $product->stock_count : -1 }}">
+    data-max="{{ $product->should_track ? $product->stock_count : -1 }}"
+    style="position: relative; cursor: pointer;">
     @php
         $in_stock = !$product->should_track || $product->stock_count > 0;
     @endphp
+    <style>
+        .product-card .stretched-link::after {
+            z-index: 1;
+        }
+        .product-card__buttons {
+            position: relative;
+            z-index: 2; /* Ensure buttons are above the stretched link */
+        }
+        /* Prevent accidental clicks while dragging the owl-carousel */
+        .owl-drag .product-card .stretched-link::after {
+            display: none !important;
+        }
+        .product-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
     <div class="product-card__badges-list">
         @if (!$in_stock)
             <div class="product-card__badge product-card__badge--sold">Sold</div>
@@ -29,6 +46,7 @@
     <div class="product-card__info">
         <div class="product-card__name">
             <a href="{{ route('products.show', $product) }}" wire:navigate.hover
+                class="stretched-link"
                 data-name="{{ $product->var_name }}">{{ $product->name }}</a>
         </div>
         @php

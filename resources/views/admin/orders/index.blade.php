@@ -598,6 +598,24 @@
             const successRate = data.success_rate || 0;
             const riskLevel = data.risk_level || 'medium';
             
+            // BDCourier often provides data in a 'couriers' array
+            const courierList = data.couriers || [];
+            // Old provider used 'apis' object
+            const apisObject = data.apis || {};
+            
+            // Calculate global totals from courier list if not provided at top level
+            let totalParcels = data.total_parcels || 0;
+            let totalDelivered = data.total_delivered || 0;
+            let totalCancel = data.total_cancel || 0;
+            
+            if (totalParcels === 0 && courierList.length > 0) {
+                courierList.forEach(c => {
+                    totalParcels += (c.total_parcels || 0);
+                    totalDelivered += (c.total_delivered_parcels || c.delivered || 0);
+                    totalCancel += (c.total_cancelled_parcels || c.cancelled || 0);
+                });
+            }
+
             // Risk level colors and badges
             const riskConfig = {
                 low: { color: 'success', icon: 'fa-check-circle', text: 'Low Risk', bgClass: 'alert-success' },
@@ -618,7 +636,7 @@
                         <div class="card text-center">
                             <div class="card-body">
                                 <h6 class="text-muted">Total Parcels</h6>
-                                <h2 class="mb-0">${data.total_parcels || 0}</h2>
+                                <h2 class="mb-0">${totalParcels}</h2>
                             </div>
                         </div>
                     </div>
@@ -626,7 +644,7 @@
                         <div class="card text-center bg-light-success">
                             <div class="card-body">
                                 <h6 class="text-muted">Delivered</h6>
-                                <h2 class="mb-0 text-success">${data.total_delivered || 0}</h2>
+                                <h2 class="mb-0 text-success">${totalDelivered}</h2>
                             </div>
                         </div>
                     </div>
@@ -634,7 +652,7 @@
                         <div class="card text-center bg-light-danger">
                             <div class="card-body">
                                 <h6 class="text-muted">Cancelled</h6>
-                                <h2 class="mb-0 text-danger">${data.total_cancel || 0}</h2>
+                                <h2 class="mb-0 text-danger">${totalCancel}</h2>
                             </div>
                         </div>
                     </div>
@@ -651,7 +669,10 @@
             `;
             
             // Courier breakdown
-            if (data.apis && Object.keys(data.apis).length > 0) {
+            const hasApis = Object.keys(apisObject).length > 0;
+            const hasCouriers = courierList.length > 0;
+            
+            if (hasApis || hasCouriers) {
                 html += `
                     <div>
                         <h6 class="mb-3">Courier Breakdown</h6>
@@ -668,15 +689,28 @@
                                 <tbody>
                 `;
                 
-                for (const [courier, stats] of Object.entries(data.apis)) {
-                    html += `
-                        <tr>
-                            <td><strong>${courier}</strong></td>
-                            <td class="text-center">${stats.total_parcels || 0}</td>
-                            <td class="text-center text-success">${stats.total_delivered_parcels || 0}</td>
-                            <td class="text-center text-danger">${stats.total_cancelled_parcels || 0}</td>
-                        </tr>
-                    `;
+                if (hasApis) {
+                    for (const [courier, stats] of Object.entries(apisObject)) {
+                        html += `
+                            <tr>
+                                <td><strong>${courier}</strong></td>
+                                <td class="text-center">${stats.total_parcels || 0}</td>
+                                <td class="text-center text-success">${stats.total_delivered_parcels || 0}</td>
+                                <td class="text-center text-danger">${stats.total_cancelled_parcels || 0}</td>
+                            </tr>
+                        `;
+                    }
+                } else if (hasCouriers) {
+                    courierList.forEach(stats => {
+                        html += `
+                            <tr>
+                                <td><strong>${stats.name}</strong></td>
+                                <td class="text-center">${stats.total_parcels || 0}</td>
+                                <td class="text-center text-success">${stats.total_delivered_parcels || stats.delivered || 0}</td>
+                                <td class="text-center text-danger">${stats.total_cancelled_parcels || stats.cancelled || 0}</td>
+                            </tr>
+                        `;
+                    });
                 }
                 
                 html += `

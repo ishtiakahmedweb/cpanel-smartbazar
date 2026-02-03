@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 
 class FraudCheckerService
 {
-    private string $apiKey = '80f352303fe08a0088c91e205c3b78c4';
-    private string $apiUrl = 'https://fraudchecker.link/api/v1/qc/';
+    private string $apiKey = 'bdc_pRxn6PBVqiFYLfgt7LfXaeAqAdwStSAGyTlhsOUE9kwuMc6BWdZ2hbOntGsK';
+    private string $apiUrl = 'https://api.bdcourier.com/courier-check';
 
     /**
      * Check fraud history for a given phone number
@@ -19,7 +19,7 @@ class FraudCheckerService
      */
     public function checkPhone(string $phone): array
     {
-        // Normalize phone number (remove +88, 88 prefix, keep 11 digits)
+        // Normalize phone number (ensure 11 digits for BD numbers)
         $phone = $this->normalizePhone($phone);
         $apiKey = trim($this->apiKey);
 
@@ -31,45 +31,57 @@ class FraudCheckerService
         }
 
         try {
+            // BDCourier API requires JSON body and Bearer token
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Accept' => 'application/json',
-                'User-Agent' => 'SmartBazar/1.0',
-            ])->asForm()->post($this->apiUrl, [
+            ])->post($this->apiUrl, [
                 'phone' => $phone,
             ]);
 
             if ($response->successful()) {
-                $data = $response->json();
+                $result = $response->json();
                 
-                // Add calculated fields
-                $data['success_rate'] = $this->calculateSuccessRate($data);
-                $data['risk_level'] = $this->getRiskLevel($data['success_rate']);
+                if (isset($result['status']) && $result['status'] === 'success') {
+                    $data = $result['data'] ?? [];
+                    
+                    // BDCourier structure: data -> { phone, couriers: [] }
+                    // We need to normalize this to our internal structure if possible
+                    // or just return as is if the frontend is adjusted
+                    
+                    // Add calculated fields for our UI
+                    $data['success_rate'] = $this->calculateSuccessRate($data);
+                    $data['risk_level'] = $this->getRiskLevel($data['success_rate']);
+                    
+                    // Cache for 24 hours
+                    Cache::put($cacheKey, $data, now()->addHours(24));
+                    
+                    return $data;
+                }
                 
-                // Cache for 24 hours
-                Cache::put($cacheKey, $data, now()->addHours(24));
-                
-                return $data;
+                return [
+                    'error' => 'API returned unsuccessful status: ' . ($result['message'] ?? 'Unknown error'),
+                ];
             } else {
                 $errorBody = $response->body();
-                Log::error('Fraud Checker API Error', [
+                Log::error('BDCourier API Error', [
                     'status' => $response->status(),
                     'body' => $errorBody,
                     'phone' => $phone,
                 ]);
                 
                 return [
-                    'error' => 'Failed to fetch fraud data. Status: ' . $response->status() . '. Details: ' . ($errorBody ?: 'No response body'),
+                    'error' => 'Failed to fetch data from BDCourier. Status: ' . $response->status(),
                 ];
             }
         } catch (\Exception $e) {
-            Log::error('Fraud Checker Exception', [
+            Log::error('BDCourier Exception', [
                 'message' => $e->getMessage(),
                 'phone' => $phone,
             ]);
             
             return [
-                'error' => 'Failed to connect to fraud checker service: ' . $e->getMessage(),
+                'error' => 'Failed to connect to BDCourier service: ' . $e->getMessage(),
             ];
         }
     }
@@ -110,13 +122,25 @@ class FraudCheckerService
      */
     private function calculateSuccessRate(array $data): float
     {
-        $total = $data['total_parcels'] ?? 0;
+        // BDCourier might provide statistics in the couriers array
+        // We'll calculate a global rate if possible
+        $total = 0;
+        $delivered = 0;
+        
+        if (isset($data['couriers']) && is_array($data['couriers'])) {
+            foreach ($data['couriers'] as $courier) {
+                $total += $courier['total_parcels'] ?? 0;
+                $delivered += $courier['total_delivered_parcels'] ?? ($courier['delivered'] ?? 0);
+            }
+        } else {
+            // Fallback to top-level fields if they exist
+            $total = $data['total_parcels'] ?? 0;
+            $delivered = $data['total_delivered'] ?? 0;
+        }
         
         if ($total == 0) {
             return 0;
         }
-        
-        $delivered = $data['total_delivered'] ?? 0;
         
         return round(($delivered / $total) * 100, 2);
     }
@@ -130,11 +154,11 @@ class FraudCheckerService
     private function getRiskLevel(float $successRate): string
     {
         if ($successRate >= 80) {
-            return 'low'; // Green - Good customer
+            return 'low';
         } elseif ($successRate >= 60) {
-            return 'medium'; // Yellow - Moderate risk
+            return 'medium';
         } else {
-            return 'high'; // Red - High risk
+            return 'high';
         }
     }
 

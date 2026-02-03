@@ -195,21 +195,58 @@
     /* Mobile optimization */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 60px !important; /* Move up slightly on mobile to avoid covering nav bar */
-            left: 15px;
-            right: 15px;
+            bottom: 70px !important; /* Move up to avoid bottom nav/buttons */
+            left: 10px;
+            right: auto; /* Don't stretch full width */
             width: auto;
-            max-width: none;
-            border-left-width: 4px;
-            padding: 12px;
-            border-radius: 10px;
+            max-width: 300px; /* Limit width */
+            border-left-width: 3px;
+            padding: 10px;
+            border-radius: 8px;
         }
-        
-        .fs-action a {
-            max-width: 220px;
+
+        .fake-sales-image-wrapper {
+            width: 45px; /* Smaller image */
+            height: 45px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .fake-sales-text {
+            padding-right: 15px;
         }
 
         .fs-name {
+            font-size: 13px; /* Smaller name */
+            margin-bottom: 0;
+        }
+
+        .fs-verified {
+            font-size: 9px; /* Smaller badge */
+            padding: 1px 4px;
+            margin-left: 5px;
+            transform: scale(0.9); /* Visually smaller */
+        }
+
+        .fs-action {
+            font-size: 12px; /* Smaller action text */
+            line-height: 1.3;
+        }
+
+        .fs-action a {
+            max-width: 180px;
+        }
+        
+        .fs-time {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        
+        .fs-close {
+            width: 18px;
+            height: 18px;
+            top: -8px;
+            right: -8px;
             font-size: 14px;
         }
     }

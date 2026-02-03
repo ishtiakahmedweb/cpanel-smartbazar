@@ -83,6 +83,7 @@
         background-color: #ffffff;
         overflow: hidden;
         border: 1px solid rgba(0,0,0,0.04); /* Subtle border */
+        border-left: 4px solid #ff6a00; /* ORANGE THEME */
     }
 
     .fake-sales-notification.show {
@@ -145,8 +146,8 @@
     .fs-verified-badge {
         display: inline-flex;
         align-items: center;
-        background: #e6fffa; /* Minty fresh background */
-        color: #059669; /* Deep teal green */
+        background: #fff3e0; /* Light Orange Background */
+        color: #e65100; /* Dark Orange Text */
         font-size: 9px;
         padding: 1px 6px;
         border-radius: 10px; /* Pill shape */
@@ -154,7 +155,7 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        border: 1px solid #d1fae5;
+        border: 1px solid #ffe0b2;
         height: 18px;
         flex-shrink: 0;
     }
@@ -246,7 +247,7 @@
     
     .fs-progress-fill {
         height: 100%;
-        background: #28a745;
+        background: #ff6a00; /* ORANGE FILL */
         width: 0%;
         transition: width linear;
     }
@@ -256,24 +257,24 @@
         .fake-sales-notification {
             bottom: 20px !important;
             left: 10px;
-            width: 290px;
+            width: 280px; /* Reduced compact width */
             height: auto;
-            min-height: 85px; /* Compact but tall enough */
-            max-width: 290px;
-            border-left: 0; /* Removing border for cleaner look, relying on badge color and progress bar */
+            min-height: auto;
+            max-width: 280px;
+            border-left: 0; 
             padding: 0; 
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15); /* Stronger mobile shadow */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
         }
 
         .fake-sales-content {
-            padding: 12px;
+            padding: 10px 10px 10px 10px; /* Tighter padding */
         }
 
         .fake-sales-image-wrapper {
-            width: 55px; /* slightly smaller than desktop */
-            height: 55px;
-            margin-right: 12px;
+            width: 50px; /* Smaller mobile image */
+            height: 50px;
+            margin-right: 10px;
         }
         
         .fs-product-link { display: none !important; }
@@ -283,11 +284,41 @@
             font-size: 13px;
         }
         
+        .fs-row-product {
+             margin-bottom: 1px; /* Tighter spacing */
+        }
+
         .fs-product-text {
             font-size: 13px;
             color: #000;
-            font-weight: 800; /* Extra bold */
-            margin-bottom: 2px;
+            font-weight: 800;
+            margin-bottom: 0px; 
+            line-height: 1.2;
+        }
+        
+        .fs-row-label {
+            font-size: 10px;
+            margin-bottom: 1px;
+            color: #777;
+        }
+        
+        .fs-row-time {
+             font-size: 9px;
+             margin-top: 1px;
+        }
+
+        .fs-verified-badge {
+            height: 14px;
+            font-size: 8px;
+            padding: 0 4px;
+        }
+        
+        .fs-close {
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
         }
     }
 </style>
@@ -418,14 +449,14 @@
                     // Start progress
                     if(progressFill) {
                         requestAnimationFrame(() => {
-                            progressFill.style.transition = 'width 5000ms linear';
+                            progressFill.style.transition = 'width 10000ms linear';
                             progressFill.style.width = '100%';
                         });
                     }
                 });
 
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
-                window.fakeSalesTimeout = setTimeout(hideNotification, 5000);
+                window.fakeSalesTimeout = setTimeout(hideNotification, 10000);
             }
 
             function hideNotification() {
@@ -439,14 +470,15 @@
             }
 
             function cycleNotification() {
-                const minDelay = 5000;
-                const maxDelay = 10000;
+                // Random 10-15s
+                const minDelay = 10000;
+                const maxDelay = 15000;
                 const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
                 
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
                 window.fakeSalesTimeout = setTimeout(() => {
                     showNotification();
-                    window.fakeSalesTimeout = setTimeout(cycleNotification, 5000 + 500 + 1000); 
+                    window.fakeSalesTimeout = setTimeout(cycleNotification, 10000 + 500 + 1000); 
                 }, randomDelay);
             }
 

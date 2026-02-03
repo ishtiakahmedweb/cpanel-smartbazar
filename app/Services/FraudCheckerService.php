@@ -31,11 +31,11 @@ class FraudCheckerService
         }
 
         try {
-            // BDCourier API requires JSON body and Bearer token
+            // BDCourier PHP example uses x-www-form-urlencoded
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Accept' => 'application/json',
-            ])->post($this->apiUrl, [
+            ])->asForm()->post($this->apiUrl, [
                 'phone' => $phone,
             ]);
 
@@ -44,10 +44,6 @@ class FraudCheckerService
                 
                 if (isset($result['status']) && $result['status'] === 'success') {
                     $data = $result['data'] ?? [];
-                    
-                    // BDCourier structure: data -> { phone, couriers: [] }
-                    // We need to normalize this to our internal structure if possible
-                    // or just return as is if the frontend is adjusted
                     
                     // Add calculated fields for our UI
                     $data['success_rate'] = $this->calculateSuccessRate($data);
@@ -71,7 +67,7 @@ class FraudCheckerService
                 ]);
                 
                 return [
-                    'error' => 'Failed to fetch data from BDCourier. Status: ' . $response->status(),
+                    'error' => 'Failed to fetch data from BDCourier. Status: ' . $response->status() . '. Details: ' . ($errorBody ?: 'No response body'),
                 ];
             }
         } catch (\Exception $e) {

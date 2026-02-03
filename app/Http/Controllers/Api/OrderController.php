@@ -270,6 +270,8 @@ class OrderController extends Controller
             })
             ->addColumn('actions', function (Order $order) {
                 $actions = '<div class="btn-group">';
+                // Fraud check button
+                $actions .= '<button type="button" class="btn btn-sm btn-info check-fraud-btn" data-phone="'.$order->phone.'" data-order-id="'.$order->id.'" title="Check Fraud History"><i class="fa fa-shield"></i></button>';
                 // if (isOninda() || ! $order->source_id) { // allow for every platform
                 $actions .= '<a href="'.route('admin.orders.destroy', $order).'" data-action="delete" class="btn btn-sm btn-danger">Delete</a>';
                 // }

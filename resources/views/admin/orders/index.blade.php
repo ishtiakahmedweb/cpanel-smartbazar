@@ -147,6 +147,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Fraud Check Modal -->
+    <div class="modal fade" id="fraudCheckModal" tabindex="-1" role="dialog" aria-labelledby="fraudCheckModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fraudCheckModalLabel"><i class="fa fa-shield"></i> Fraud Check Results</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="fraudCheckContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p>Checking fraud history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
@@ -508,6 +530,148 @@
                     $.notify(response?.responseJSON?.message || 'Failed to forward orders to the Wholesaler', 'danger');
                 }
             });
+        }
+
+        // Fraud Check Functionality
+        $(document).on('click', '.check-fraud-btn', function() {
+            const phone = $(this).data('phone');
+            const orderId = $(this).data('order-id');
+            
+            // Show modal with loading state
+            $('#fraudCheckModal').modal('show');
+            $('#fraudCheckContent').html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p>Checking fraud history for ${phone}...</p>
+                </div>
+            `);
+            
+            // Make AJAX request
+            $.post({
+                url: '{{ route('admin.orders.check-fraud') }}',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    phone: phone
+                },
+                success: function(response) {
+                    if (response.success && response.data) {
+                        displayFraudResults(response.data, phone);
+                    } else {
+                        showFraudError('No data received from server');
+                    }
+                },
+                error: function(xhr) {
+                    const message = xhr.responseJSON?.error || 'Failed to check fraud history';
+                    showFraudError(message);
+                }
+            });
+        });
+
+        function displayFraudResults(data, phone) {
+            const successRate = data.success_rate || 0;
+            const riskLevel = data.risk_level || 'medium';
+            
+            // Risk level colors and badges
+            const riskConfig = {
+                low: { color: 'success', icon: 'fa-check-circle', text: 'Low Risk', bgClass: 'alert-success' },
+                medium: { color: 'warning', icon: 'fa-exclamation-triangle', text: 'Medium Risk', bgClass: 'alert-warning' },
+                high: { color: 'danger', icon: 'fa-times-circle', text: 'High Risk', bgClass: 'alert-danger' }
+            };
+            
+            const risk = riskConfig[riskLevel] || riskConfig.medium;
+            
+            let html = `
+                <div class="alert ${risk.bgClass} mb-4">
+                    <h5><i class="fa ${risk.icon}"></i> Risk Level: ${risk.text}</h5>
+                    <p class="mb-0">Customer Phone: <strong>${phone}</strong></p>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="text-muted">Total Parcels</h6>
+                                <h2 class="mb-0">${data.total_parcels || 0}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-light-success">
+                            <div class="card-body">
+                                <h6 class="text-muted">Delivered</h6>
+                                <h2 class="mb-0 text-success">${data.total_delivered || 0}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-light-danger">
+                            <div class="card-body">
+                                <h6 class="text-muted">Cancelled</h6>
+                                <h2 class="mb-0 text-danger">${data.total_cancel || 0}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6>Success Rate</h6>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-${risk.color}" role="progressbar" style="width: ${successRate}%" aria-valuenow="${successRate}" aria-valuemin="0" aria-valuemax="100">
+                            <strong>${successRate}%</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Courier breakdown
+            if (data.apis && Object.keys(data.apis).length > 0) {
+                html += `
+                    <div>
+                        <h6 class="mb-3">Courier Breakdown</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Courier</th>
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Delivered</th>
+                                        <th class="text-center">Cancelled</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                for (const [courier, stats] of Object.entries(data.apis)) {
+                    html += `
+                        <tr>
+                            <td><strong>${courier}</strong></td>
+                            <td class="text-center">${stats.total_parcels || 0}</td>
+                            <td class="text-center text-success">${stats.total_delivered_parcels || 0}</td>
+                            <td class="text-center text-danger">${stats.total_cancelled_parcels || 0}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            $('#fraudCheckContent').html(html);
+        }
+
+        function showFraudError(message) {
+            $('#fraudCheckContent').html(`
+                <div class="alert alert-danger">
+                    <h5><i class="fa fa-exclamation-triangle"></i> Error</h5>
+                    <p class="mb-0">${message}</p>
+                </div>
+            `);
         }
     </script>
 

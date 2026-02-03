@@ -684,6 +684,35 @@ class OrderController extends Controller
     }
 
     /**
+     * Check fraud history for a customer phone number
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkFraud(Request $request)
+    {
+        $request->validate([
+            'phone' => ['required', 'string'],
+        ]);
+
+        $fraudChecker = new \App\Services\FraudCheckerService();
+        $result = $fraudChecker->checkPhone($request->phone);
+
+        if (isset($result['error'])) {
+            return response()->json([
+                'success' => false,
+                'error' => $result['error'],
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $result,
+        ]);
+    }
+
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Admin\Order  $order

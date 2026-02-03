@@ -20,6 +20,27 @@
         th:focus {
             outline: none;
         }
+        
+        /* Fix horizontal scrolling - make only table scrollable */
+        body {
+            overflow-x: hidden !important;
+        }
+        
+        .table-responsive {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Make DataTable responsive */
+        .datatable {
+            width: 100% !important;
+            table-layout: auto;
+        }
+        
+        /* Ensure card doesn't overflow */
+        .orders-table .card {
+            overflow: hidden;
+        }
     </style>
 @endpush
 

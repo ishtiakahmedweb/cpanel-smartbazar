@@ -1156,6 +1156,7 @@
         @include('partials.footer')
         <!-- site__footer / end -->
     </div><!-- site / end -->
+    @include('partials.fake-sales-notifications')
     @livewireScripts
     <script>
         // Register shared Alpine components (mirrors storefront behavior)

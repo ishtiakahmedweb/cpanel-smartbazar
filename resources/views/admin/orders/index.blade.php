@@ -21,25 +21,26 @@
             outline: none;
         }
         
-        /* Fix horizontal scrolling - make only table scrollable */
-        body {
+        /* Fix horizontal scrolling */
+        body, html {
             overflow-x: hidden !important;
+            max-width: 100vw;
         }
         
-        .table-responsive {
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Make DataTable responsive */
+        /* Compact table styling */
         .datatable {
-            width: 100% !important;
-            table-layout: auto;
+            font-size: 0.875rem;
         }
         
-        /* Ensure card doesn't overflow */
-        .orders-table .card {
-            overflow: hidden;
+        .datatable td, .datatable th {
+            padding: 0.5rem !important;
+            white-space: nowrap;
+        }
+        
+        /* Make columns wrap text when needed */
+        .datatable td .customer-info,
+        .datatable td ul {
+            white-space: normal;
         }
     </style>
 @endpush
@@ -145,19 +146,19 @@
                                         <input type="checkbox" class="form-control" name="check_all" style="min-height: 20px;min-width: 20px;max-height: 20px;max-width: 20px;">
                                     </th>
                                     @endif
-                                    <th width="80">ID</th>
+                                    <th width="60">ID</th>
                                     @if(isOninda() || isReseller())
-                                    <th width="80">Source</th>
+                                    <th width="70">Source</th>
                                     @endif
-                                    <th style="min-width: 150px; max-width: 250px;">Customer</th>
-                                    <th style="min-width: 250px; max-width: 350px;">Products</th>
-                                    <th width="10">Amount</th>
-                                    <th>Status</th>
-                                    <th>Courier</th>
-                                    <th>Staff</th>
-                                    <th style="white-space: nowrap; min-width: 125px;">Date and Time</th>
+                                    <th width="180">Customer</th>
+                                    <th width="200">Products</th>
+                                    <th width="80">Amount</th>
+                                    <th width="120">Status</th>
+                                    <th width="140">Courier</th>
+                                    <th width="120">Staff</th>
+                                    <th width="130">Date/Time</th>
                                     @if(auth()->user()->is('admin'))
-                                    <th width="10">Action</th>
+                                    <th width="90">Action</th>
                                     @endif
                                 </tr>
                                 </thead>
@@ -262,13 +263,16 @@
             }
 
             table = $('.datatable').DataTable({
+            responsive: false,
+            scrollX: true,
+            scrollCollapse: true,
+            autoWidth: false,
             search: [
                 {
                     bRegex: true,
                     bSmart: false,
                 },
             ],
-            // aoColumns: [{ "bSortable": false }, null, null, { "sType": "numeric" }, { "sType": "date" }, null, { "bSortable": false}],
             dom: 'lBftip',
             buttons: [
 @foreach(config('app.orders', []) as $status)

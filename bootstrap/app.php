@@ -136,9 +136,9 @@ if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && file_exists($publicHtml)) {
     $app->usePublicPath($publicHtml);
 }
 
-// FORCE THE STORAGE PATH - THIS IS THE FIX
-if (file_exists('/home/smartbaz/storage')) {
-    $app->useStoragePath('/home/smartbaz/storage');
-} 
+// FORCE THE STORAGE PATH - Removed to prevent conflicts with relative symlinks
+// if (file_exists('/home/smartbaz/storage')) {
+//    $app->useStoragePath('/home/smartbaz/storage');
+// } 
 
 return $app;

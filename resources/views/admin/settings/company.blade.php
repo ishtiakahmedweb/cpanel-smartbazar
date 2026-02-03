@@ -112,17 +112,17 @@
                 <x-error field="company[gmap_ecode]" />
             </div>
         </div>
-        <div class="col-md-6 d-none">
+        <div class="col-md-6">
             <div class="form-group">
-                <label for="dev-name">Dev Name</label>
-                <x-input name="company[dev_name]" id="dev-name" :value="$company->dev_name ?? null" />
+                <label for="dev-name">Footer "Developed By" Name</label>
+                <x-input name="company[dev_name]" id="dev-name" :value="$company->dev_name ?? null" placeholder="e.g. Smart Bazar or Your Name" />
                 <x-error field="company[dev_name]" />
             </div>
         </div>
-        <div class="col-md-6 d-none">
+        <div class="col-md-6">
             <div class="form-group">
-                <label for="dev-link">Dev Link</label>
-                <x-input name="company[dev_link]" id="dev-link" :value="$company->dev_link ?? null" />
+                <label for="dev-link">Footer "Developed By" Link</label>
+                <x-input name="company[dev_link]" id="dev-link" :value="$company->dev_link ?? null" placeholder="e.g. https://your-site.com or #" />
                 <x-error field="company[dev_link]" />
             </div>
         </div>

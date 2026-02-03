@@ -21,6 +21,7 @@ class FraudCheckerService
     {
         // Normalize phone number (remove +88, 88 prefix, keep 11 digits)
         $phone = $this->normalizePhone($phone);
+        $apiKey = trim($this->apiKey);
 
         // Check cache first (24 hour cache to save API credits)
         $cacheKey = 'fraud_check_' . $phone;
@@ -31,7 +32,9 @@ class FraudCheckerService
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Accept' => 'application/json',
+                'User-Agent' => 'SmartBazar/1.0',
             ])->asForm()->post($this->apiUrl, [
                 'phone' => $phone,
             ]);
@@ -48,13 +51,15 @@ class FraudCheckerService
                 
                 return $data;
             } else {
+                $errorBody = $response->body();
                 Log::error('Fraud Checker API Error', [
                     'status' => $response->status(),
-                    'body' => $response->body(),
+                    'body' => $errorBody,
+                    'phone' => $phone,
                 ]);
                 
                 return [
-                    'error' => 'Failed to fetch fraud data. Status: ' . $response->status(),
+                    'error' => 'Failed to fetch fraud data. Status: ' . $response->status() . '. Details: ' . ($errorBody ?: 'No response body'),
                 ];
             }
         } catch (\Exception $e) {
@@ -80,11 +85,18 @@ class FraudCheckerService
         // Remove any non-digit characters
         $phone = preg_replace('/[^0-9]/', '', $phone);
         
-        // Remove country code if present
-        if (strlen($phone) == 13 && str_starts_with($phone, '880')) {
+        // Handle common BD formats
+        if (str_starts_with($phone, '880')) {
             $phone = substr($phone, 2);
-        } elseif (strlen($phone) == 12 && str_starts_with($phone, '88')) {
-            $phone = substr($phone, 2);
+        } elseif (str_starts_with($phone, '0')) {
+            // Already starts with 0
+        } elseif (strlen($phone) == 10 && str_starts_with($phone, '1')) {
+            $phone = '0' . $phone;
+        }
+        
+        // Final fallback: take the last 11 digits if longer
+        if (strlen($phone) > 11) {
+            $phone = substr($phone, -11);
         }
         
         return $phone;

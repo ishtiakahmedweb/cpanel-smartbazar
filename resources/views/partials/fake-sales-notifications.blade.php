@@ -1,7 +1,7 @@
 @php
     // Fetch random products for the fake notifications
     // Cache for 60 minutes
-    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products_v2', 3600, function () {
+    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products_v3', 3600, function () {
         return \App\Models\Product::where('is_active', true)
             ->whereNotNull('slug')
             ->with(['images' => function($query) {
@@ -36,7 +36,10 @@
                     </svg> Verified
                 </span>
             </p>
-            <p class="fs-action">অর্ডার করেছেন: <a href="#" id="fs-product-link"><span id="fs-product"></span></a></p>
+            <p class="fs-action">অর্ডার করেছেন: 
+                <a href="#" id="fs-product-link"><span id="fs-product"></span></a>
+                <span id="fs-product-text" style="display:none;"></span> <!-- Plain text for mobile -->
+            </p>
             <p class="fs-time"><small id="fs-time"></small></p>
         </div>
         <button id="fs-close" class="fs-close" aria-label="Close">&times;</button>
@@ -44,6 +47,7 @@
 </div>
 
 <style>
+    /* Desktop / Default Styles */
     .fake-sales-notification {
         position: fixed;
         bottom: 25px;
@@ -51,7 +55,7 @@
         z-index: 99999;
         background: #fff;
         border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 10px rgba(0,0,0,0.05); /* Softer, deeper shadow */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 10px rgba(0,0,0,0.05);
         max-width: 380px;
         width: auto;
         padding: 16px;
@@ -59,13 +63,13 @@
         overflow: visible;
         opacity: 0;
         transform: translateY(20px) scale(0.98);
-        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); /* Smoother bezier */
+        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         pointer-events: none;
         border-left: 5px solid var(--primary, #28a745);
         display: flex;
         flex-direction: column;
-        background-color: rgba(255, 255, 255, 0.98); /* Slight transparency */
-        backdrop-filter: blur(10px); /* Glassmorphism effect */
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
     }
 
     .fake-sales-notification.show {
@@ -195,81 +199,107 @@
     /* Mobile optimization */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 70px !important; /* Move up to avoid bottom nav/buttons */
-            left: 10px;
-            right: auto; /* Don't stretch full width */
+            top: 20px; /* Position at TOP */
+            bottom: auto !important; /* Reset bottom */
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px); /* Center horizontal, offset vertical for anim */
+            right: auto;
             width: auto;
-            max-width: 300px; /* Limit width */
-            border-left-width: 3px;
-            padding: 10px;
-            border-radius: 8px;
+            max-width: 320px;
+            border-left-width: 3px; /* Slightly thinner accent */
+            padding: 8px 12px;
+            border-radius: 50px; /* Pill shape for top notification */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            align-items: center;
+        }
+
+        .fake-sales-notification.show {
+            transform: translateX(-50%) translateY(0); /* Drop down animation */
+        }
+
+        /* Compact Layout for Pill Shape */
+        .fake-sales-content {
+            align-items: center;
+            width: 100%;
         }
 
         .fake-sales-image-wrapper {
-            width: 45px; /* Smaller image */
-            height: 45px;
+            width: 36px; /* Ultra small avatar */
+            height: 36px;
+            border-radius: 50%; /* Circle image */
             margin-right: 10px;
-            border-radius: 4px;
+            border: none;
+            background: #f0f0f0;
         }
 
         .fake-sales-text {
-            padding-right: 15px;
+            padding-right: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .fs-name {
-            font-size: 13px; /* Smaller name */
+            font-size: 12px;
             margin-bottom: 0;
+            line-height: 1.2;
         }
 
         .fs-verified {
-            font-size: 9px; /* Smaller badge */
-            padding: 1px 4px;
-            margin-left: 5px;
-            transform: scale(0.9); /* Visually smaller */
+            display: none; /* Hide verified badge on mobile to save space */
         }
 
         .fs-action {
-            font-size: 12px; /* Smaller action text */
-            line-height: 1.3;
+            font-size: 11px;
+            margin-top: 1px;
+            line-height: 1.2;
         }
 
+        /* Show plain text instead of link on mobile */
         .fs-action a {
-            max-width: 180px;
+            display: none;
         }
-        
+        #fs-product-text {
+            display: inline !important;
+            font-weight: 600;
+            color: #444;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+
         .fs-time {
-            font-size: 10px;
-            margin-top: 2px;
+            display: none; /* Hide time on mobile to keep it clean */
         }
         
+        /* Hide close button on mobile, it autoslides anyway and takes space */
         .fs-close {
-            width: 18px;
-            height: 18px;
-            top: -8px;
-            right: -8px;
-            font-size: 14px;
+            display: none; 
         }
     }
 </style>
 
 <script>
     (function() {
-        // Global variable to track the timeout so we can clear it on navigation
         if (typeof window.fakeSalesTimeout === 'undefined') {
             window.fakeSalesTimeout = null;
         }
 
+        // Global state to track used indices to avoid repeats
+        window.fakeSalesUsedIndices = window.fakeSalesUsedIndices || [];
+
         function initFakeSales() {
-            // Clear any existing timeout to prevent double loops
             if (window.fakeSalesTimeout) {
                 clearTimeout(window.fakeSalesTimeout);
                 window.fakeSalesTimeout = null;
             }
 
-            // Data
             const products = @json($fakeSaleProducts);
             if (!products || products.length === 0) return;
 
+            // Updated People List (30)
             const people = [
                 { name: 'রফিকুল ইসলাম', location: 'ঢাকা' },
                 { name: 'সুমাইয়া আক্তার', location: 'চট্টগ্রাম' },
@@ -317,44 +347,69 @@
             const customerEl = document.getElementById('fs-customer');
             const productEl = document.getElementById('fs-product');
             const productLinkEl = document.getElementById('fs-product-link');
+            const productTextEl = document.getElementById('fs-product-text');
             const timeEl = document.getElementById('fs-time');
             const closeBtn = document.getElementById('fs-close');
 
-            // Re-attach listener correctly
             const newCloseBtn = closeBtn.cloneNode(true);
             closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
             
             newCloseBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 hideNotification();
-                // Restart cycle after 20s
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
                 window.fakeSalesTimeout = setTimeout(cycleNotification, 20000); 
             });
+
+            function getUniquePerson() {
+                // If we've used everyone, reset the list
+                if (window.fakeSalesUsedIndices.length >= people.length) {
+                    window.fakeSalesUsedIndices = [];
+                }
+
+                // Find an index that hasn't been used yet
+                let availableIndices = [];
+                for (let i = 0; i < people.length; i++) {
+                    if (!window.fakeSalesUsedIndices.includes(i)) {
+                        availableIndices.push(i);
+                    }
+                }
+
+                // Pick random from available
+                const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+                
+                // Mark as used
+                window.fakeSalesUsedIndices.push(randomIndex);
+
+                return people[randomIndex];
+            }
 
             function getRandomItem(arr) {
                 return arr[Math.floor(Math.random() * arr.length)];
             }
 
             function showNotification() {
+                // Pick unique person
+                const person = getUniquePerson();
                 const product = getRandomItem(products);
-                const person = getRandomItem(people);
                 const time = getRandomItem(times);
 
                 if(imgEl) imgEl.src = product.image;
                 if(customerEl) customerEl.textContent = `${person.name}, ${person.location}`;
+                
                 if(productEl) productEl.textContent = product.name;
+                if(productTextEl) productTextEl.textContent = product.name;
+                
                 if(productLinkEl) productLinkEl.href = product.url;
                 if(timeEl) timeEl.textContent = time;
 
                 notification.style.display = 'flex';
-                // Small delay to ensure display:flex applies before opacity
                 requestAnimationFrame(() => {
                     notification.classList.add('show');
                 });
 
-                // Hide after 5 seconds
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
+                // Hide after 5 seconds
                 window.fakeSalesTimeout = setTimeout(hideNotification, 5000);
             }
 
@@ -369,32 +424,30 @@
             }
 
             function cycleNotification() {
-                // Fixed 5s delay as requested
-                const delay = 5000;
+                // Random delay between 5 to 10 seconds (5000ms to 10000ms)
+                const minDelay = 5000;
+                const maxDelay = 10000;
+                const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
                 
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
                 window.fakeSalesTimeout = setTimeout(() => {
                     showNotification();
-                    // Schedule next
-                    window.fakeSalesTimeout = setTimeout(cycleNotification, 5000 + 1000 + 500); // 5s display + 1s transition + buffer
-                }, delay);
+                    // Schedule next cycle: Display time (5s) + Fade out (0.5s) + Random Buffer
+                    window.fakeSalesTimeout = setTimeout(cycleNotification, 5000 + 500 + 1000); 
+                }, randomDelay);
             }
 
-            // Start cycle
             cycleNotification();
         }
 
-        // Run on initial load
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initFakeSales);
         } else {
             initFakeSales();
         }
         
-        // Run on Livewire navigation (SPA feel)
         document.addEventListener('livewire:navigated', initFakeSales);
         
-        // Cleanup BEFORE navigating away
         document.addEventListener('livewire:navigating', function() {
             if (window.fakeSalesTimeout) {
                 clearTimeout(window.fakeSalesTimeout);

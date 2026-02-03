@@ -1,7 +1,7 @@
 @php
     // Fetch random products for the fake notifications
     // Cache for 60 minutes
-    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products_v3', 3600, function () {
+    $fakeSaleProducts = \Illuminate\Support\Facades\Cache::remember('fake_sales_products_v4', 3600, function () {
         return \App\Models\Product::where('is_active', true)
             ->whereNotNull('slug')
             ->with(['images' => function($query) {
@@ -27,53 +27,62 @@
         <div class="fake-sales-image-wrapper">
             <img id="fs-image" src="" alt="Product" class="fake-sales-image">
         </div>
-        <div class="fake-sales-text">
-            <p class="fs-name">
-                <span id="fs-customer"></span> 
-                <span class="fs-verified">
+        <div class="fake-sales-details">
+            <!-- Row 1: Name + Verified -->
+            <div class="fs-row-header">
+                <span id="fs-customer" class="fs-customer-name"></span>
+                <span class="fs-verified-badge">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg> Verified
                 </span>
-            </p>
-            <p class="fs-action">
-                <span class="fs-label">অর্ডার করেছেন:</span> 
-                <a href="#" id="fs-product-link"><span id="fs-product"></span></a>
-                <span id="fs-product-text"></span>
-            </p>
-            <p class="fs-time"><small id="fs-time"></small></p>
+            </div>
+            
+            <!-- Row 2: Label -->
+            <div class="fs-row-label">অর্ডার করেছেন:</div>
+
+            <!-- Row 3: Product Name -->
+            <div class="fs-row-product">
+                <a href="#" id="fs-product-link" class="fs-product-link"></a>
+                <span id="fs-product-text" class="fs-product-text"></span>
+            </div>
+
+            <!-- Row 4: Time -->
+            <div class="fs-row-time">
+                <small id="fs-time"></small>
+            </div>
         </div>
         <button id="fs-close" class="fs-close" aria-label="Close">&times;</button>
+        <!-- Progress Bar -->
+        <div class="fs-progress-bar">
+            <div class="fs-progress-fill"></div>
+        </div>
     </div>
 </div>
 
 <style>
-    /* Desktop / Default Styles */
+    /* 
+       Global / Desktop Styles 
+    */
     .fake-sales-notification {
         position: fixed;
         bottom: 25px;
         left: 25px;
         z-index: 99999;
         background: #fff;
-        border-radius: 8px; /* Slightly sharper corners for modern look */
-        box-shadow: 0 5px 20px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.05);
-        max-width: 380px;
+        border-radius: 12px; /* Smoother rounding */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05); /* Premium depth */
         width: auto;
-        padding: 12px 16px;
+        max-width: 380px;
+        padding: 0;
         font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
-        overflow: visible;
         opacity: 0;
         transform: translateY(20px) scale(0.98);
         transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         pointer-events: none;
-        border-left: 4px solid var(--primary, #28a745);
-        display: flex;
-        flex-direction: column;
         background-color: #ffffff;
-    }
-    
-    #fs-product-text {
-        display: none;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04); /* Subtle border */
     }
 
     .fake-sales-notification.show {
@@ -84,19 +93,21 @@
 
     .fake-sales-content {
         display: flex;
-        align-items: center; /* Center vertically */
+        align-items: center;
+        padding: 16px;
         position: relative;
     }
 
     .fake-sales-image-wrapper {
         flex-shrink: 0;
-        width: 60px;
-        height: 60px;
-        border-radius: 4px;
+        width: 65px;
+        height: 65px;
+        border-radius: 8px; /* Matching outer roundness style */
         overflow: hidden;
-        background: #fff;
+        background: #f8f9fa;
         margin-right: 15px;
         border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
     .fake-sales-image {
@@ -105,238 +116,178 @@
         object-fit: cover;
     }
 
-    .fake-sales-text {
+    .fake-sales-details {
         flex-grow: 1;
-        line-height: 1.3;
-        font-size: 14px;
-        padding-right: 20px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        min-width: 0;
+        padding-right: 18px;
     }
 
-    .fs-name {
+    /* Row 1: Header */
+    .fs-row-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+        width: 100%;
+    }
+
+    .fs-customer-name {
         font-weight: 700;
         font-size: 14px;
-        color: #222;
-        margin: 0;
-        display: flex;
-        align-items: center;
+        color: #1a1a1a;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .fs-verified {
+    .fs-verified-badge {
         display: inline-flex;
         align-items: center;
-        background: #e8f5e9;
-        color: #2e7d32;
+        background: #e6fffa; /* Minty fresh background */
+        color: #059669; /* Deep teal green */
         font-size: 9px;
-        padding: 1px 4px;
-        border-radius: 4px;
-        margin-left: 6px;
-        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 10px; /* Pill shape */
+        margin-left: 8px;
+        font-weight: 800;
         text-transform: uppercase;
-        border: 1px solid #c8e6c9;
-        height: 16px;
+        letter-spacing: 0.3px;
+        border: 1px solid #d1fae5;
+        height: 18px;
+        flex-shrink: 0;
     }
     
-    .fs-verified svg {
+    .fs-verified-badge svg {
         margin-right: 2px;
-        width: 8px;
-        height: 8px;
+        width: 9px;
+        height: 9px;
     }
 
-    .fs-action {
-        color: #555;
-        margin: 2px 0 0;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        flex-wrap: nowrap;
+    /* Row 2: Label */
+    .fs-row-label {
+        font-size: 11px;
+        color: #777;
+        margin-bottom: 2px;
+        line-height: 1;
+        font-weight: 500;
     }
 
-    .fs-label {
-        color: #666;
-        margin-right: 4px;
-        white-space: nowrap;
+    /* Row 3: Product */
+    .fs-row-product {
+        margin-bottom: 3px;
+        width: 100%;
     }
 
-    .fs-action a {
-        color: var(--primary, #0056b3);
-        text-decoration: none;
-        font-weight: 600;
+    .fs-product-link, .fs-product-text {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0056b3;
         display: block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 180px;
+        text-decoration: none;
+        line-height: 1.3;
     }
-    
-    .fs-action a:hover {
+    .fs-product-link:hover {
         text-decoration: underline;
     }
-
-    .fs-time {
-        font-size: 11px;
-        color: #999;
-        margin: 2px 0 0;
-        display: block;
+    .fs-product-text {
+        color: #111;
+        display: none;
     }
+
+    /* Row 4: Time */
+    .fs-row-time {
+        font-size: 10px;
+        color: #999;
+        line-height: 1;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Add a small check icon before time? Optional, keeping simple for now */
 
     .fs-close {
         position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #fff;
-        border: 1px none #eee;
-        border-radius: 50%;
+        top: 6px;
+        right: 6px;
+        background: transparent;
+        border: none;
         width: 20px;
         height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #ccc;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        z-index: 10;
+        color: #d1d5db; /* Lighter close button */
         padding: 0;
+        font-size: 18px;
         line-height: 1;
+        transition: color 0.2s;
     }
-
+    
     .fs-close:hover {
-        color: #333;
-        background: #f8f9fa;
+        color: #4b5563;
     }
 
-    /* Mobile optimization - Premium Real-Time Feel */
+    /* Progress Bar */
+    .fs-progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #f3f4f6;
+    }
+    
+    .fs-progress-fill {
+        height: 100%;
+        background: #28a745;
+        width: 0%;
+        transition: width linear;
+    }
+
+    /* MOBILE OPTIMIZATION (Premium) */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            top: auto;
             bottom: 20px !important;
             left: 10px;
-            right: auto;
-            width: 280px; /* Fixed width */
-            height: 84px; /* Fixed height accommodating 3 lines */
-            max-width: 280px;
-            border-left-width: 4px;
+            width: 290px;
+            height: auto;
+            min-height: 85px; /* Compact but tall enough */
+            max-width: 290px;
+            border-left: 0; /* Removing border for cleaner look, relying on badge color and progress bar */
             padding: 0; 
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            align-items: center; 
-            background: #ffffff;
-            display: flex;
-            transform: translateY(20px);
-            overflow: hidden;
-        }
-
-        .fake-sales-notification.show {
-            transform: translateY(0);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); /* Stronger mobile shadow */
         }
 
         .fake-sales-content {
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 0 10px; /* Internal padding */
-            position: relative;
+            padding: 12px;
         }
 
         .fake-sales-image-wrapper {
-            width: 54px; /* Proper visible size */
-            height: 54px;
-            border-radius: 4px;
+            width: 55px; /* slightly smaller than desktop */
+            height: 55px;
             margin-right: 12px;
-            border: 1px solid #f1f1f1;
-            background: #fff;
-            flex-shrink: 0;
         }
+        
+        .fs-product-link { display: none !important; }
+        .fs-product-text { display: block !important; }
 
-        .fake-sales-text {
-            padding-right: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            flex: 1;
-        }
-
-        /* Line 1: Name + Verified */
-        .fs-name {
+        .fs-customer-name {
             font-size: 13px;
-            line-height: 1.2;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-            color: #111;
-        }
-
-        .fs-verified {
-            display: inline-flex; /* Show badge on mobile for trust! */
-            margin-left: 4px;
-            padding: 0 3px;
-            height: 14px;
-            font-size: 8px;
-            border-radius: 3px;
         }
         
-        /* Line 2: Order Placed + Product Name */
-        .fs-action {
-            font-size: 12px;
-            margin-top: 1px;
-            line-height: 1.3;
-            width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #555;
-            display: flex; /* Flex to keep label and name together */
-            align-items: baseline;
-        }
-        
-        .fs-label {
-            display: inline; /* SHOW label */
-            font-size: 11px;
-            color: #666;
-            margin-right: 3px;
-            flex-shrink: 0;
-        }
-
-        /* Show plain text instead of link on mobile */
-        .fs-action a {
-            display: none;
-        }
-        
-        #fs-product-text {
-            display: inline-block !important; 
-            font-weight: 700; /* Bold product name */
+        .fs-product-text {
+            font-size: 13px;
             color: #000;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1; /* Allow it to take remaining space */
-        }
-
-        /* Line 3: Time */
-        .fs-time {
-            display: block;
-            font-size: 10px;
-            margin-top: 2px;
-            color: #999;
-            line-height: 1;
-        }
-        
-        .fs-close {
-            display: block;
-            width: 18px;
-            height: 18px;
-            top: 6px;
-            right: 6px;
-            font-size: 14px;
-            color: #ccc;
+            font-weight: 800; /* Extra bold */
+            margin-bottom: 2px;
         }
     }
 </style>
@@ -346,8 +297,6 @@
         if (typeof window.fakeSalesTimeout === 'undefined') {
             window.fakeSalesTimeout = null;
         }
-
-        // Global state to track used indices to avoid repeats
         window.fakeSalesUsedIndices = window.fakeSalesUsedIndices || [];
 
         function initFakeSales() {
@@ -359,7 +308,6 @@
             const products = @json($fakeSaleProducts);
             if (!products || products.length === 0) return;
 
-            // Updated People List (30)
             const people = [
                 { name: 'রফিকুল ইসলাম', location: 'ঢাকা' },
                 { name: 'সুমাইয়া আক্তার', location: 'চট্টগ্রাম' },
@@ -403,13 +351,13 @@
             const notification = document.getElementById('fake-sales-notification');
             if (!notification) return;
 
-            const imgEl = document.getElementById('fs-image');
-            const customerEl = document.getElementById('fs-customer');
-            const productEl = document.getElementById('fs-product');
-            const productLinkEl = document.getElementById('fs-product-link');
-            const productTextEl = document.getElementById('fs-product-text');
-            const timeEl = document.getElementById('fs-time');
-            const closeBtn = document.getElementById('fs-close');
+            const imgEl = document.querySelector('#fake-sales-notification #fs-image');
+            const customerEl = document.querySelector('#fake-sales-notification #fs-customer');
+            const productLinkEl = document.querySelector('#fake-sales-notification #fs-product-link');
+            const productTextEl = document.querySelector('#fake-sales-notification #fs-product-text');
+            const timeEl = document.querySelector('#fake-sales-notification #fs-time');
+            const closeBtn = document.querySelector('#fake-sales-notification #fs-close');
+            const progressFill = document.querySelector('#fake-sales-notification .fs-progress-fill');
 
             const newCloseBtn = closeBtn.cloneNode(true);
             closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
@@ -422,25 +370,18 @@
             });
 
             function getUniquePerson() {
-                // If we've used everyone, reset the list
                 if (window.fakeSalesUsedIndices.length >= people.length) {
                     window.fakeSalesUsedIndices = [];
                 }
-
-                // Find an index that hasn't been used yet
                 let availableIndices = [];
                 for (let i = 0; i < people.length; i++) {
                     if (!window.fakeSalesUsedIndices.includes(i)) {
                         availableIndices.push(i);
                     }
                 }
-
-                // Pick random from available
+                if (availableIndices.length === 0) return people[0];
                 const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-                
-                // Mark as used
                 window.fakeSalesUsedIndices.push(randomIndex);
-
                 return people[randomIndex];
             }
 
@@ -449,27 +390,41 @@
             }
 
             function showNotification() {
-                // Pick unique person
                 const person = getUniquePerson();
                 const product = getRandomItem(products);
-                const time = getRandomItem(times);
+                const timeStr = getRandomItem(times);
 
                 if(imgEl) imgEl.src = product.image;
                 if(customerEl) customerEl.textContent = `${person.name}, ${person.location}`;
                 
-                if(productEl) productEl.textContent = product.name;
+                if(productLinkEl) {
+                    productLinkEl.textContent = product.name;
+                    productLinkEl.href = product.url;
+                }
                 if(productTextEl) productTextEl.textContent = product.name;
                 
-                if(productLinkEl) productLinkEl.href = product.url;
-                if(timeEl) timeEl.textContent = time;
+                if(timeEl) timeEl.textContent = timeStr;
 
                 notification.style.display = 'flex';
+                
+                // Reset progress
+                if(progressFill) {
+                    progressFill.style.transition = 'none';
+                    progressFill.style.width = '0%';
+                }
+
                 requestAnimationFrame(() => {
                     notification.classList.add('show');
+                    // Start progress
+                    if(progressFill) {
+                        requestAnimationFrame(() => {
+                            progressFill.style.transition = 'width 5000ms linear';
+                            progressFill.style.width = '100%';
+                        });
+                    }
                 });
 
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
-                // Hide after 5 seconds
                 window.fakeSalesTimeout = setTimeout(hideNotification, 5000);
             }
 
@@ -484,7 +439,6 @@
             }
 
             function cycleNotification() {
-                // Random delay between 5 to 10 seconds (5000ms to 10000ms)
                 const minDelay = 5000;
                 const maxDelay = 10000;
                 const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
@@ -492,7 +446,6 @@
                 if (window.fakeSalesTimeout) clearTimeout(window.fakeSalesTimeout);
                 window.fakeSalesTimeout = setTimeout(() => {
                     showNotification();
-                    // Schedule next cycle: Display time (5s) + Fade out (0.5s) + Random Buffer
                     window.fakeSalesTimeout = setTimeout(cycleNotification, 5000 + 500 + 1000); 
                 }, randomDelay);
             }
@@ -507,7 +460,6 @@
         }
         
         document.addEventListener('livewire:navigated', initFakeSales);
-        
         document.addEventListener('livewire:navigating', function() {
             if (window.fakeSalesTimeout) {
                 clearTimeout(window.fakeSalesTimeout);

@@ -196,61 +196,85 @@
         transform: scale(1.1);
     }
 
-    /* Mobile optimization */
+    /* Mobile optimization - Premium Compact Fixed */
     @media (max-width: 575px) {
         .fake-sales-notification {
             top: auto;
-            bottom: 20px !important; /* Back to bottom */
+            bottom: 20px !important;
             left: 10px;
             right: auto;
-            width: auto;
-            max-width: 280px; /* Very compact width */
-            border-left-width: 3px;
-            padding: 10px;
-            border-radius: 6px; /* Boxy, not round */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            align-items: flex-start; /* Align top for box layout */
+            width: 270px;
+            height: 75px; /* Fixed height container */
+            max-width: 270px;
+            border-left-width: 4px;
+            padding: 0; /* Remove default padding, use flex alignment */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Premium shadow */
+            align-items: center; 
+            background: #ffffff;
+            display: flex;
             transform: translateY(20px);
+            overflow: hidden; /* Clip content */
         }
 
         .fake-sales-notification.show {
-            transform: translateY(0); /* Slide up animation */
+            transform: translateY(0);
         }
 
-        /* Compact Layout */
         .fake-sales-content {
             align-items: center;
             width: 100%;
+            height: 100%;
+            padding: 8px 10px; /* Internal padding */
+            position: relative;
         }
 
         .fake-sales-image-wrapper {
-            width: 45px; /* Slightly larger than the pill version but still small */
-            height: 45px;
-            border-radius: 4px; /* Boxy image */
-            margin-right: 10px;
-            border: 1px solid #eee;
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            margin-right: 12px;
+            border: 1px solid #f0f0f0;
             background: #fff;
+            flex-shrink: 0;
         }
 
         .fake-sales-text {
-            padding-right: 15px; /* Space for close button */
-            display: block;
+            padding-right: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            flex: 1; /* Take remaining space */
+            min-width: 0; /* Crucial for ellipsis in flex */
         }
 
         .fs-name {
             font-size: 13px;
             margin-bottom: 2px;
-            line-height: 1.2;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            color: #222;
         }
 
         .fs-verified {
-            display: none; /* Keep hidden on mobile to save space */
+            display: none;
         }
 
         .fs-action {
             font-size: 12px;
-            margin-top: 0;
-            line-height: 1.3;
+            margin-top: 1px;
+            line-height: 1.2;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #555;
         }
 
         /* Show plain text instead of link on mobile */
@@ -258,30 +282,36 @@
             display: none;
         }
         #fs-product-text {
-            display: inline !important;
+            display: inline-block !important; 
             font-weight: 600;
             color: #333;
-            /* Allow wrapping on mobile box view */
-            white-space: normal; 
-            overflow: visible;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
         }
 
         .fs-time {
-            display: block; /* Show time again for box view */
+            display: block;
             font-size: 10px;
             margin-top: 2px;
             color: #999;
+            line-height: 1;
         }
         
         .fs-close {
-            display: block; /* Show close button again */
-            width: 20px;
-            height: 20px;
-            top: -5px;
-            right: -5px;
+            display: block;
+            width: 18px;
+            height: 18px;
+            top: 4px;
+            right: 4px;
             font-size: 16px;
-            background: #fff;
-            box-shadow: -1px 1px 3px rgba(0,0,0,0.05);
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            color: #ccc;
+            padding: 0;
+            line-height: 18px;
         }
     }
 </style>

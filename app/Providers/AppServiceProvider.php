@@ -78,6 +78,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if (! $this->app->runningInConsole()) {
+            // 🔒 PERMANENT FIX: Force HTTPS to prevent "Mixed Content Cache Pollution"
+            // This ensures assets (CSS/JS) always load over https, even if the request 
+            // initially hits the server via http or a proxy.
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+
             \Illuminate\Support\Facades\View::share('logo', setting('logo'));
             \Illuminate\Support\Facades\View::share('company', setting('company'));
         }

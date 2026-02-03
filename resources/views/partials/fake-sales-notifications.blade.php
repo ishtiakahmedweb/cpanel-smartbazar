@@ -39,7 +39,7 @@
             <p class="fs-action">
                 <span class="fs-label">অর্ডার করেছেন:</span> 
                 <a href="#" id="fs-product-link"><span id="fs-product"></span></a>
-                <span id="fs-product-text"></span> <!-- Plain text for mobile -->
+                <span id="fs-product-text"></span>
             </p>
             <p class="fs-time"><small id="fs-time"></small></p>
         </div>
@@ -55,22 +55,21 @@
         left: 25px;
         z-index: 99999;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 10px rgba(0,0,0,0.05);
+        border-radius: 8px; /* Slightly sharper corners for modern look */
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.05);
         max-width: 380px;
         width: auto;
-        padding: 16px;
+        padding: 12px 16px;
         font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
         overflow: visible;
         opacity: 0;
         transform: translateY(20px) scale(0.98);
         transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         pointer-events: none;
-        border-left: 5px solid var(--primary, #28a745);
+        border-left: 4px solid var(--primary, #28a745);
         display: flex;
         flex-direction: column;
-        background-color: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(10px);
+        background-color: #ffffff;
     }
     
     #fs-product-text {
@@ -85,7 +84,7 @@
 
     .fake-sales-content {
         display: flex;
-        align-items: flex-start;
+        align-items: center; /* Center vertically */
         position: relative;
     }
 
@@ -93,12 +92,11 @@
         flex-shrink: 0;
         width: 60px;
         height: 60px;
-        border-radius: 8px;
+        border-radius: 4px;
         overflow: hidden;
         background: #fff;
         margin-right: 15px;
         border: 1px solid #f0f0f0;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     .fake-sales-image {
@@ -109,19 +107,22 @@
 
     .fake-sales-text {
         flex-grow: 1;
-        line-height: 1.4;
+        line-height: 1.3;
         font-size: 14px;
         padding-right: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .fs-name {
         font-weight: 700;
-        font-size: 15px;
+        font-size: 14px;
         color: #222;
-        margin: 0 0 3px 0;
+        margin: 0;
         display: flex;
         align-items: center;
-        flex-wrap: wrap;
+        white-space: nowrap;
     }
 
     .fs-verified {
@@ -129,26 +130,35 @@
         align-items: center;
         background: #e8f5e9;
         color: #2e7d32;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 12px;
-        margin-left: 8px;
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 4px;
+        margin-left: 6px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         border: 1px solid #c8e6c9;
+        height: 16px;
     }
     
     .fs-verified svg {
-        margin-right: 3px;
-        margin-top: -1px;
+        margin-right: 2px;
+        width: 8px;
+        height: 8px;
     }
 
     .fs-action {
         color: #555;
-        margin: 0;
+        margin: 2px 0 0;
         font-size: 13px;
-        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    .fs-label {
+        color: #666;
+        margin-right: 4px;
+        white-space: nowrap;
     }
 
     .fs-action a {
@@ -159,8 +169,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 200px;
-        margin-top: 2px;
+        max-width: 180px;
     }
     
     .fs-action a:hover {
@@ -169,57 +178,55 @@
 
     .fs-time {
         font-size: 11px;
-        color: #888;
-        margin: 4px 0 0;
+        color: #999;
+        margin: 2px 0 0;
         display: block;
-        font-weight: 500;
     }
 
     .fs-close {
         position: absolute;
-        top: -12px;
-        right: -12px;
+        top: -8px;
+        right: -8px;
         background: #fff;
-        border: 1px solid #eee;
+        border: 1px none #eee;
         border-radius: 50%;
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         color: #ccc;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         z-index: 10;
         padding: 0;
+        line-height: 1;
     }
 
     .fs-close:hover {
         color: #333;
         background: #f8f9fa;
-        transform: scale(1.1);
     }
 
-    /* Mobile optimization - Premium Compact Fixed */
+    /* Mobile optimization - Premium Real-Time Feel */
     @media (max-width: 575px) {
         .fake-sales-notification {
             top: auto;
             bottom: 20px !important;
             left: 10px;
             right: auto;
-            width: 270px;
-            height: 75px; /* Fixed height container */
-            max-width: 270px;
+            width: 280px; /* Fixed width */
+            height: 84px; /* Fixed height accommodating 3 lines */
+            max-width: 280px;
             border-left-width: 4px;
-            padding: 0; /* Remove default padding, use flex alignment */
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Premium shadow */
+            padding: 0; 
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             align-items: center; 
             background: #ffffff;
             display: flex;
             transform: translateY(20px);
-            overflow: hidden; /* Clip content */
+            overflow: hidden;
         }
 
         .fake-sales-notification.show {
@@ -230,84 +237,95 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: 8px 10px; /* Internal padding */
+            padding: 0 10px; /* Internal padding */
             position: relative;
         }
 
         .fake-sales-image-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 6px;
+            width: 54px; /* Proper visible size */
+            height: 54px;
+            border-radius: 4px;
             margin-right: 12px;
-            border: 1px solid #f0f0f0;
+            border: 1px solid #f1f1f1;
             background: #fff;
             flex-shrink: 0;
         }
 
         .fake-sales-text {
-            padding-right: 15px;
+            padding-right: 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             height: 100%;
             width: 100%;
             overflow: hidden;
-            flex: 1; /* Take remaining space */
-            min-width: 0; /* Crucial for ellipsis in flex */
+            flex: 1;
         }
 
+        /* Line 1: Name + Verified */
         .fs-name {
             font-size: 13px;
+            line-height: 1.2;
             margin-bottom: 2px;
-            line-height: 1.1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             width: 100%;
-            color: #222;
+            color: #111;
         }
 
         .fs-verified {
-            display: none;
+            display: inline-flex; /* Show badge on mobile for trust! */
+            margin-left: 4px;
+            padding: 0 3px;
+            height: 14px;
+            font-size: 8px;
+            border-radius: 3px;
         }
-
+        
+        /* Line 2: Order Placed + Product Name */
         .fs-action {
             font-size: 12px;
             margin-top: 1px;
-            line-height: 1.2;
+            line-height: 1.3;
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             color: #555;
-            display: flex; /* Use flex to align items */
-            align-items: center;
+            display: flex; /* Flex to keep label and name together */
+            align-items: baseline;
         }
         
         .fs-label {
-            display: none; /* Hide 'Order placed' text on mobile */
+            display: inline; /* SHOW label */
+            font-size: 11px;
+            color: #666;
+            margin-right: 3px;
+            flex-shrink: 0;
         }
 
         /* Show plain text instead of link on mobile */
         .fs-action a {
             display: none;
         }
+        
         #fs-product-text {
             display: inline-block !important; 
             font-weight: 700; /* Bold product name */
-            color: #000; /* Darker color for emphasis */
-            max-width: 100%;
+            color: #000;
             overflow: hidden;
             text-overflow: ellipsis;
-            vertical-align: bottom;
-            font-size: 13px; /* Slightly larger product name */
+            white-space: nowrap;
+            flex: 1; /* Allow it to take remaining space */
         }
 
+        /* Line 3: Time */
         .fs-time {
             display: block;
             font-size: 10px;
             margin-top: 2px;
-            color: #888;
+            color: #999;
             line-height: 1;
         }
         
@@ -315,15 +333,10 @@
             display: block;
             width: 18px;
             height: 18px;
-            top: 4px;
-            right: 4px;
-            font-size: 16px;
-            background: transparent;
-            box-shadow: none;
-            border: none;
+            top: 6px;
+            right: 6px;
+            font-size: 14px;
             color: #ccc;
-            padding: 0;
-            line-height: 18px;
         }
     }
 </style>

@@ -11,6 +11,7 @@
         $navText = $color->navbar->text_color ?? '#333333';
         $footerBg = $color->footer->background_color ?? '#333333';
         $footerText = $color->footer->text_color ?? '#ffffff';
+        $footerHover = $color->footer->text_hover ?? '#f8f9fa';
         $sectionBg = $color->section->background_color ?? $primaryColor;
         $sectionText = $color->section->text_color ?? '#ffffff';
     @endphp
@@ -30,6 +31,7 @@
 
         --footer-bg: {{ $footerBg }};
         --footer-text: {{ $footerText }};
+        --footer-hover: {{ $footerHover }};
 
         --section-bg: {{ $sectionBg }};
         --section-text: {{ $sectionText }};
@@ -142,6 +144,9 @@
     }
     .site-footer li a, .site-footer__widgets h5 {
         color: var(--footer-text) !important;
+    }
+    .site-footer a:hover {
+        color: var(--footer-hover) !important;
     }
 
     @keyframes driftZoom {

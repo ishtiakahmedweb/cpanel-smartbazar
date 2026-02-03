@@ -22,10 +22,12 @@
     Options -Indexes
     RewriteEngine On
 
-    # 1. Early Intercept for Storage (Physical Direct Route)
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+    # 1. Early Intercept for Storage (Forward to public/storage symlink)
+    # This prevents loops and handles the specific "All in public_html" structure
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^storage/(.*)$ public/storage/$1 [L]
 
-    # 2. Forward everything into the public/ folder
+    # 2. Forward everything into the public/ folder (except already public or existing files)
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

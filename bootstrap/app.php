@@ -28,21 +28,50 @@ $app = Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
             ->domain($adminDomain)
                 ->group(function() {
-                    Route::get('fix-storage', function() {
-                        $publicStorage = public_path('storage');
-                        
-                        // If it's a real directory and NOT a link, we must remove it first!
-                        if (file_exists($publicStorage) && !is_link($publicStorage)) {
-                            \Illuminate\Support\Facades\File::deleteDirectory($publicStorage);
-                            $msg = "Deleted real 'storage' folder. ";
-                        } else {
-                            $msg = "";
+                    Route::get('fix-everything', function() {
+                        try {
+                            // 1. Clear All Caches
+                            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+                            $msg = "Caches cleared. ";
+
+                            // 2. Fix Permissions (if possible via PHP)
+                            $paths = [storage_path(), base_path('bootstrap/cache')];
+                            foreach ($paths as $path) {
+                                if (file_exists($path)) {
+                                    @chmod($path, 0775);
+                                }
+                            }
+
+                            // 3. Fix Storage Symlink (Linux/cPanel Optimized)
+                            // We use a relative link because absolute paths from Git (Windows) break on Linux.
+                            $publicStorage = base_path('public/storage');
+                            
+                            if (file_exists($publicStorage)) {
+                                if (is_link($publicStorage)) {
+                                    unlink($publicStorage);
+                                } else {
+                                    \Illuminate\Support\Facades\File::deleteDirectory($publicStorage);
+                                }
+                            }
+
+                            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+                                // Relative: from public/storage point to ../storage/app/public
+                                $command = 'ln -s ../storage/app/public ' . escapeshellarg($publicStorage);
+                                exec($command, $output, $returnVar);
+                                $msg .= ($returnVar === 0) ? "Linux Relative Symlink Created. " : "Symlink failed (Check shell_exec). ";
+                            } else {
+                                \Illuminate\Support\Facades\Artisan::call('storage:link');
+                                $msg .= "Windows Symlink Created. ";
+                            }
+
+                            return $msg . "System is ready!";
+                        } catch (\Exception $e) {
+                            return "Error: " . $e->getMessage();
                         }
-                        
-                        \Illuminate\Support\Facades\Artisan::call('storage:link');
-                        
-                        $check = is_link($publicStorage) ? 'Link Created Successfully!' : 'FAIL: Could not create link.';
-                        return $msg . $check . "<br>Target: " . (is_link($publicStorage) ? readlink($publicStorage) : 'N/A');
+                    });
+
+                    Route::get('fix-storage', function() {
+                        return redirect('/fix-everything');
                     });
                     
                     require base_path('routes/admin.php');

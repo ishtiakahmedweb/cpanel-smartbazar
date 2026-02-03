@@ -28,7 +28,14 @@
             <img id="fs-image" src="" alt="Product" class="fake-sales-image">
         </div>
         <div class="fake-sales-text">
-            <p class="fs-name"><span id="fs-customer"></span></p>
+            <p class="fs-name">
+                <span id="fs-customer"></span> 
+                <span class="fs-verified">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="var(--primary, #28a745)" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg> Verified
+                </span>
+            </p>
             <p class="fs-action">Purchased <a href="#" id="fs-product-link"><span id="fs-product"></span></a></p>
             <p class="fs-time"><small id="fs-time"></small></p>
         </div>
@@ -41,31 +48,31 @@
         position: fixed;
         bottom: 20px;
         left: 20px;
-        z-index: 9999;
+        z-index: 10000; /* Increased z-index */
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        max-width: 350px;
-        width: 90%;
+        max-width: 320px;
+        width: calc(100% - 40px);
         padding: 12px;
         font-family: 'Hind Siliguri', 'Inter', sans-serif;
         overflow: hidden;
         opacity: 0;
         transform: translateY(20px);
         transition: opacity 0.5s ease, transform 0.5s ease;
-        pointer-events: none; /* Initially non-blocking */
-        border-left: 4px solid var(--primary, #28a745); /* Uses theme primary color */
+        pointer-events: none;
+        border-left: 4px solid var(--primary, #28a745);
     }
 
     .fake-sales-notification.show {
         opacity: 1;
         transform: translateY(0);
-        pointer-events: auto; /* Enable clicks when visible */
+        pointer-events: auto;
     }
 
     .fake-sales-content {
         display: flex;
-        align-items: center;
+        align-items: flex-start; /* Changed to start for better text wrap handling */
         position: relative;
     }
 
@@ -77,6 +84,7 @@
         overflow: hidden;
         background: #f8f9fa;
         margin-right: 12px;
+        border: 1px solid #eee;
     }
 
     .fake-sales-image {
@@ -88,29 +96,52 @@
     .fake-sales-text {
         flex-grow: 1;
         line-height: 1.3;
+        font-size: 13px;
     }
 
     .fs-name {
         font-weight: 700;
-        font-size: 14px;
+        font-size: 13px;
         color: #333;
-        margin: 0;
+        margin: 0 0 2px 0;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .fs-verified {
+        display: inline-flex;
+        align-items: center;
+        background: #e8f5e9;
+        color: var(--primary, #28a745);
+        font-size: 10px;
+        padding: 1px 4px;
+        border-radius: 3px;
+        margin-left: 6px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .fs-verified svg {
+        margin-right: 2px;
     }
 
     .fs-action {
-        font-size: 13px;
         color: #555;
-        margin: 2px 0 0;
+        margin: 0;
+        line-height: 1.4;
     }
 
     .fs-action a {
         color: var(--primary, #0056b3);
         text-decoration: none;
         font-weight: 600;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
+        display: block; /* Product name on new line for clarity */
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
     }
     
     .fs-action a:hover {
@@ -126,14 +157,14 @@
 
     .fs-close {
         position: absolute;
-        top: -8px;
-        right: -8px;
+        top: -10px;
+        right: -10px;
         background: transparent;
         border: none;
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
-        color: #aaa;
+        color: #ccc;
         padding: 5px;
     }
 
@@ -144,11 +175,11 @@
     /* Mobile optimization */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 70px; /* Avoid covering sticky bottom bars if any */
-            left: 10px;
-            right: 10px;
+            bottom: 20px !important; /* Force bottom position */
+            left: 20px;
             width: auto;
-            max-width: none;
+            max-width: calc(100% - 40px);
+            right: auto;
         }
     }
 </style>
@@ -270,8 +301,8 @@
         }
 
         function cycleNotification() {
-            // Random delay between 5-8 seconds
-            const delay = Math.floor(Math.random() * (8000 - 5000 + 1) + 5000);
+            // FIXED DELAY: 5 seconds (not random anymore)
+            const delay = 5000;
             
             setTimeout(() => {
                 showNotification();
@@ -279,6 +310,9 @@
                 setTimeout(cycleNotification, 5000 + 1000); 
             }, delay);
         }
+
+        // Add version timestamp to prevent cache issues
+        console.log('Fake Sales Notification v1.2 Loaded');
 
         // Start the first cycle
         cycleNotification();

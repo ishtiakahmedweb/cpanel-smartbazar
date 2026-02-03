@@ -1293,7 +1293,6 @@
         }
     </style>
     {{-- Storefront components moved to external file: strokya/js/storefront-components.js --}}
-    @livewireScripts
     @stack('scripts')
     @php
         function phone88($phone)

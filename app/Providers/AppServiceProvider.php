@@ -10,6 +10,7 @@ use App\Models\HomeSection;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Slide;
+use App\Models\Setting;
 use App\Observers\ResponseCacheObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\Paginator;
@@ -71,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
             Page::class,
             Product::class,
             Slide::class,
+            Setting::class,
         ])->each(static function (string $model): void {
             $model::observe(ResponseCacheObserver::class);
         });

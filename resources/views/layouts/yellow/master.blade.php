@@ -12,7 +12,13 @@
     {!! setting('gtm_code') ?? '' !!}
 
     <link rel="icon" type="image/png" href="{{ asset($logo->favicon) }}">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Optimize Google Fonts: Load asynchronously to prevent render blocking --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
     <style>
         /* Global Scroll & Layout Fixes */
         body, html {
@@ -317,8 +323,8 @@
         })();
     </script>
 
-    {{-- Global jQuery (needed for SPA navigation) --}}
-    <script src="{{ $jqueryJs }}" data-navigate-once crossorigin="anonymous" referrerpolicy="no-referrer"
+    {{-- Global jQuery (needed for SPA navigation) - Defer for performance --}}
+    <script src="{{ $jqueryJs }}" defer data-navigate-once crossorigin="anonymous" referrerpolicy="no-referrer"
         onerror="window.__loadLocalAsset && window.__loadLocalAsset('jquery')"></script>
 
     {{-- Alpine.js (required for Livewire components and interactive elements) --}}
@@ -400,7 +406,9 @@
         <link rel="preload" href="{{ $fontBaseUrl }}/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     @endif
 
-    <link rel="stylesheet" href="{{ $fontawesomeCss }}" crossorigin="anonymous" referrerpolicy="no-referrer">
+    {{-- Optimize Font Awesome: Load async --}}
+    <link rel="stylesheet" href="{{ $fontawesomeCss }}" media="print" onload="this.media='all'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="{{ $fontawesomeCss }}"></noscript>
 
     <!-- Optimize Font Awesome font loading with font-display: swap -->
     <style>

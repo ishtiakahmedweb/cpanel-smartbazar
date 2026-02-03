@@ -1,13 +1,3 @@
-@push('links')
-    @if($isFirstSlide = (isset($index) && $index === 0))
-        @php
-            $slide = slides()->first();
-            $lcpImageUrl = cdn(asset($slide->desktop_src), 840, 395);
-        @endphp
-        <link rel="preload" as="image" href="{{ $lcpImageUrl }}" fetchpriority="high">
-    @endif
-@endpush
-
 @push('styles')
 <style>
     @if(!(setting('show_option')->category_dropdown ?? false))
@@ -16,12 +6,19 @@
     }
     @endif
 
+    /* Base styles for images */
+    .block-slideshow__slide-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Desktop View */
     .block-slideshow__slide-image--mobile {
         display: none;
-        width: 100%;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+    }
+    .block-slideshow__slide-image--desktop {
+        display: block;
     }
 
     @media (max-width: 767px) {
@@ -31,15 +28,11 @@
 
         .block-slideshow__slide-image--mobile {
             display: block !important;
-            height: 180px !important;
-            min-height: 180px !important;
-            background-color: #f0f0f0; /* Fallback if image doesn't load */
-            background-size: cover !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            position: relative;
-            z-index: 1;
+            height: 180px !important; /* Fixed height for mobile stability */
+            width: 100% !important;
         }
+        
+        /* Force container to respect mobile banner height */
         
         /* Force container to respect mobile banner height */
         .block-slideshow__slide {
@@ -120,14 +113,31 @@
                     <div class="owl-carousel">
                         @foreach(slides() as $index => $slide)
                         @php
+                            // Desktop: 840x395 typical
                             $desktopImageUrl = cdn(asset($slide->desktop_src), 840, 395);
+                            // Mobile: 480w is sufficient for high-DPI mobile screens
                             $mobileImageUrl = cdn(asset($slide->mobile_src), 480);
+                            $isFirst = $loop->first;
                         @endphp
                         <a class="block-slideshow__slide" href="{{ $slide->btn_href ?? '#' }}">
-                            <div class="block-slideshow__slide-image block-slideshow__slide-image--desktop"
-                                style="background-image: url('{{ $desktopImageUrl }}')"></div>
-                            <div class="block-slideshow__slide-image block-slideshow__slide-image--mobile"
-                                style="background-image: url('{{ $mobileImageUrl }}')"></div>
+                            {{-- Desktop Image --}}
+                            <img class="block-slideshow__slide-image block-slideshow__slide-image--desktop"
+                                 src="{{ $desktopImageUrl }}"
+                                 alt="{{ $slide->title ?? 'Slide ' . ($index + 1) }}"
+                                 width="840"
+                                 height="395"
+                                 style="object-fit: cover; width: 100%; height: 100%;"
+                                 @if($isFirst) fetchpriority="high" @else loading="lazy" @endif>
+
+                            {{-- Mobile Image --}}
+                            <img class="block-slideshow__slide-image block-slideshow__slide-image--mobile"
+                                 src="{{ $mobileImageUrl }}"
+                                 alt="{{ $slide->title ?? 'Slide ' . ($index + 1) }}"
+                                 width="480"
+                                 height="180"
+                                 style="object-fit: cover; width: 100%; height: 100%;"
+                                 @if($isFirst) fetchpriority="high" @else loading="lazy" @endif>
+
                             <div class="block-slideshow__slide-content">
                                 <div class="block-slideshow__slide-title">{!! $slide->title !!}</div>
                                 <div class="block-slideshow__slide-text">{!! $slide->text !!}</div>

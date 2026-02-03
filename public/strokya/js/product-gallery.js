@@ -1,5 +1,5 @@
 // Product gallery and carousel functionality
-(function() {
+(function () {
     function registerLazyRelatedProductsComponent() {
         if (window.__lazyRelatedProductsComponentRegistered) {
             return;
@@ -152,9 +152,8 @@
 
                     let priceHTML = '';
                     if (shouldHidePrice) {
-                        priceHTML = `<span class="product-card__new-price text-danger">${
-                            userIsGuest ? 'Login to see price' : 'Verify account to see price'
-                        }</span>`;
+                        priceHTML = `<span class="product-card__new-price text-danger">${userIsGuest ? 'Login to see price' : 'Verify account to see price'
+                            }</span>`;
                     } else if (hasDiscount) {
                         priceHTML =
                             `<span class="product-card__new-price">${formatPrice(productSellingPrice)}</span><span class="product-card__old-price">${formatPrice(productPrice)}</span>`;
@@ -228,9 +227,9 @@
                             <div class="product-card__actions">
                                 <div class="product-card__availability">Availability:
                                     ${!shouldTrack ?
-                                        '<span class="text-success">In Stock</span>' :
-                                        `<span class="text-${(stockCount || 0) > 0 ? 'success' : 'danger'}">${stockCount || 0} In Stock</span>`
-                                    }
+                            '<span class="text-success">In Stock</span>' :
+                            `<span class="text-${(stockCount || 0) > 0 ? 'success' : 'danger'}">${stockCount || 0} In Stock</span>`
+                        }
                                 </div>
                                 <div class="product-card__prices ${hasDiscount ? 'has-special' : ''}">
                                     ${priceHTML}
@@ -285,12 +284,12 @@
                 return;
             }
 
-            $('.xzoom, .xzoom-gallery').each(function() {
+            $('.xzoom, .xzoom-gallery').each(function () {
                 const xzoom = $(this).data('xzoom');
                 if (xzoom?.destroy) {
                     try {
                         xzoom.destroy();
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             });
 
@@ -408,17 +407,17 @@
                 }
 
                 // Gallery link clicks (manual navigation)
-                $galleryLinks.off('click' + namespace).on('click' + namespace, function() {
+                $galleryLinks.off('click' + namespace).on('click' + namespace, function () {
                     // Reset timer on any manual click
                     resetAutoNavigation();
                 });
 
-                // Start auto-navigation after initialization
-                setTimeout(startAutoNavigation, 500);
+                // Auto-navigation disabled to prevent GTM event pollution
+                // setTimeout(startAutoNavigation, 500);
 
-                window.__handleVariantChange = function(event) {
+                window.__handleVariantChange = function (event) {
                     const variantId = event.variantId;
-                    const $variantImage = $('.variant-image').filter(function() {
+                    const $variantImage = $('.variant-image').filter(function () {
                         const ids = $(this).data('variant-ids');
                         return Array.isArray(ids) && ids.includes(variantId);
                     }).first();
@@ -449,7 +448,7 @@
                         : document.addEventListener('livewire:load', registerVariantListener, { once: true });
                 }
 
-                window.__productShowCleanup = function() {
+                window.__productShowCleanup = function () {
                     clearTimeout(autoNavigationTimer);
                     if ($leftBtn.length) {
                         $leftBtn.off('click touchend' + namespace);
@@ -478,7 +477,7 @@
     }
 
     // Prevent default on xzoom thumb clicks
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         const zoomThumb = event.target.closest('.xzoom-thumbs a');
         if (zoomThumb) {
             event.preventDefault();

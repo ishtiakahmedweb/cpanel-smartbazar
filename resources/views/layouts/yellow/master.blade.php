@@ -327,8 +327,8 @@
     <script src="{{ $jqueryJs }}" defer data-navigate-once crossorigin="anonymous" referrerpolicy="no-referrer"
         onerror="window.__loadLocalAsset && window.__loadLocalAsset('jquery')"></script>
 
-    {{-- Alpine.js (required for Livewire components and interactive elements) --}}
-    <script src="{{ cdnAsset('alpine', 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js') }}" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    {{-- Alpine.js is already included by Livewire 3. Excluding duplicate CDN to save bandwidth --}}
+    {{-- <script src="{{ cdnAsset('alpine', 'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js') }}" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     <script data-navigate-once>
         (function() {
             if (window.runWhenJQueryReady) {

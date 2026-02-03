@@ -13,25 +13,7 @@
         object-fit: cover;
     }
 
-    /* Desktop View */
-    .block-slideshow__slide-image--mobile {
-        display: none;
-    }
-    .block-slideshow__slide-image--desktop {
-        display: block;
-    }
-
     @media (max-width: 767px) {
-        .block-slideshow__slide-image--desktop {
-            display: none !important;
-        }
-
-        .block-slideshow__slide-image--mobile {
-            display: block !important;
-            height: 180px !important; /* Fixed height for mobile stability */
-            width: 100% !important;
-        }
-        
         /* Force container to respect mobile banner height */
         
         /* Force container to respect mobile banner height */
@@ -120,23 +102,21 @@
                             $isFirst = $loop->first;
                         @endphp
                         <a class="block-slideshow__slide" href="{{ $slide->btn_href ?? '#' }}">
-                            {{-- Desktop Image --}}
-                            <img class="block-slideshow__slide-image block-slideshow__slide-image--desktop"
-                                 src="{{ $desktopImageUrl }}"
-                                 alt="{{ $slide->title ?? 'Slide ' . ($index + 1) }}"
-                                 width="840"
-                                 height="395"
-                                 style="object-fit: cover; width: 100%; height: 100%;"
-                                 @if($isFirst) fetchpriority="high" @else loading="lazy" @endif>
-
-                            {{-- Mobile Image --}}
-                            <img class="block-slideshow__slide-image block-slideshow__slide-image--mobile"
-                                 src="{{ $mobileImageUrl }}"
-                                 alt="{{ $slide->title ?? 'Slide ' . ($index + 1) }}"
-                                 width="480"
-                                 height="180"
-                                 style="object-fit: cover; width: 100%; height: 100%;"
-                                 @if($isFirst) fetchpriority="high" @else loading="lazy" @endif>
+                            <picture>
+                                {{-- Mobile Image (max-width: 767px) --}}
+                                <source media="(max-width: 767px)" 
+                                        srcset="{{ $mobileImageUrl }}"
+                                        width="480" height="180">
+                                
+                                {{-- Desktop Image (default) --}}
+                                <img class="block-slideshow__slide-image"
+                                     src="{{ $desktopImageUrl }}"
+                                     alt="{{ $slide->title ?? 'Slide ' . ($index + 1) }}"
+                                     width="840"
+                                     height="395"
+                                     style="object-fit: cover; width: 100%; height: 100%;"
+                                     @if($isFirst) fetchpriority="high" @else loading="lazy" @endif>
+                            </picture>
 
                             <div class="block-slideshow__slide-content">
                                 <div class="block-slideshow__slide-title">{!! $slide->title !!}</div>

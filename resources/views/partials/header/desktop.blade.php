@@ -6,7 +6,7 @@
         <div class="container site-header__middle">
             <div class="site-header__logo">
                 <a href="{{ url('/') }}" wire:navigate.hover>
-                    <img src="{{ asset($logo->desktop ?? '') }}" alt="Logo" style="max-width: 100%; max-height: 84px; width: auto; height: auto; display: block;" width="auto" height="84">
+                    <img src="{{ asset($logo->desktop ?? '') }}" alt="Logo" style="max-width: 100%; max-height: 84px; width: auto; height: auto; display: block;" width="250" height="84">
                 </a>
             </div>
             <div class="site-header__search">

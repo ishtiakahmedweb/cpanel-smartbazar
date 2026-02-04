@@ -104,21 +104,58 @@
             <div class="mb-1 form-group product__option d-flex align-items-center" style="column-gap: .5rem;">
                 <label class="product__option-label"><strong>{{ $attribute->name }}:</strong></label>
                 @if (strtolower($attribute->name) == 'color')
-                    <div class="input-radio-color">
-                        <div class="input-radio-color__list d-flex flex-wrap" style="gap: 8px;">
-                            @foreach ($attributeOptions as $option)
-                                <label
-                                    class="input-radio-color__item @if (strtolower($option->name) == 'white') input-radio-color__item--white @endif @if(($options[$attribute->id] ?? null) == $option->id) active @endif"
-                                    style="color: {{ $option->value }}; width: 28px; height: 28px; border-radius: 50%; position: relative; cursor: pointer; transition: all 0.2s; @if(($options[$attribute->id] ?? null) == $option->id) outline: 2px solid #007bff; outline-offset: 2px; @endif" 
-                                    data-toggle="tooltip" 
-                                    title="{{ $option->name }}">
-                                    <input type="radio" wire:model.live="options.{{ $attribute->id }}"
-                                        name="options[{{ $attribute->id }}]" value="{{ $option->id }}"
-                                        class="option-picker" style="display: none;">
-                                    <span style="display: block; width: 100%; height: 100%; background-color: currentColor; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15);"></span>
-                                </label>
-                            @endforeach
-                        </div>
+                    <style>
+                        .swatch-list {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 12px;
+                            padding: 4px 0;
+                        }
+                        .swatch-item {
+                            width: 28px;
+                            height: 28px;
+                            border-radius: 50%;
+                            position: relative;
+                            cursor: pointer;
+                            transition: transform 0.2s, box-shadow 0.2s;
+                            border: 1px solid rgba(0,0,0,0.1);
+                            display: block;
+                        }
+                        .swatch-item:hover {
+                            transform: scale(1.1);
+                        }
+                        .swatch-item.active {
+                            outline: 2px solid #007bff;
+                            outline-offset: 3px;
+                            z-index: 2;
+                        }
+                        .swatch-item input {
+                            display: none;
+                        }
+                        .swatch-item span {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                            border-radius: 50%;
+                            background-color: currentColor;
+                        }
+                        /* White color fallback for visibility */
+                        .swatch-item--white span {
+                            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+                        }
+                    </style>
+                    <div class="swatch-list">
+                        @foreach ($attributeOptions as $option)
+                            <label
+                                class="swatch-item @if (strtolower($option->name) == 'white') swatch-item--white @endif @if(($options[$attribute->id] ?? null) == $option->id) active @endif"
+                                style="color: {{ $option->value }};" 
+                                data-toggle="tooltip" 
+                                title="{{ $option->name }}">
+                                <input type="radio" wire:model.live="options.{{ $attribute->id }}"
+                                    name="options[{{ $attribute->id }}]" value="{{ $option->id }}">
+                                <span></span>
+                            </label>
+                        @endforeach
                     </div>
                 @else
                     <div class="input-radio-label">

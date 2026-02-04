@@ -33,14 +33,13 @@ class AttributeOptionController extends Controller
     public function store(Request $request, Attribute $attribute)
     {
         abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
-        if (! $request->has('value')) {
-            $request->merge(['value' => $request->name]);
-        }
 
-        $option = $attribute->options()->create($request->validate([
+        $data = $request->validate([
             'name' => ['required'],
             'value' => ['required'],
-        ]));
+        ]);
+
+        $option = $attribute->options()->create($data);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -77,14 +76,13 @@ class AttributeOptionController extends Controller
     public function update(Request $request, Attribute $attribute, Option $option)
     {
         abort_if(request()->user()->is('salesman'), 403, 'You don\'t have permission.');
-        if (! $request->has('value')) {
-            $request->merge(['value' => $request->name]);
-        }
 
-        $option->update($request->validate([
+        $data = $request->validate([
             'name' => ['required'],
             'value' => ['required'],
-        ]));
+        ]);
+
+        $option->update($data);
 
         return back()->withSuccess('Option updated successfully');
     }
@@ -98,6 +96,13 @@ class AttributeOptionController extends Controller
     {
         abort_unless(request()->user()->is('admin'), 403, 'You don\'t have permission.');
         $option->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Option deleted successfully',
+            ]);
+        }
 
         return back()->withSuccess('Option deleted successfully');
     }

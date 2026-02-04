@@ -148,9 +148,19 @@
                                 <div class="px-3 py-2 card-body">
                                     <div class="flex-wrap d-flex" style="column-gap: 3rem;">
                                         @foreach ($attribute->options as $option)
-                                            <div class="checkbox checkbox-secondary">
-                                                <x-checkbox :id="$option->name" name="attributes[{{$attribute->id}}][]" value="{{ $option->id }}" :checked="$options->contains($option->id)" />
-                                                <x-label :for="$option->name" />
+                                            <div class="checkbox checkbox-secondary d-flex align-items-center mb-1" id="option-wrapper-{{ $option->id }}">
+                                                <div class="d-flex align-items-center flex-grow-1">
+                                                    <x-checkbox :id="'opt-' . $option->id" name="attributes[{{$attribute->id}}][]" value="{{ $option->id }}" :checked="$options->contains($option->id)" />
+                                                    <x-label :for="'opt-' . $option->id" class="mb-0 ml-1" :style="strtolower($attribute->name) == 'color' ? 'border-left: 10px solid '.$option->value.'; padding-left: 5px;' : ''">
+                                                        {{ $option->name }}
+                                                    </x-label>
+                                                </div>
+                                                <button type="button" class="btn btn-xs btn-outline-danger delete-option-btn ml-2" 
+                                                    data-option-id="{{ $option->id }}" 
+                                                    data-attribute-id="{{ $attribute->id }}"
+                                                    title="Delete this option permanently">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -409,9 +419,17 @@
                 <input type="hidden" id="quick-add-attribute-id">
                 <div class="form-group">
                     <label for="quick-add-option-name" id="quick-add-option-label">Option Name</label>
-                    <input type="text" class="form-control" id="quick-add-option-name" placeholder="Enter option value (e.g. XL, Red)">
-                    <div class="invalid-feedback" id="quick-add-error"></div>
+                    <input type="text" class="form-control" id="quick-add-option-name" placeholder="Enter option name (e.g. XL, Red)">
                 </div>
+                <div class="form-group" id="quick-add-color-group" style="display: none;">
+                    <label for="quick-add-option-color">Color Code (Hex)</label>
+                    <div class="input-group">
+                        <input type="color" class="form-control p-1" id="quick-add-option-color-picker" style="max-width: 50px; height: 38px;">
+                        <input type="text" class="form-control" id="quick-add-option-color" placeholder="#000000">
+                    </div>
+                    <small class="text-muted">Pick a color or enter hex code.</small>
+                </div>
+                <div class="invalid-feedback d-block" id="quick-add-error"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -476,20 +494,40 @@
             e.preventDefault();
             e.stopPropagation(); // Prevent collapsing the card
             let attrId = $(this).data('attribute-id');
-            let attrName = $(this).data('attribute-name');
+            let attrName = $(this).data('attribute-name').toLowerCase();
             
             $('#quick-add-attribute-id').val(attrId);
-            $('#quick-add-option-label').text('New Option for ' + attrName);
+            $('#quick-add-option-label').text('New Option for ' + $(this).data('attribute-name'));
             $('#quick-add-option-name').val('');
+            $('#quick-add-option-color').val('');
             $('#quick-add-error').text('').hide();
+
+            if (attrName.includes('color')) {
+                $('#quick-add-color-group').show();
+            } else {
+                $('#quick-add-color-group').hide();
+            }
+
             $('#quickAddOptionModal').modal('show');
             setTimeout(() => $('#quick-add-option-name').focus(), 500);
+        });
+
+        // Sync color picker with text input
+        $('#quick-add-option-color-picker').on('input', function() {
+            $('#quick-add-option-color').val($(this).val().toUpperCase());
+        });
+        $('#quick-add-option-color').on('input', function() {
+            let val = $(this).val();
+            if (val.match(/^#[0-9A-F]{6}$/i)) {
+                $('#quick-add-option-color-picker').val(val);
+            }
         });
 
         $('#save-quick-option').click(function() {
             let btn = $(this);
             let attrId = $('#quick-add-attribute-id').val();
             let name = $('#quick-add-option-name').val();
+            let value = $('#quick-add-option-color').val() || name;
             
             if (!name) {
                 $('#quick-add-error').text('Please enter a name').show();
@@ -506,46 +544,42 @@
                 },
                 data: {
                     name: name,
-                    value: name, // Using name as value by default
+                    value: value,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Close modal
                         $('#quickAddOptionModal').modal('hide');
-                        
-                        // Append new checkbox to the specific attribute list
                         let container = $('#collapse-' + attrId + ' .card-body .d-flex');
-                        let newCheckbox = `
-                            <div class="checkbox checkbox-secondary">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="${response.option.name}" name="attributes[${attrId}][]" value="${response.option.id}" checked>
-                                    <label class="custom-control-label" for="${response.option.name}">${response.option.name}</label>
-                                </div>
-                            </div>
-                        `;
-                        // Note: The original generic component markup might differ slightly, forcing custom-control structure here for reliability or matching existing x-checkbox component output.
-                        // Let's check the container structure in lines 148-154. It uses x-checkbox which likely renders a custom-control.
-                        // To be safe, let's match the rendered HTML of x-checkbox if possible, or use a standard structure that works with the styles.
+                        let isColor = $('#quick-add-color-group').is(':visible');
                         
-                        // Re-creating the exact structure based on observation (x-checkbox usually renders input+label)
-                        let simpleCheckbox = `
-                            <div class="checkbox checkbox-secondary">
-                                <input type="checkbox" id="opt-${response.option.id}" name="attributes[${attrId}][]" value="${response.option.id}" checked>
-                                <label for="opt-${response.option.id}">${response.option.name}</label>
+                        let newOptionHtml = `
+                            <div class="checkbox checkbox-secondary d-flex align-items-center mb-1" id="option-wrapper-${response.option.id}">
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <div class="checkbox checkbox-secondary">
+                                        <input type="checkbox" id="opt-${response.option.id}" name="attributes[${attrId}][]" value="${response.option.id}" checked>
+                                        <label for="opt-${response.option.id}" class="mb-0 ml-1" style="${isColor ? 'border-left: 10px solid '+response.option.value+'; padding-left: 5px;' : ''}">
+                                            ${response.option.name}
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-xs btn-outline-danger delete-option-btn ml-2" 
+                                    data-option-id="${response.option.id}" 
+                                    data-attribute-id="${attrId}"
+                                    title="Delete this option permanently">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </div>
                         `;
-                         container.append(simpleCheckbox);
-                         
-                         // Open the collapse if closed
-                         $('#collapse-' + attrId).collapse('show');
+                        container.append(newOptionHtml);
+                        $('#collapse-' + attrId).collapse('show');
                     }
                 },
                 error: function(xhr) {
                     let errors = xhr.responseJSON.errors;
                     let errorMessage = 'Error occurred';
-                    if (errors && errors.name) {
-                        errorMessage = errors.name[0];
+                    if (errors) {
+                        errorMessage = Object.values(errors).flat()[0];
                     }
                     $('#quick-add-error').text(errorMessage).show();
                 },
@@ -555,8 +589,44 @@
             });
         });
 
+        // Delete Option Logic
+        $(document).on('click', '.delete-option-btn', function(e) {
+            e.preventDefault();
+            let btn = $(this);
+            let optionId = btn.data('option-id');
+            let attrId = btn.data('attribute-id');
+            
+            if (!confirm('Are you sure you want to delete this option permanently? This cannot be undone.')) {
+                return;
+            }
+
+            btn.prop('disabled', true).find('i').removeClass('fa-trash').addClass('fa-spinner fa-spin');
+
+            $.ajax({
+                url: `/admin/attributes/${attrId}/options/${optionId}`,
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(`#option-wrapper-${optionId}`).fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error deleting option. It might be in use.');
+                    btn.prop('disabled', false).find('i').removeClass('fa-spinner fa-spin').addClass('fa-trash');
+                }
+            });
+        });
+
         // Trigger save on Enter key in modal
-        $('#quick-add-option-name').keypress(function(e) {
+        $('#quick-add-option-name, #quick-add-option-color').keypress(function(e) {
             if(e.which == 13) {
                 $('#save-quick-option').click();
                 return false;

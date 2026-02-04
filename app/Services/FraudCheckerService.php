@@ -35,7 +35,7 @@ class FraudCheckerService
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Accept' => 'application/json',
-            ])->asForm()->post($this->apiUrl, [
+            ])->post($this->apiUrl, [
                 'phone' => $phone,
             ]);
 

@@ -599,9 +599,9 @@
             const riskLevel = data.risk_level || 'medium';
             
             // BDCourier often provides data in a 'couriers' array
-            const courierList = data.couriers || [];
-            // Old provider used 'apis' object
-            const apisObject = data.apis || {};
+            const courierList = data.couriers || data.courier_details || data.records || [];
+            // Handle cases where data might be nested or in different objects
+            const apisObject = data.apis || data.breakdown || {};
             
             // BDCourier naming variants (Total)
             let totalParcels = data.total_parcels || data.total_parcel || data.total_orders || data.total || 0;
@@ -626,8 +626,12 @@
             
             const risk = riskConfig[riskLevel] || riskConfig.medium;
             
+            // Debug button for admin
+            const debugBtn = `<button class="btn btn-xs btn-outline-secondary float-right" onclick="console.log('Fraud Data:', ${JSON.stringify(data)})">Show Raw Data in Console</button>`;
+
             let html = `
                 <div class="alert ${risk.bgClass} mb-4">
+                    ${debugBtn}
                     <h5><i class="fa ${risk.icon}"></i> Risk Level: ${risk.text}</h5>
                     <p class="mb-1 text-muted">Sent to API: <strong>${data.normalized_phone || phone}</strong></p>
                     <p class="mb-0 small opacity-75 text-truncate">Order Phone: ${phone}</p>
@@ -721,6 +725,11 @@
                         </div>
                     </div>
                 `;
+            }
+            
+            // If data exists, but no breakdown table produced
+            if (!hasApis && !hasCouriers && (totalParcels > 0)) {
+                html += `<div class="alert alert-info py-2">Summarized data found, but individual courier breakdown not available in the API response.</div>`;
             }
             
             $('#fraudCheckContent').html(html);

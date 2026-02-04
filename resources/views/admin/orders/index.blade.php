@@ -637,13 +637,9 @@
             };
             
             const risk = riskConfig[riskLevel] || riskConfig.medium;
-            
-            // Debug button for admin
-            const debugBtn = `<button class="btn btn-xs btn-outline-secondary float-right" onclick="console.log('Fraud Data:', ${JSON.stringify(data)})">Show Raw Data in Console</button>`;
 
             let html = `
                 <div class="alert ${risk.bgClass} mb-4">
-                    ${debugBtn}
                     <h5><i class="fa ${risk.icon}"></i> Risk Level: ${risk.text}</h5>
                     <p class="mb-1 text-muted">Sent to API: <strong>${data.normalized_phone || phone}</strong></p>
                     <p class="mb-0 small opacity-75 text-truncate">Order Phone: ${phone}</p>
@@ -685,17 +681,6 @@
                     </div>
                 </div>
             `;
-            
-            // Add Debug info if no parcels found
-            if (totalParcels === 0) {
-                html += `
-                    <div class="mt-3 p-3 bg-light border rounded">
-                        <p class="mb-2 text-danger font-weight-bold"><i class="fa fa-info-circle"></i> Debug Info (Raw Data from BDCourier):</p>
-                        <pre style="font-size: 11px; max-height: 200px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>
-                        <p class="mt-2 small text-muted">If you see numbers in this text but "0" in the boxes above, please take a screenshot of this box and send it to me.</p>
-                    </div>
-                `;
-            }
             
             // Courier breakdown
             const hasApis = Object.keys(apisObject).length > 0;

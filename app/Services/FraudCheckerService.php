@@ -42,17 +42,11 @@ class FraudCheckerService
             if ($response->successful()) {
                 $result = $response->json();
                 
-                // Log the raw response for debugging (will show in Laravel logs)
-                Log::info('BDCourier API Success', [
-                    'phone' => $phone,
-                    'response' => $result
-                ]);
                 if (isset($result['status']) && $result['status'] === 'success') {
                     $data = $result['data'] ?? [];
                     
                     // Add calculated fields for our UI
                     $data['normalized_phone'] = $phone;
-                    $data['raw_response'] = $result; // Pass raw for frontend troubleshooting if needed
                     $data['success_rate'] = $this->calculateSuccessRate($data);
                     $data['risk_level'] = $this->getRiskLevel($data['success_rate'], $data);
                     

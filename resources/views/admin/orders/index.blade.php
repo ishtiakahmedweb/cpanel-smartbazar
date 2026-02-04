@@ -37,10 +37,121 @@
             white-space: nowrap;
         }
         
-        /* Make columns wrap text when needed */
         .datatable td .customer-info,
         .datatable td ul {
             white-space: normal;
+        }
+
+        /* Premium Fraud Checker Styles */
+        #fraudCheckModal .modal-content {
+            border: none !important;
+            border-radius: 16px !important;
+            overflow: hidden !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2) !important;
+        }
+        .fraud-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            color: white !important;
+            padding: 1.25rem 1.5rem !important;
+            border: none !important;
+        }
+        .fraud-header h5 { color: white !important; font-weight: 700 !important; margin: 0 !important; }
+        
+        .risk-badge-container {
+            padding: 1.5rem !important;
+            text-align: center !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .risk-icon-large {
+            font-size: 3.5rem !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+        }
+        
+        .premium-stat-grid {
+            display: flex !important;
+            gap: 1rem !important;
+            padding: 1rem 1.5rem !important;
+        }
+        .p-stat-item {
+            flex: 1 !important;
+            background: #f8fafc !important;
+            border-radius: 12px !important;
+            padding: 1rem !important;
+            text-align: center !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .p-stat-label {
+            font-size: 0.7rem !important;
+            text-transform: uppercase !important;
+            font-weight: 700 !important;
+            color: #64748b !important;
+            margin-bottom: 0.25rem !important;
+            display: block !important;
+        }
+        .p-stat-value {
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+        }
+        
+        .chart-box {
+            padding: 1.5rem !important;
+            background: #fff !important;
+            border-radius: 12px !important;
+            margin: 0 1.5rem 1.5rem 1.5rem !important;
+            border: 1px solid #f1f5f9 !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
+        }
+        
+        .courier-card-list {
+            padding: 0 1.5rem 1.5rem 1.5rem !important;
+        }
+        .courier-card {
+            display: flex !important;
+            align-items: center !important;
+            padding: 1rem !important;
+            background: #fff !important;
+            border-radius: 12px !important;
+            margin-bottom: 0.75rem !important;
+            border: 1px solid #f1f5f9 !important;
+            transition: transform 0.2s ease !important;
+        }
+        .courier-card:hover { transform: scale(1.01) !important; border-color: #cbd5e1 !important; }
+        
+        .c-logo-box {
+            width: 50px !important;
+            height: 50px !important;
+            min-width: 50px !important;
+            background: white !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-right: 1.25rem !important;
+            padding: 4px !important;
+            border: 1px solid #f1f5f9 !important;
+            overflow: hidden !important;
+        }
+        .c-logo-box img {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain !important;
+        }
+        
+        .c-details { flex: 1 !important; }
+        .c-name { font-weight: 700 !important; color: #334155 !important; font-size: 0.95rem !important; }
+        .c-mini-stats { display: flex !important; gap: 1rem !important; margin-top: 2px !important; }
+        .c-m-val { font-size: 0.75rem !important; color: #64748b !important; }
+        .c-m-val b { color: #475569 !important; }
+        
+        .success-tag {
+            background: #f0fdf4 !important;
+            color: #16a34a !important;
+            padding: 0.25rem 0.75rem !important;
+            border-radius: 20px !important;
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
         }
     </style>
 @endpush
@@ -599,11 +710,6 @@
             const successRate = data.success_rate || 0;
             const riskLevel = data.risk_level || 'medium';
             
-            // BDCourier often provides data in a 'couriers' array
-            const courierList = data.couriers || data.courier_details || data.records || [];
-            // Handle cases where data might be nested or in different objects
-            const apisObject = data.apis || data.breakdown || {};
-            
             // BDCourier naming variants (Total)
             let totalParcels = 0;
             let totalDelivered = 0;
@@ -621,55 +727,47 @@
             
             // Risk level config
             const riskConfig = {
-                low: { bannerClass: 'low', icon: 'fa-check-circle', text: 'Low Risk Profile', color: '#10b981', desc: 'This customer appears safe based on previous records.' },
-                medium: { bannerClass: 'medium', icon: 'fa-exclamation-triangle', text: 'Medium Risk Profile', color: '#f59e0b', desc: 'Some inconsistencies or cancellations found.' },
-                high: { bannerClass: 'high', icon: 'fa-times-circle', text: 'High Risk Profile', color: '#ef4444', desc: 'High cancellation rate detected. Proceed with caution!' }
+                low: { icon: 'fa-check-circle', text: 'Low Risk Profile', color: '#10b981', desc: 'Secure history found.' },
+                medium: { icon: 'fa-exclamation-triangle', text: 'Medium Risk Profile', color: '#f59e0b', desc: 'Caution advised.' },
+                high: { icon: 'fa-times-circle', text: 'High Risk Profile', color: '#ef4444', desc: 'High cancellations!' }
             };
             const risk = riskConfig[riskLevel] || riskConfig.medium;
             
             // Build the Modal HTML
             let html = `
-                <div class="risk-banner ${risk.bannerClass}">
-                    <div class="risk-icon"><i class="fa ${risk.icon}"></i></div>
-                    <div>
-                        <h4 class="mb-1 font-weight-bold">${risk.text}</h4>
-                        <p class="mb-0 opacity-75">${risk.desc}</p>
+                <div class="risk-badge-container">
+                    <i class="fa ${risk.icon} risk-icon-large" style="color: ${risk.color}"></i>
+                    <h3 class="font-weight-bold mb-1" style="color: #1e293b">${risk.text}</h3>
+                    <p class="text-muted small mb-0">${risk.desc}</p>
+                </div>
+
+                <div class="premium-stat-grid">
+                    <div class="p-stat-item">
+                        <span class="p-stat-label">Total</span>
+                        <span class="p-stat-value">${totalParcels}</span>
+                    </div>
+                    <div class="p-stat-item">
+                        <span class="p-stat-label">Pass</span>
+                        <span class="p-stat-value" style="color: #10b981">${totalDelivered}</span>
+                    </div>
+                    <div class="p-stat-item">
+                        <span class="p-stat-label">Fail</span>
+                        <span class="p-stat-value" style="color: #ef4444">${totalCancel}</span>
                     </div>
                 </div>
 
-                <div class="row mb-4">
-                    <div class="col-4">
-                        <div class="stat-card">
-                            <span class="stat-label text-primary">Total Orders</span>
-                            <span class="stat-value text-dark">${totalParcels}</span>
-                        </div>
+                <div class="chart-box">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="font-weight-bold text-dark" style="font-size: 0.9rem">Overall Success Rate</span>
+                        <span class="success-tag">${successRate}%</span>
                     </div>
-                    <div class="col-4">
-                        <div class="stat-card">
-                            <span class="stat-label text-success">Successful</span>
-                            <span class="stat-value text-success">${totalDelivered}</span>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="stat-card">
-                            <span class="stat-label text-danger">Cancelled</span>
-                            <span class="stat-value text-danger">${totalCancel}</span>
-                        </div>
+                    <div class="progress" style="height: 10px; border-radius: 5px; background: #f1f5f9;">
+                        <div class="progress-bar" style="width: ${successRate}%; background: ${risk.color}; border-radius: 5px;"></div>
                     </div>
                 </div>
 
-                <div class="progress-container">
-                    <div class="d-flex justify-content-between align-items-end mb-1">
-                        <h6 class="mb-0 font-weight-bold text-dark">Success Rate</h6>
-                        <span class="h5 mb-0 font-weight-bold" style="color: ${risk.color}">${successRate}%</span>
-                    </div>
-                    <div class="progress modern-progress">
-                        <div class="progress-bar" style="width: ${successRate}%; background-color: ${risk.color}"></div>
-                    </div>
-                </div>
-
-                <div class="courier-table-container">
-                    <h6 class="mb-3 font-weight-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Courier Breakdown</h6>
+                <div class="courier-card-list">
+                    <h6 class="mb-3 font-weight-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em; padding-left: 2px;">Delivery Breakdown</h6>
             `;
 
             // Courier breakdown loop
@@ -685,42 +783,33 @@
                     const cRate = stats.success_ratio || stats.success_rate || 0;
 
                     html += `
-                        <div class="courier-row">
-                            <div class="courier-logo-circle">
+                        <div class="courier-card">
+                            <div class="c-logo-box">
                                 <img src="${stats.logo}" alt="${stats.name}" onerror="this.src='https://api.bdcourier.com/c-logo/default.png'">
                             </div>
-                            <div class="courier-info-main">
-                                <div class="courier-name">${stats.name}</div>
-                                <div class="courier-stats-inline">
-                                    <div class="c-stat-group">
-                                        <span class="c-stat-lbl">Total</span>
-                                        <span class="c-stat-val">${cTotal}</span>
-                                    </div>
-                                    <div class="c-stat-group">
-                                        <span class="c-stat-lbl">Success</span>
-                                        <span class="c-stat-val text-success">${cSuccess}</span>
-                                    </div>
-                                    <div class="c-stat-group">
-                                        <span class="c-stat-lbl">Cancel</span>
-                                        <span class="c-stat-val text-danger">${cCancel}</span>
-                                    </div>
+                            <div class="c-details">
+                                <div class="c-name">${stats.name}</div>
+                                <div class="c-mini-stats">
+                                    <span class="c-m-val">Total: <b>${cTotal}</b></span>
+                                    <span class="c-m-val">Delivered: <b style="color: #16a34a">${cSuccess}</b></span>
+                                    <span class="c-m-val">Canceled: <b style="color: #dc2626">${cCancel}</b></span>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <span class="badge badge-pill badge-light font-weight-bold" style="font-size: 0.8rem; color: #1e293b">${cRate}%</span>
+                                <span class="success-tag" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0;">${cRate}%</span>
                             </div>
                         </div>
                     `;
                 });
             } else {
-                html += `<div class="py-4 text-center text-muted border rounded bg-light">No individual courier details available.</div>`;
+                html += `<div class="py-4 text-center text-muted border rounded bg-light" style="border-radius: 12px !important;">No courier records found.</div>`;
             }
 
             html += `
                 </div>
-                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Checked: ${new Date().toLocaleTimeString()}</span>
-                    <button type="button" class="btn btn-check-again btn-sm" data-dismiss="modal">Close</button>
+                <div class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
+                    <span class="text-secondary small font-italic"><i class="fa fa-phone mr-1"></i> ${data.normalized_phone || phone}</span>
+                    <button type="button" class="btn btn-dark btn-sm font-weight-bold px-4" style="border-radius: 8px" data-dismiss="modal">Close Report</button>
                 </div>
             `;
             

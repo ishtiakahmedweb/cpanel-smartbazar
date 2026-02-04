@@ -674,6 +674,17 @@
                 </div>
             `;
             
+            // Add Debug info if no parcels found
+            if (totalParcels === 0) {
+                html += `
+                    <div class="mt-3 p-3 bg-light border rounded">
+                        <p class="mb-2 text-danger font-weight-bold"><i class="fa fa-info-circle"></i> Debug Info (Raw Data from BDCourier):</p>
+                        <pre style="font-size: 11px; max-height: 200px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>
+                        <p class="mt-2 small text-muted">If you see numbers in this text but "0" in the boxes above, please take a screenshot of this box and send it to me.</p>
+                    </div>
+                `;
+            }
+            
             // Courier breakdown
             const hasApis = Object.keys(apisObject).length > 0;
             const hasCouriers = courierList.length > 0;

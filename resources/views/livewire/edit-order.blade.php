@@ -599,53 +599,6 @@
                 </div>
             </div>
 
-            @if (config('services.courier_report.url') && config('services.courier_report.key'))
-                <div id="courier-report" class="shadow-sm card rounded-0">
-                    <div class="p-3 card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 card-title">Courier Report</h5>
-                        <button type="button" wire:click="loadCourierReport" class="btn btn-sm btn-info">Check Courier History</button>
-                    </div>
-                    <div class="p-0 card-body">
-                        <div wire:loading wire:target="loadCourierReport" class="py-4 text-center text-muted">Searching BD Courier database...</div>
-                        @if ($courierReportLoaded)
-                            @if (is_string($this->courier_report))
-                                <div class="p-3">
-                                    <div class="alert alert-danger mb-0">{{ $this->courier_report }}</div>
-                                </div>
-                            @elseif(isset($this->courier_report['status']) && $this->courier_report['status'] === 'success')
-                                <div class="p-3">
-                                    <h6 class="mb-3 text-muted">Found in following couriers:</h6>
-                                    <div class="list-group">
-                                        @foreach($this->courier_report['data']['couriers'] ?? [] as $courier)
-                                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ $courier['logo'] }}" alt="{{ $courier['name'] }}" class="mr-3" style="width: 40px; height: 40px; object-fit: contain;">
-                                                    <strong>{{ $courier['name'] }}</strong>
-                                                </div>
-                                                <span class="badge badge-{{ $courier['status'] === 'active' ? 'success' : 'secondary' }} badge-pill">
-                                                    {{ strtoupper($courier['status']) }}
-                                                </span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    @if(empty($this->courier_report['data']['couriers']))
-                                        <div class="alert alert-warning mb-0">No specific courier records found for this number.</div>
-                                    @endif
-                                </div>
-                            @elseif(isset($this->courier_report['message']))
-                                <div class="p-3">
-                                    <div class="alert alert-info mb-0">{{ $this->courier_report['message'] }}</div>
-                                </div>
-                            @else
-                                <div class="p-3">
-                                    <div class="alert alert-warning py-2 mb-2 font-weight-bold">Unexpected Response Format</div>
-                                    <pre class="bg-light p-2 mb-0" style="font-size: 11px;">{{ json_encode($this->courier_report, JSON_PRETTY_PRINT) }}</pre>
-                                </div>
-                            @endif
-                        @endif
-                    </div>
-                </div>
-            @endif
         @endif
     </div>
 </div>

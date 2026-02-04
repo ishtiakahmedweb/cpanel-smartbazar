@@ -42,117 +42,99 @@
             white-space: normal;
         }
 
-        /* Premium Fraud Checker Styles */
+        /* BDCourier Clone Styles */
         #fraudCheckModal .modal-content {
             border: none !important;
-            border-radius: 16px !important;
-            overflow: hidden !important;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
         }
         .fraud-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-            color: white !important;
-            padding: 1.25rem 1.5rem !important;
-            border: none !important;
-        }
-        .fraud-header h5 { color: white !important; font-weight: 700 !important; margin: 0 !important; }
-        
-        .risk-badge-container {
-            padding: 1.5rem !important;
-            text-align: center !important;
-            border-bottom: 1px solid #f1f5f9 !important;
-        }
-        .risk-icon-large {
-            font-size: 3.5rem !important;
-            margin-bottom: 0.5rem !important;
-            display: block !important;
-        }
-        
-        .premium-stat-grid {
-            display: flex !important;
-            gap: 1rem !important;
+            background: #fff !important;
+            border-bottom: 1px solid #edf2f7 !important;
             padding: 1rem 1.5rem !important;
         }
-        .p-stat-item {
-            flex: 1 !important;
+        .fraud-header h5 { color: #2d3748 !important; font-weight: 700 !important; margin: 0 !important; }
+        .fraud-header .close { color: #a0aec0 !important; }
+
+        .bd-card-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 15px !important;
+            padding: 20px !important;
             background: #f8fafc !important;
-            border-radius: 12px !important;
-            padding: 1rem !important;
-            text-align: center !important;
+        }
+        .bd-stat-card {
+            background: #fff !important;
             border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            padding: 15px 10px !important;
+            text-align: center !important;
         }
-        .p-stat-label {
-            font-size: 0.7rem !important;
-            text-transform: uppercase !important;
-            font-weight: 700 !important;
-            color: #64748b !important;
-            margin-bottom: 0.25rem !important;
-            display: block !important;
-        }
-        .p-stat-value {
-            font-size: 1.5rem !important;
-            font-weight: 800 !important;
-            color: #1e293b !important;
-        }
-        
-        .chart-box {
-            padding: 1.5rem !important;
-            background: #fff !important;
-            border-radius: 12px !important;
-            margin: 0 1.5rem 1.5rem 1.5rem !important;
-            border: 1px solid #f1f5f9 !important;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
-        }
-        
-        .courier-card-list {
-            padding: 0 1.5rem 1.5rem 1.5rem !important;
-        }
-        .courier-card {
+        .bd-card-label { font-size: 11px !important; color: #718096 !important; font-weight: 600 !important; margin-bottom: 5px !important; display: block !important; }
+        .bd-card-value { font-size: 20px !important; font-weight: 800 !important; color: #2d3748 !important; display: block !important; }
+        .bd-card-sub { font-size: 10px !important; color: #a0aec0 !important; }
+
+        .bd-main-content {
             display: flex !important;
-            align-items: center !important;
-            padding: 1rem !important;
-            background: #fff !important;
-            border-radius: 12px !important;
-            margin-bottom: 0.75rem !important;
-            border: 1px solid #f1f5f9 !important;
-            transition: transform 0.2s ease !important;
+            padding: 20px !important;
+            gap: 20px !important;
         }
-        .courier-card:hover { transform: scale(1.01) !important; border-color: #cbd5e1 !important; }
-        
-        .c-logo-box {
-            width: 50px !important;
-            height: 50px !important;
-            min-width: 50px !important;
-            background: white !important;
-            border-radius: 10px !important;
+        .bd-table-col { flex: 1.2 !important; }
+        .bd-chart-col { flex: 0.8 !important; border-left: 1px solid #edf2f7 !important; padding-left: 20px !important; }
+
+        .bd-table { width: 100% !important; border-collapse: collapse !important; }
+        .bd-table thead { background: #3182ce !important; color: #fff !important; }
+        .bd-table th { padding: 8px 12px !important; font-size: 11px !important; text-transform: uppercase !important; text-align: left !important; }
+        .bd-table td { padding: 10px 12px !important; border-bottom: 1px solid #edf2f7 !important; font-size: 13px !important; color: #4a5568 !important; }
+        .bd-table img { height: 25px !important; width: auto !important; max-width: 100px !important; object-fit: contain !important; display: block !important; }
+        .bd-table-total-row { background: #f7fafc !important; font-weight: 700 !important; }
+
+        /* CSS Donut Chart */
+        .donut-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+        .donut {
+            width: 150px !important;
+            height: 150px !important;
+            border-radius: 50% !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            margin-right: 1.25rem !important;
-            padding: 4px !important;
-            border: 1px solid #f1f5f9 !important;
-            overflow: hidden !important;
+            position: relative !important;
         }
-        .c-logo-box img {
-            max-width: 100% !important;
-            max-height: 100% !important;
-            object-fit: contain !important;
-        }
-        
-        .c-details { flex: 1 !important; }
-        .c-name { font-weight: 700 !important; color: #334155 !important; font-size: 0.95rem !important; }
-        .c-mini-stats { display: flex !important; gap: 1rem !important; margin-top: 2px !important; }
-        .c-m-val { font-size: 0.75rem !important; color: #64748b !important; }
-        .c-m-val b { color: #475569 !important; }
-        
-        .success-tag {
-            background: #f0fdf4 !important;
-            color: #16a34a !important;
-            padding: 0.25rem 0.75rem !important;
-            border-radius: 20px !important;
-            font-size: 0.8rem !important;
+        .donut-center {
+            width: 110px !important;
+            height: 110px !important;
+            background: #fff !important;
+            border-radius: 50% !important;
+            position: absolute !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 18px !important;
             font-weight: 700 !important;
+            color: #48bb78 !important;
         }
+
+        .bd-footer-banner {
+            margin: 0 20px 20px 20px !important;
+            padding: 12px 20px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            border: 1px solid #c6f6d5 !important;
+            background: #f0fff4 !important;
+            color: #276749 !important;
+        }
+        .bd-footer-banner.high-risk { border-color: #fed7d7 !important; background: #fff5f5 !important; color: #9b2c2c !important; }
+        .bd-footer-icon { font-size: 20px !important; }
     </style>
 @endpush
 
@@ -724,50 +706,54 @@
                 totalDelivered = data.total_delivered || data.total_delivered_parcels || data.delivered || data.success || data.total_success || 0;
                 totalCancel = data.total_cancel || data.total_cancelled || data.total_cancelled_parcels || data.cancelled || data.failed || data.cancel || 0;
             }
+
+            // Calculations for CSS Donut chart
+            const passPercent = (totalParcels > 0) ? (totalDelivered / totalParcels) * 100 : 0;
+            const failPercent = 100 - passPercent;
             
             // Risk level config
-            const riskConfig = {
-                low: { icon: 'fa-check-circle', text: 'Low Risk Profile', color: '#10b981', desc: 'Secure history found.' },
-                medium: { icon: 'fa-exclamation-triangle', text: 'Medium Risk Profile', color: '#f59e0b', desc: 'Caution advised.' },
-                high: { icon: 'fa-times-circle', text: 'High Risk Profile', color: '#ef4444', desc: 'High cancellations!' }
-            };
-            const risk = riskConfig[riskLevel] || riskConfig.medium;
-            
-            // Build the Modal HTML
+            const isHighRisk = riskLevel === 'high';
+            const riskMsg = isHighRisk ? 'High cancellation rate detected. Proceed with caution!' : 'This customer appears safe based on previous records.';
+
+            // 1. Top Cards
             let html = `
-                <div class="risk-badge-container">
-                    <i class="fa ${risk.icon} risk-icon-large" style="color: ${risk.color}"></i>
-                    <h3 class="font-weight-bold mb-1" style="color: #1e293b">${risk.text}</h3>
-                    <p class="text-muted small mb-0">${risk.desc}</p>
-                </div>
-
-                <div class="premium-stat-grid">
-                    <div class="p-stat-item">
-                        <span class="p-stat-label">Total</span>
-                        <span class="p-stat-value">${totalParcels}</span>
+                <div class="bd-card-grid">
+                    <div class="bd-stat-card" style="background: #ebf8ff; border-color: #bee3f8;">
+                        <span class="bd-card-label" style="color: #2b6cb0;">Total Orders</span>
+                        <span class="bd-card-value">${totalParcels}</span>
+                        <span class="bd-card-sub">All time</span>
                     </div>
-                    <div class="p-stat-item">
-                        <span class="p-stat-label">Pass</span>
-                        <span class="p-stat-value" style="color: #10b981">${totalDelivered}</span>
+                    <div class="bd-stat-card" style="background: #f0fff4; border-color: #c6f6d5;">
+                        <span class="bd-card-label" style="color: #2f855a;">Successful</span>
+                        <span class="bd-card-value" style="color: #38a169;">${totalDelivered}</span>
+                        <span class="bd-card-sub">Delivered</span>
                     </div>
-                    <div class="p-stat-item">
-                        <span class="p-stat-label">Fail</span>
-                        <span class="p-stat-value" style="color: #ef4444">${totalCancel}</span>
+                    <div class="bd-stat-card" style="background: #fff5f5; border-color: #fed7d7;">
+                        <span class="bd-card-label" style="color: #c53030;">Cancelled</span>
+                        <span class="bd-card-value" style="color: #e53e3e;">${totalCancel}</span>
+                        <span class="bd-card-sub">Failed</span>
                     </div>
-                </div>
-
-                <div class="chart-box">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="font-weight-bold text-dark" style="font-size: 0.9rem">Overall Success Rate</span>
-                        <span class="success-tag">${successRate}%</span>
-                    </div>
-                    <div class="progress" style="height: 10px; border-radius: 5px; background: #f1f5f9;">
-                        <div class="progress-bar" style="width: ${successRate}%; background: ${risk.color}; border-radius: 5px;"></div>
+                    <div class="bd-stat-card" style="background: #faf5ff; border-color: #e9d8fd;">
+                        <span class="bd-card-label" style="color: #6b46c1;">Success Rate</span>
+                        <span class="bd-card-value" style="color: #805ad5;">${successRate}%</span>
+                        <div class="mt-2" style="background: #edf2f7; height: 4px; border-radius: 2px; overflow: hidden;">
+                            <div style="width: ${successRate}%; background: #805ad5; height: 100%;"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="courier-card-list">
-                    <h6 class="mb-3 font-weight-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em; padding-left: 2px;">Delivery Breakdown</h6>
+                <div class="bd-main-content">
+                    <div class="bd-table-col">
+                        <table class="bd-table">
+                            <thead>
+                                <tr>
+                                    <th>Courier</th>
+                                    <th style="text-align: center">Total</th>
+                                    <th style="text-align: center">Success</th>
+                                    <th style="text-align: center">Cancel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
             `;
 
             // Courier breakdown loop
@@ -780,36 +766,56 @@
                     const cTotal = stats.total_parcel || stats.total_parcels || 0;
                     const cSuccess = stats.success_parcel || stats.total_delivered_parcels || 0;
                     const cCancel = stats.cancelled_parcel || stats.total_cancelled_parcels || 0;
-                    const cRate = stats.success_ratio || stats.success_rate || 0;
 
                     html += `
-                        <div class="courier-card">
-                            <div class="c-logo-box">
-                                <img src="${stats.logo}" alt="${stats.name}" onerror="this.src='https://api.bdcourier.com/c-logo/default.png'">
-                            </div>
-                            <div class="c-details">
-                                <div class="c-name">${stats.name}</div>
-                                <div class="c-mini-stats">
-                                    <span class="c-m-val">Total: <b>${cTotal}</b></span>
-                                    <span class="c-m-val">Delivered: <b style="color: #16a34a">${cSuccess}</b></span>
-                                    <span class="c-m-val">Canceled: <b style="color: #dc2626">${cCancel}</b></span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="success-tag" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0;">${cRate}%</span>
-                            </div>
-                        </div>
+                        <tr>
+                            <td><img src="${stats.logo}" alt="${stats.name}" onerror="this.src='https://api.bdcourier.com/c-logo/default.png'"></td>
+                            <td style="text-align: center">${cTotal}</td>
+                            <td style="text-align: center; color: #38a169;">${cSuccess}</td>
+                            <td style="text-align: center; color: #e53e3e;">${cCancel}</td>
+                        </tr>
                     `;
                 });
-            } else {
-                html += `<div class="py-4 text-center text-muted border rounded bg-light" style="border-radius: 12px !important;">No courier records found.</div>`;
             }
 
             html += `
+                        <tr class="bd-table-total-row">
+                            <td>Total</td>
+                            <td style="text-align: center">${totalParcels}</td>
+                            <td style="text-align: center; color: #38a169;">${totalDelivered}</td>
+                            <td style="text-align: center; color: #e53e3e;">${totalCancel}</td>
+                        </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bd-chart-col">
+                        <h6 style="color: #4a5568; font-weight: 700; margin-bottom: 20px; font-size: 14px;">Delivery Status</h6>
+                        <div class="donut-container">
+                            <div class="donut" style="background: conic-gradient(#48bb78 0% ${passPercent}%, #f56565 ${passPercent}% 100%);">
+                                <div class="donut-center">
+                                    <span style="color: #48bb78">${totalDelivered}</span>
+                                    <span style="color: #f56565; font-size: 12px; border-top: 1px solid #edf2f7; width: 40px; text-align: center;">${totalCancel}</span>
+                                </div>
+                            </div>
+                            <div class="mt-4" style="display: flex; gap: 15px; font-size: 11px; font-weight: 600;">
+                                <span style="display: flex; align-items: center; gap: 5px;"><i class="fa fa-square" style="color: #48bb78;"></i> Successful</span>
+                                <span style="display: flex; align-items: center; gap: 5px;"><i class="fa fa-square" style="color: #f56565;"></i> Cancelled</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
+
+                <div class="bd-footer-banner ${isHighRisk ? 'high-risk' : ''}">
+                    <div class="bd-footer-icon"><i class="fa ${isHighRisk ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i></div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">${isHighRisk ? 'Low Success Rate' : 'High Success Rate'}: ${successRate}%</div>
+                        <div style="font-size: 11px; opacity: 0.8;">${riskMsg}</div>
+                    </div>
+                </div>
+                
+                <div class="px-4 py-3 border-top d-flex justify-content-between align-items-center">
                     <span class="text-secondary small font-italic"><i class="fa fa-phone mr-1"></i> ${data.normalized_phone || phone}</span>
-                    <button type="button" class="btn btn-dark btn-sm font-weight-bold px-4" style="border-radius: 8px" data-dismiss="modal">Close Report</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close Report</button>
                 </div>
             `;
             

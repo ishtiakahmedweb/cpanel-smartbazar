@@ -89,7 +89,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        if ($product->parent_id) {
+        if ($product->parent_id && $product->parent) {
             $product = $product->parent;
         }
         $product->load([

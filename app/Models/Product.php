@@ -147,7 +147,7 @@ class Product extends Model
     protected function varName(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
-            if (! $this->parent_id) {
+            if (! $this->parent_id || ! $this->parent) {
                 return $this->name;
             }
 
@@ -162,7 +162,7 @@ class Product extends Model
                 return setting('delivery_charge')->inside_dhaka;
             }
 
-            if (! $this->parent_id) {
+            if (! $this->parent_id || ! $this->parent) {
                 return $value ?? setting('delivery_charge')->inside_dhaka;
             }
 
@@ -177,7 +177,7 @@ class Product extends Model
                 return setting('delivery_charge')->outside_dhaka;
             }
 
-            if (! $this->parent_id) {
+            if (! $this->parent_id || ! $this->parent) {
                 return $value ?? setting('delivery_charge')->outside_dhaka;
             }
 
@@ -189,8 +189,8 @@ class Product extends Model
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             // Use already-loaded relationship if available to avoid N+1 queries
-            if ($this->parent_id) {
-                if ($this->relationLoaded('parent') && $this->parent && $this->parent->relationLoaded('categories')) {
+            if ($this->parent_id && $this->parent) {
+                if ($this->relationLoaded('parent') && $this->parent->relationLoaded('categories')) {
                     return $this->parent->categories->first()?->name ?? 'Uncategorized';
                 }
 
@@ -257,7 +257,7 @@ class Product extends Model
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
             $data = json_decode((string) $value, true) ?? [];
-            if (empty($data) && $this->parent_id) {
+            if (empty($data) && $this->parent_id && $this->parent) {
                 return $this->parent->wholesale;
             }
 
@@ -281,9 +281,11 @@ class Product extends Model
         $wholesale = $this->wholesale;
         $price = $this->selling_price;
 
-        foreach ($wholesale['quantity'] as $key => $value) {
-            if ($quantity >= $value) {
-                $price = $wholesale['price'][$key];
+        if (isset($wholesale['quantity']) && is_array($wholesale['quantity'])) {
+            foreach ($wholesale['quantity'] as $key => $value) {
+                if ($quantity >= $value) {
+                    $price = $wholesale['price'][$key] ?? $price;
+                }
             }
         }
 

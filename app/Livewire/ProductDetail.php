@@ -14,7 +14,7 @@ class ProductDetail extends Component
 
     public Product $product;
 
-    public Product $selectedVar;
+    public ?Product $selectedVar = null;
 
     public array $options = [];
 
@@ -42,6 +42,8 @@ class ProductDetail extends Component
         if ($variation) {
             $this->selectedVar = $variation;
             $this->dispatch('variantChanged', variantId: $variation->id, variantImageSrc: $variation->base_image?->src);
+        } else {
+            $this->selectedVar = $this->product;
         }
     }
 

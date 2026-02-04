@@ -135,6 +135,25 @@
         }
         .bd-footer-banner.high-risk { border-color: #fed7d7 !important; background: #fff5f5 !important; color: #9b2c2c !important; }
         .bd-footer-icon { font-size: 20px !important; }
+
+        /* Fraud Reports Styles */
+        .report-section { margin: 0 20px 20px 20px !important; }
+        .report-item {
+            padding: 12px 15px !important;
+            background: #fff !important;
+            border: 1px solid #edf2f7 !important;
+            border-radius: 8px !important;
+            margin-bottom: 10px !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+        .report-item.scam { border-left: 4px solid #f56565 !important; }
+        .report-icon { color: #f56565 !important; font-size: 16px !important; margin-top: 2px !important; }
+        .report-content { flex: 1 !important; }
+        .report-title { font-weight: 700 !important; font-size: 13px !important; color: #2d3748 !important; }
+        .report-desc { font-size: 12px !important; color: #718096 !important; }
+        .report-meta { font-size: 10px !important; color: #a0aec0 !important; margin-top: 4px !important; }
     </style>
 @endpush
 
@@ -810,6 +829,47 @@
                     <div>
                         <div style="font-weight: 700; font-size: 14px;">${isHighRisk ? 'Low Success Rate' : 'High Success Rate'}: ${successRate}%</div>
                         <div style="font-size: 11px; opacity: 0.8;">${riskMsg}</div>
+                    </div>
+                </div>
+
+                <!-- Fraud Reports Section -->
+                <div class="report-section">
+                    <h6 style="color: #4a5568; font-weight: 700; margin-bottom: 15px; font-size: 14px;">Fraud Alerts & Details</h6>
+                    <div id="fraudReportsList">
+                        ${(function() {
+                            let reportHtml = '';
+                            const reports = data.reports || data.fraud_alerts || data.alerts || [];
+                            
+                            if (reports && reports.length > 0) {
+                                reports.forEach(report => {
+                                    reportHtml += `
+                                        <div class="report-item scam">
+                                            <div class="report-icon"><i class="fa fa-exclamation-triangle"></i></div>
+                                            <div class="report-content">
+                                                <div class="report-title">${report.courier || 'Reported Incident'}</div>
+                                                <div class="report-desc">${report.reason || report.comment || 'Fraudulent behavior reported for this number.'}</div>
+                                                <div class="report-meta">${report.date || 'Recent Activity'}</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                            } else if (isHighRisk) {
+                                // Default high risk warning if no specific reports exist
+                                reportHtml = `
+                                    <div class="report-item scam">
+                                        <div class="report-icon"><i class="fa fa-info-circle"></i></div>
+                                        <div class="report-content">
+                                            <div class="report-title">High Cancellation Background</div>
+                                            <div class="report-desc">This customer has a history of high returns across multiple couriers. Usually due to "Customer not reachable" or "Refused at doorstep".</div>
+                                            <div class="report-meta">Risk Intelligence System</div>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                reportHtml = '<div class="text-center py-3 text-muted small"><i class="fa fa-check-shield mr-1"></i> No confirmed fraud reports found.</div>';
+                            }
+                            return reportHtml;
+                        })()}
                     </div>
                 </div>
                 

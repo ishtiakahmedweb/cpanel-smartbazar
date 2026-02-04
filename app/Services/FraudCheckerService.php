@@ -45,6 +45,14 @@ class FraudCheckerService
                 if (isset($result['status']) && $result['status'] === 'success') {
                     $data = $result['data'] ?? [];
                     
+                    // Capture reports from top-level if not inside data
+                    if (!isset($data['reports']) && isset($result['reports'])) {
+                        $data['reports'] = $result['reports'];
+                    }
+                    if (!isset($data['fraud_alerts']) && isset($result['fraud_alerts'])) {
+                        $data['fraud_alerts'] = $result['fraud_alerts'];
+                    }
+
                     // Add calculated fields for our UI
                     $data['normalized_phone'] = $phone;
                     $data['success_rate'] = $this->calculateSuccessRate($data);

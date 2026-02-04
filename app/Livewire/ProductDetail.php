@@ -24,6 +24,8 @@ class ProductDetail extends Component
 
     #[Validate('required|numeric|min:0')]
     public int $retailPrice = 0;
+
+    public bool $showBrandCategory = false;
     public static function landing(Product $product): self
     {
         $component = new self;

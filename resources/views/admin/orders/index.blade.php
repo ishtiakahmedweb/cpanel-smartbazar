@@ -172,20 +172,21 @@
 
     <!-- Fraud Check Modal -->
     <div class="modal fade" id="fraudCheckModal" tabindex="-1" role="dialog" aria-labelledby="fraudCheckModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="fraudCheckModalLabel"><i class="fa fa-shield"></i> Fraud Check Results</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content fraud-modal-content">
+                <div class="modal-header fraud-header">
+                    <h5 class="modal-title" id="fraudCheckModalLabel"><i class="fa fa-shield mr-2"></i> Fraud Detection Report</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="fraudCheckContent">
+                <div class="modal-body p-4" id="fraudCheckContent">
                     <div class="text-center py-5">
-                        <div class="spinner-border text-primary mb-3" role="status">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p>Checking fraud history...</p>
+                        <h5 class="text-muted">Analyzing Courier History...</h5>
+                        <p class="small text-secondary">Fetching data from BDCourier database</p>
                     </div>
                 </div>
             </div>
@@ -618,130 +619,110 @@
                 totalCancel = data.total_cancel || data.total_cancelled || data.total_cancelled_parcels || data.cancelled || data.failed || data.cancel || 0;
             }
             
-            // If top level is 0, try to sum up courier objects/breakdown
-            if (totalParcels === 0) {
-                Object.entries(data).forEach(([key, c]) => {
-                    if (c && typeof c === 'object' && !['summary', 'normalized_phone', 'raw_response', 'reports', 'success_rate', 'risk_level'].includes(key)) {
-                        totalParcels += (c.total_parcel || c.total_parcels || c.total || c.orders || 0);
-                        totalDelivered += (c.success_parcel || c.total_delivered_parcels || c.delivered || c.success || 0);
-                        totalCancel += (c.cancelled_parcel || c.total_cancelled_parcels || c.cancelled || c.failed || 0);
-                    }
-                });
-            }
-
-            // Risk level colors and badges
+            // Risk level config
             const riskConfig = {
-                low: { color: 'success', icon: 'fa-check-circle', text: 'Low Risk', bgClass: 'alert-success' },
-                medium: { color: 'warning', icon: 'fa-exclamation-triangle', text: 'Medium Risk', bgClass: 'alert-warning' },
-                high: { color: 'danger', icon: 'fa-times-circle', text: 'High Risk', bgClass: 'alert-danger' }
+                low: { bannerClass: 'low', icon: 'fa-check-circle', text: 'Low Risk Profile', color: '#10b981', desc: 'This customer appears safe based on previous records.' },
+                medium: { bannerClass: 'medium', icon: 'fa-exclamation-triangle', text: 'Medium Risk Profile', color: '#f59e0b', desc: 'Some inconsistencies or cancellations found.' },
+                high: { bannerClass: 'high', icon: 'fa-times-circle', text: 'High Risk Profile', color: '#ef4444', desc: 'High cancellation rate detected. Proceed with caution!' }
             };
-            
             const risk = riskConfig[riskLevel] || riskConfig.medium;
-
-            let html = `
-                <div class="alert ${risk.bgClass} mb-4">
-                    <h5><i class="fa ${risk.icon}"></i> Risk Level: ${risk.text}</h5>
-                    <p class="mb-1 text-muted">Sent to API: <strong>${data.normalized_phone || phone}</strong></p>
-                    <p class="mb-0 small opacity-75 text-truncate">Order Phone: ${phone}</p>
-                </div>
-                
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <h6 class="text-muted">Total Parcels</h6>
-                                <h2 class="mb-0">${totalParcels}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-center bg-light-success">
-                            <div class="card-body">
-                                <h6 class="text-muted">Delivered</h6>
-                                <h2 class="mb-0 text-success">${totalDelivered}</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-center bg-light-danger">
-                            <div class="card-body">
-                                <h6 class="text-muted">Cancelled</h6>
-                                <h2 class="mb-0 text-danger">${totalCancel}</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <h6>Success Rate</h6>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-${risk.color}" role="progressbar" style="width: ${successRate}%" aria-valuenow="${successRate}" aria-valuemin="0" aria-valuemax="100">
-                            <strong>${successRate}%</strong>
-                        </div>
-                    </div>
-                </div>
-            `;
             
-            // Courier breakdown
-            const hasApis = Object.keys(apisObject).length > 0;
+            // Build the Modal HTML
+            let html = `
+                <div class="risk-banner ${risk.bannerClass}">
+                    <div class="risk-icon"><i class="fa ${risk.icon}"></i></div>
+                    <div>
+                        <h4 class="mb-1 font-weight-bold">${risk.text}</h4>
+                        <p class="mb-0 opacity-75">${risk.desc}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-4">
+                        <div class="stat-card">
+                            <span class="stat-label text-primary">Total Orders</span>
+                            <span class="stat-value text-dark">${totalParcels}</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card">
+                            <span class="stat-label text-success">Successful</span>
+                            <span class="stat-value text-success">${totalDelivered}</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card">
+                            <span class="stat-label text-danger">Cancelled</span>
+                            <span class="stat-value text-danger">${totalCancel}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="d-flex justify-content-between align-items-end mb-1">
+                        <h6 class="mb-0 font-weight-bold text-dark">Success Rate</h6>
+                        <span class="h5 mb-0 font-weight-bold" style="color: ${risk.color}">${successRate}%</span>
+                    </div>
+                    <div class="progress modern-progress">
+                        <div class="progress-bar" style="width: ${successRate}%; background-color: ${risk.color}"></div>
+                    </div>
+                </div>
+
+                <div class="courier-table-container">
+                    <h6 class="mb-3 font-weight-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Courier Breakdown</h6>
+            `;
+
+            // Courier breakdown loop
             const courierEntries = Object.entries(data).filter(([key, value]) => {
                 return value && typeof value === 'object' && value.name && !['summary', 'normalized_phone', 'raw_response', 'reports'].includes(key);
             });
-            const hasCouriers = courierEntries.length > 0;
-            
-            if (hasApis || hasCouriers) {
-                html += `
-                    <div>
-                        <h6 class="mb-3">Courier Breakdown</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Courier</th>
-                                        <th class="text-center">Total</th>
-                                        <th class="text-center">Delivered</th>
-                                        <th class="text-center">Cancelled</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
-                
-                if (hasApis) {
-                    for (const [courier, stats] of Object.entries(apisObject)) {
-                        html += `
-                            <tr>
-                                <td><strong>${courier}</strong></td>
-                                <td class="text-center">${stats.total_parcels || 0}</td>
-                                <td class="text-center text-success">${stats.total_delivered_parcels || 0}</td>
-                                <td class="text-center text-danger">${stats.total_cancelled_parcels || 0}</td>
-                            </tr>
-                        `;
-                    }
-                } else if (hasCouriers) {
-                    courierEntries.forEach(([key, stats]) => {
-                        html += `
-                            <tr>
-                                <td><strong>${stats.name}</strong></td>
-                                <td class="text-center">${stats.total_parcels || stats.total_parcel || stats.total || stats.orders || 0}</td>
-                                <td class="text-center text-success">${stats.total_delivered_parcels || stats.success_parcel || stats.delivered || stats.success || 0}</td>
-                                <td class="text-center text-danger">${stats.total_cancelled_parcels || stats.cancelled_parcel || stats.cancelled || stats.cancel || stats.failed || 0}</td>
-                            </tr>
-                        `;
-                    });
-                }
-                
-                html += `
-                                </tbody>
-                            </table>
+
+            if (courierEntries.length > 0) {
+                courierEntries.forEach(([key, stats]) => {
+                    const cTotal = stats.total_parcel || stats.total_parcels || 0;
+                    const cSuccess = stats.success_parcel || stats.total_delivered_parcels || 0;
+                    const cCancel = stats.cancelled_parcel || stats.total_cancelled_parcels || 0;
+                    const cRate = stats.success_ratio || stats.success_rate || 0;
+
+                    html += `
+                        <div class="courier-row">
+                            <div class="courier-logo-circle">
+                                <img src="${stats.logo}" alt="${stats.name}" onerror="this.src='https://api.bdcourier.com/c-logo/default.png'">
+                            </div>
+                            <div class="courier-info-main">
+                                <div class="courier-name">${stats.name}</div>
+                                <div class="courier-stats-inline">
+                                    <div class="c-stat-group">
+                                        <span class="c-stat-lbl">Total</span>
+                                        <span class="c-stat-val">${cTotal}</span>
+                                    </div>
+                                    <div class="c-stat-group">
+                                        <span class="c-stat-lbl">Success</span>
+                                        <span class="c-stat-val text-success">${cSuccess}</span>
+                                    </div>
+                                    <div class="c-stat-group">
+                                        <span class="c-stat-lbl">Cancel</span>
+                                        <span class="c-stat-val text-danger">${cCancel}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge badge-pill badge-light font-weight-bold" style="font-size: 0.8rem; color: #1e293b">${cRate}%</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                });
+            } else {
+                html += `<div class="py-4 text-center text-muted border rounded bg-light">No individual courier details available.</div>`;
             }
-            
-            // If data exists, but no breakdown table produced
-            if (!hasApis && !hasCouriers && (totalParcels > 0)) {
-                html += `<div class="alert alert-info py-2">Summarized data found, but individual courier breakdown not available in the API response.</div>`;
-            }
+
+            html += `
+                </div>
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Checked: ${new Date().toLocaleTimeString()}</span>
+                    <button type="button" class="btn btn-check-again btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            `;
             
             $('#fraudCheckContent').html(html);
         }

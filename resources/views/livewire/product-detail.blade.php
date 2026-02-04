@@ -105,20 +105,17 @@
                 <label class="product__option-label"><strong>{{ $attribute->name }}:</strong></label>
                 @if (strtolower($attribute->name) == 'color')
                     <div class="input-radio-color">
-                        <div class="input-radio-color__list">
+                        <div class="input-radio-color__list d-flex flex-wrap" style="gap: 8px;">
                             @foreach ($attributeOptions as $option)
                                 <label
                                     class="input-radio-color__item @if (strtolower($option->name) == 'white') input-radio-color__item--white @endif @if(($options[$attribute->id] ?? null) == $option->id) active @endif"
-                                    style="color: {{ $option->value }}; width: 32px; height: 32px; border-radius: 6px; position: relative; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
+                                    style="color: {{ $option->value }}; width: 28px; height: 28px; border-radius: 50%; position: relative; cursor: pointer; transition: all 0.2s; @if(($options[$attribute->id] ?? null) == $option->id) outline: 2px solid #007bff; outline-offset: 2px; @endif" 
                                     data-toggle="tooltip" 
                                     title="{{ $option->name }}">
                                     <input type="radio" wire:model.live="options.{{ $attribute->id }}"
                                         name="options[{{ $attribute->id }}]" value="{{ $option->id }}"
                                         class="option-picker" style="display: none;">
-                                    <span style="display: block; width: 100%; height: 100%; background-color: currentColor; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);"></span>
-                                    @if(($options[$attribute->id] ?? null) == $option->id)
-                                        <div style="position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid #007bff; border-radius: 8px; pointer-events: none;"></div>
-                                    @endif
+                                    <span style="display: block; width: 100%; height: 100%; background-color: currentColor; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15);"></span>
                                 </label>
                             @endforeach
                         </div>

@@ -628,7 +628,8 @@
             let html = `
                 <div class="alert ${risk.bgClass} mb-4">
                     <h5><i class="fa ${risk.icon}"></i> Risk Level: ${risk.text}</h5>
-                    <p class="mb-0">Customer Phone: <strong>${phone}</strong></p>
+                    <p class="mb-1 text-muted">Sent to API: <strong>${data.normalized_phone || phone}</strong></p>
+                    <p class="mb-0 small opacity-75 text-truncate">Order Phone: ${phone}</p>
                 </div>
                 
                 <div class="row mb-4">

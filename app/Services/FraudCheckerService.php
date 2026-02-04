@@ -23,8 +23,8 @@ class FraudCheckerService
         $phone = $this->normalizePhone($phone);
         $apiKey = trim($this->apiKey);
 
-        // Check cache first (24 hour cache to save API credits)
-        $cacheKey = 'fraud_check_' . $phone;
+        // Check cache first (using v4 prefix to clear old stale data)
+        $cacheKey = 'fraud_check_v4_' . $phone;
         
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
@@ -46,8 +46,9 @@ class FraudCheckerService
                     $data = $result['data'] ?? [];
                     
                     // Add calculated fields for our UI
+                    $data['normalized_phone'] = $phone;
                     $data['success_rate'] = $this->calculateSuccessRate($data);
-                    $data['risk_level'] = $this->getRiskLevel($data['success_rate']);
+                    $data['risk_level'] = $this->getRiskLevel($data['success_rate'], $data);
                     
                     // Cache for 24 hours
                     Cache::put($cacheKey, $data, now()->addHours(24));
@@ -155,8 +156,22 @@ class FraudCheckerService
      * @param float $successRate
      * @return string
      */
-    private function getRiskLevel(float $successRate): string
+    private function getRiskLevel(float $successRate, array $data = []): string
     {
+        // Re-calculate totals to ensure we have a basis
+        $total = 0;
+        if (isset($data['couriers']) && is_array($data['couriers'])) {
+            foreach ($data['couriers'] as $courier) {
+                $total += $courier['total_parcels'] ?? 0;
+            }
+        } else {
+            $total = $data['total_parcels'] ?? 0;
+        }
+
+        if ($total === 0) {
+            return 'low'; // Or 'unknown' if we add UI support, for now 'low' is less alarming
+        }
+
         if ($successRate >= 80) {
             return 'low';
         } elseif ($successRate >= 60) {

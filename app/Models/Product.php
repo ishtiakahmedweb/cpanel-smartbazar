@@ -321,7 +321,7 @@ class Product extends Model
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             $images = $this->images ?? collect();
-            if ($images->isEmpty()) {
+            if ($images->isEmpty() && $this->parent_id && $this->parent) {
                 $images = $this->parent->images ?? collect();
             }
 
@@ -333,7 +333,7 @@ class Product extends Model
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             $images = $this->images ?? collect();
-            if ($images->isEmpty()) {
+            if ($images->isEmpty() && $this->parent_id && $this->parent) {
                 $images = $this->parent->images ?? collect();
             }
 

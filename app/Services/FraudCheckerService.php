@@ -138,15 +138,28 @@ class FraudCheckerService
         $total = 0;
         $delivered = 0;
         
-        if (isset($data['couriers']) && is_array($data['couriers'])) {
+        if (isset($data['summary']) && is_array($data['summary'])) {
+            $total = $data['summary']['total_parcel'] ?? $data['summary']['total_parcels'] ?? 0;
+            $delivered = $data['summary']['success_parcel'] ?? $data['summary']['total_delivered'] ?? 0;
+        } elseif (isset($data['couriers']) && is_array($data['couriers'])) {
             foreach ($data['couriers'] as $courier) {
                 $total += $courier['total_parcels'] ?? $courier['total_parcel'] ?? $courier['total'] ?? $courier['orders'] ?? 0;
                 $delivered += $courier['total_delivered_parcels'] ?? $courier['total_delivered'] ?? $courier['delivered'] ?? $courier['success'] ?? 0;
             }
         } else {
-            // Fallback to top-level fields with flexible keys
-            $total = $data['total_parcels'] ?? $data['total_parcel'] ?? $data['total_orders'] ?? $data['total'] ?? 0;
-            $delivered = $data['total_delivered'] ?? $data['total_delivered_parcels'] ?? $data['delivered'] ?? $data['success'] ?? 0;
+            // Fallback: maybe it's an associative array where each key is a courier (except summary/normalized_phone/raw_response)
+            foreach ($data as $key => $value) {
+                if (is_array($value) && !in_array($key, ['summary', 'normalized_phone', 'raw_response', 'reports'])) {
+                    $total += $value['total_parcel'] ?? $value['total_parcels'] ?? 0;
+                    $delivered += $value['success_parcel'] ?? $value['total_delivered'] ?? 0;
+                }
+            }
+
+            // Fallback to top-level if still 0
+            if ($total === 0) {
+                $total = $data['total_parcels'] ?? $data['total_parcel'] ?? $data['total_orders'] ?? $data['total'] ?? 0;
+                $delivered = $data['total_delivered'] ?? $data['total_delivered_parcels'] ?? $data['delivered'] ?? $data['success'] ?? 0;
+            }
         }
         
         if ($total == 0) {
@@ -166,12 +179,22 @@ class FraudCheckerService
     {
         // Re-calculate totals to ensure we have a basis
         $total = 0;
-        if (isset($data['couriers']) && is_array($data['couriers'])) {
+        if (isset($data['summary']) && is_array($data['summary'])) {
+            $total = $data['summary']['total_parcel'] ?? $data['summary']['total_parcels'] ?? 0;
+        } elseif (isset($data['couriers']) && is_array($data['couriers'])) {
             foreach ($data['couriers'] as $courier) {
-                $total += $courier['total_parcels'] ?? 0;
+                $total += $courier['total_parcels'] ?? $courier['total_parcel'] ?? 0;
             }
         } else {
-            $total = $data['total_parcels'] ?? 0;
+            // Check associative courier keys
+            foreach ($data as $key => $value) {
+                if (is_array($value) && !in_array($key, ['summary', 'normalized_phone', 'raw_response', 'reports', 'success_rate', 'risk_level'])) {
+                    $total += $value['total_parcel'] ?? $value['total_parcels'] ?? 0;
+                }
+            }
+            if ($total === 0) {
+                $total = $data['total_parcels'] ?? $data['total_parcel'] ?? 0;
+            }
         }
 
         if ($total === 0) {

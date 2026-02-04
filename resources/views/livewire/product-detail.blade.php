@@ -273,29 +273,6 @@
                         </tr>
                     </tbody>
                 </table>
-                @if ($selectedVar->wholesale['quantity'])
-                    <div class="mt-3">
-                        <table class="table table-sm table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="2" class="text-center">Wholesale Price</th>
-                                </tr>
-                                <tr>
-                                    <th width="50%">Min. Quantity</th>
-                                    <th width="50%">Unit Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($selectedVar->wholesale['price'] as $price)
-                                    <tr>
-                                        <td>{{ $selectedVar->wholesale['quantity'][$loop->index] }}</td>
-                                        <td>{!! theMoney($price) !!}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
             </form><!-- .product__options / end -->
         </div><!-- .product__end -->
 </div>

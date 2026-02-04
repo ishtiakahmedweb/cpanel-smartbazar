@@ -37,10 +37,18 @@ class AttributeOptionController extends Controller
             $request->merge(['value' => $request->name]);
         }
 
-        $attribute->options()->create($request->validate([
+        $option = $attribute->options()->create($request->validate([
             'name' => ['required'],
             'value' => ['required'],
         ]));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Option created successfully',
+                'option' => $option,
+            ]);
+        }
 
         return back()->withSuccess('Option created successfully');
     }

@@ -138,10 +138,11 @@
                         @php $options = $product->variations->pluck('options')->flatten()->unique('id')->pluck('id'); @endphp
                         @foreach ($attributes as $attribute)
                         <div class="mb-3 shadow-sm card rounded-0">
-                            <div class="px-3 py-2 card-header">
+                            <div class="px-3 py-2 card-header d-flex justify-content-between align-items-center">
                                 <a class="card-link" data-toggle="collapse" href="#collapse-{{$attribute->id}}">
                                     {{ $attribute->name }}
                                 </a>
+                                <button type="button" class="btn btn-sm btn-primary add-option-btn py-0" data-attribute-id="{{ $attribute->id }}" data-attribute-name="{{ $attribute->name }}">+</button>
                             </div>
                             <div id="collapse-{{$attribute->id}}" class="collapse" data-parent="#attributes">
                                 <div class="px-3 py-2 card-body">
@@ -393,6 +394,32 @@
         'selected' => $currentImage?->id ?? 0
     ])
 @endforeach
+
+<!-- Quick Add Option Modal -->
+<div class="modal fade" id="quickAddOptionModal" tabindex="-1" role="dialog" aria-labelledby="quickAddOptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quickAddOptionModalLabel">Add New Option</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="quick-add-attribute-id">
+                <div class="form-group">
+                    <label for="quick-add-option-name" id="quick-add-option-label">Option Name</label>
+                    <input type="text" class="form-control" id="quick-add-option-name" placeholder="Enter option value (e.g. XL, Red)">
+                    <div class="invalid-feedback" id="quick-add-error"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-quick-option">Save Option</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('js')
@@ -442,6 +469,98 @@
 
         $('[selector]').select2({
             // tags: true,
+        });
+
+        // Quick Add Option Logic
+        $('.add-option-btn').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent collapsing the card
+            let attrId = $(this).data('attribute-id');
+            let attrName = $(this).data('attribute-name');
+            
+            $('#quick-add-attribute-id').val(attrId);
+            $('#quick-add-option-label').text('New Option for ' + attrName);
+            $('#quick-add-option-name').val('');
+            $('#quick-add-error').text('').hide();
+            $('#quickAddOptionModal').modal('show');
+            setTimeout(() => $('#quick-add-option-name').focus(), 500);
+        });
+
+        $('#save-quick-option').click(function() {
+            let btn = $(this);
+            let attrId = $('#quick-add-attribute-id').val();
+            let name = $('#quick-add-option-name').val();
+            
+            if (!name) {
+                $('#quick-add-error').text('Please enter a name').show();
+                return;
+            }
+
+            btn.prop('disabled', true).text('Saving...');
+
+            $.ajax({
+                url: '/admin/attributes/' + attrId + '/options',
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                data: {
+                    name: name,
+                    value: name, // Using name as value by default
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Close modal
+                        $('#quickAddOptionModal').modal('hide');
+                        
+                        // Append new checkbox to the specific attribute list
+                        let container = $('#collapse-' + attrId + ' .card-body .d-flex');
+                        let newCheckbox = `
+                            <div class="checkbox checkbox-secondary">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="${response.option.name}" name="attributes[${attrId}][]" value="${response.option.id}" checked>
+                                    <label class="custom-control-label" for="${response.option.name}">${response.option.name}</label>
+                                </div>
+                            </div>
+                        `;
+                        // Note: The original generic component markup might differ slightly, forcing custom-control structure here for reliability or matching existing x-checkbox component output.
+                        // Let's check the container structure in lines 148-154. It uses x-checkbox which likely renders a custom-control.
+                        // To be safe, let's match the rendered HTML of x-checkbox if possible, or use a standard structure that works with the styles.
+                        
+                        // Re-creating the exact structure based on observation (x-checkbox usually renders input+label)
+                        let simpleCheckbox = `
+                            <div class="checkbox checkbox-secondary">
+                                <input type="checkbox" id="opt-${response.option.id}" name="attributes[${attrId}][]" value="${response.option.id}" checked>
+                                <label for="opt-${response.option.id}">${response.option.name}</label>
+                            </div>
+                        `;
+                         container.append(simpleCheckbox);
+                         
+                         // Open the collapse if closed
+                         $('#collapse-' + attrId).collapse('show');
+                    }
+                },
+                error: function(xhr) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorMessage = 'Error occurred';
+                    if (errors && errors.name) {
+                        errorMessage = errors.name[0];
+                    }
+                    $('#quick-add-error').text(errorMessage).show();
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Save Option');
+                }
+            });
+        });
+
+        // Trigger save on Enter key in modal
+        $('#quick-add-option-name').keypress(function(e) {
+            if(e.which == 13) {
+                $('#save-quick-option').click();
+                return false;
+            }
         });
 
     });

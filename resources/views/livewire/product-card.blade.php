@@ -6,18 +6,37 @@
     @endphp
     <style>
         .product-card .stretched-link::after {
-            z-index: 1;
+            z-index: 2; /* Increased z-index to cover price/info */
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         .product-card__buttons {
             position: relative;
-            z-index: 2; /* Ensure buttons are above the stretched link */
+            z-index: 3; /* Ensure buttons are above the stretched link */
+        }
+        .product-card__prices, .product-card__info {
+            position: static; /* Ensure these don't create new stacking contexts blocking the link */
         }
         /* Prevent accidental clicks while dragging the owl-carousel */
         .owl-drag .product-card .stretched-link::after {
-            display: none !important;
+            pointer-events: none;
         }
         .product-card:hover {
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        /* Fix Blue Hover Color - Force Brand Color */
+        .product-card:hover .product-card__name a,
+        .product-card__name a:hover {
+            color: var(--primary) !important;
+            text-decoration: none;
+        }
+        /* Ensure normal links inside don't turn blue if they exist */
+        .product-card a:not(.btn):hover {
+            color: var(--primary) !important;
         }
     </style>
     <div class="product-card__badges-list">

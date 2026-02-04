@@ -58,7 +58,6 @@
                         </div>
                     </div>
                 </div>
-                <livewire:order-related :order-id="$order->id" />
             </div>
         </div>
     </div>

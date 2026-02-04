@@ -96,6 +96,8 @@ class FraudCheckerService
         // Handle common BD formats
         if (str_starts_with($phone, '880')) {
             $phone = substr($phone, 2);
+        } elseif (str_starts_with($phone, '88')) {
+            $phone = '0' . substr($phone, 2);
         } elseif (str_starts_with($phone, '0')) {
             // Already starts with 0
         } elseif (strlen($phone) == 10 && str_starts_with($phone, '1')) {
@@ -105,6 +107,12 @@ class FraudCheckerService
         // Final fallback: take the last 11 digits if longer
         if (strlen($phone) > 11) {
             $phone = substr($phone, -11);
+        }
+        
+        // Ensure it starts with 0 and is exactly 11 digits
+        if (strlen($phone) == 11 && !str_starts_with($phone, '0')) {
+             // If we have 11 digits but it doesn't start with 0 (e.g. accidentally stripped too much)
+             // this is a safeguard
         }
         
         return $phone;

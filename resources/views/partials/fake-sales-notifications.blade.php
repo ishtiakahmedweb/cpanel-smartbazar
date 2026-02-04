@@ -13,7 +13,7 @@
             ->map(function ($product) {
                 return [
                     'name' => $product->name,
-                    'image' => $product->base_image->src ?? asset('logo.png'), 
+                    'image' => $product->base_image?->src ?? asset('logo.png'), 
                     'url' => route('products.show', $product->slug),
                     'time' => 'Just now', 
                 ];

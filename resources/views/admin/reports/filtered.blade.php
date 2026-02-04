@@ -38,7 +38,7 @@
                     }
 
                     $imageUrl = $productModel && $productModel->base_image 
-                        ? cdn($productModel->base_image->src) 
+                        ? cdn($productModel->base_image?->src) 
                         : 'https://placehold.co/100x100?text=No+Image';
                 @endphp
                 <tr>

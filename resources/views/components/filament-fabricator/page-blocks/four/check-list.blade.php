@@ -34,7 +34,7 @@
                                 <div class="elementor-element elementor-element-cb24452 elementor-widget elementor-widget-image"
                                     data-id="cb24452" data-element_type="widget" data-widget_type="image.default">
                                     <div class="elementor-widget-container">
-                                        @php($image ??= $page->product->base_image->src)
+                                        @php($image ??= $page->product->base_image?->src)
                                         <img loading="lazy" decoding="async" width="350" height="350"
                                             src="{{Str::isUrl($image) ? $image : asset('storage/'.$image)}}"
                                             class="attachment-large size-large wp-image-191" alt="" />

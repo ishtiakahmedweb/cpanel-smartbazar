@@ -42,11 +42,17 @@ class FraudCheckerService
             if ($response->successful()) {
                 $result = $response->json();
                 
+                // Log the raw response for debugging (will show in Laravel logs)
+                Log::info('BDCourier API Success', [
+                    'phone' => $phone,
+                    'response' => $result
+                ]);
                 if (isset($result['status']) && $result['status'] === 'success') {
                     $data = $result['data'] ?? [];
                     
                     // Add calculated fields for our UI
                     $data['normalized_phone'] = $phone;
+                    $data['raw_response'] = $result; // Pass raw for frontend troubleshooting if needed
                     $data['success_rate'] = $this->calculateSuccessRate($data);
                     $data['risk_level'] = $this->getRiskLevel($data['success_rate'], $data);
                     
@@ -134,13 +140,13 @@ class FraudCheckerService
         
         if (isset($data['couriers']) && is_array($data['couriers'])) {
             foreach ($data['couriers'] as $courier) {
-                $total += $courier['total_parcels'] ?? 0;
-                $delivered += $courier['total_delivered_parcels'] ?? ($courier['delivered'] ?? 0);
+                $total += $courier['total_parcels'] ?? $courier['total_parcel'] ?? $courier['total'] ?? $courier['orders'] ?? 0;
+                $delivered += $courier['total_delivered_parcels'] ?? $courier['total_delivered'] ?? $courier['delivered'] ?? $courier['success'] ?? 0;
             }
         } else {
-            // Fallback to top-level fields if they exist
-            $total = $data['total_parcels'] ?? 0;
-            $delivered = $data['total_delivered'] ?? 0;
+            // Fallback to top-level fields with flexible keys
+            $total = $data['total_parcels'] ?? $data['total_parcel'] ?? $data['total_orders'] ?? $data['total'] ?? 0;
+            $delivered = $data['total_delivered'] ?? $data['total_delivered_parcels'] ?? $data['delivered'] ?? $data['success'] ?? 0;
         }
         
         if ($total == 0) {

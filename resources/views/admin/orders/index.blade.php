@@ -603,16 +603,17 @@
             // Old provider used 'apis' object
             const apisObject = data.apis || {};
             
-            // Calculate global totals from courier list if not provided at top level
-            let totalParcels = data.total_parcels || 0;
-            let totalDelivered = data.total_delivered || 0;
-            let totalCancel = data.total_cancel || 0;
+            // BDCourier naming variants (Total)
+            let totalParcels = data.total_parcels || data.total_parcel || data.total_orders || data.total || 0;
+            let totalDelivered = data.total_delivered || data.total_delivered_parcels || data.delivered || data.success || data.total_success || 0;
+            let totalCancel = data.total_cancel || data.total_cancelled || data.total_cancelled_parcels || data.cancelled || data.failed || data.cancel || 0;
             
+            // If top level is 0, try to sum up courier breakdown
             if (totalParcels === 0 && courierList.length > 0) {
                 courierList.forEach(c => {
-                    totalParcels += (c.total_parcels || 0);
-                    totalDelivered += (c.total_delivered_parcels || c.delivered || 0);
-                    totalCancel += (c.total_cancelled_parcels || c.cancelled || 0);
+                    totalParcels += (c.total_parcels || c.total_parcel || c.total || c.orders || 0);
+                    totalDelivered += (c.total_delivered_parcels || c.delivered || c.success || c.total_success || 0);
+                    totalCancel += (c.total_cancelled_parcels || c.cancelled || c.cancel || c.failed || 0);
                 });
             }
 
@@ -706,9 +707,9 @@
                         html += `
                             <tr>
                                 <td><strong>${stats.name}</strong></td>
-                                <td class="text-center">${stats.total_parcels || 0}</td>
-                                <td class="text-center text-success">${stats.total_delivered_parcels || stats.delivered || 0}</td>
-                                <td class="text-center text-danger">${stats.total_cancelled_parcels || stats.cancelled || 0}</td>
+                                <td class="text-center">${stats.total_parcels || stats.total_parcel || stats.total || stats.orders || 0}</td>
+                                <td class="text-center text-success">${stats.total_delivered_parcels || stats.delivered || stats.success || 0}</td>
+                                <td class="text-center text-danger">${stats.total_cancelled_parcels || stats.cancelled || stats.cancel || stats.failed || 0}</td>
                             </tr>
                         `;
                     });

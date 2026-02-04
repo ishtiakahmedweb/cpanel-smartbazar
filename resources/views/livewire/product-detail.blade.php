@@ -102,19 +102,23 @@
                 }
             @endphp
             <div class="mb-1 form-group product__option d-flex align-items-center" style="column-gap: .5rem;">
-                <label class="product__option-label">{{ $attribute->name }}:</label>
+                <label class="product__option-label"><strong>{{ $attribute->name }}:</strong></label>
                 @if (strtolower($attribute->name) == 'color')
                     <div class="input-radio-color">
                         <div class="input-radio-color__list">
                             @foreach ($attributeOptions as $option)
                                 <label
-                                    class="input-radio-color__item @if (strtolower($option->name) == 'white') input-radio-color__item--white @endif"
-                                    style="color: {{ $option->value }};" data-toggle="tooltip" title=""
-                                    data-original-title="{{ $option->name }}">
+                                    class="input-radio-color__item @if (strtolower($option->name) == 'white') input-radio-color__item--white @endif @if(($options[$attribute->id] ?? null) == $option->id) active @endif"
+                                    style="color: {{ $option->value }}; width: 32px; height: 32px; border-radius: 6px; position: relative; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
+                                    data-toggle="tooltip" 
+                                    title="{{ $option->name }}">
                                     <input type="radio" wire:model.live="options.{{ $attribute->id }}"
                                         name="options[{{ $attribute->id }}]" value="{{ $option->id }}"
-                                        class="option-picker">
-                                    <span></span>
+                                        class="option-picker" style="display: none;">
+                                    <span style="display: block; width: 100%; height: 100%; background-color: currentColor; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);"></span>
+                                    @if(($options[$attribute->id] ?? null) == $option->id)
+                                        <div style="position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 2px solid #007bff; border-radius: 8px; pointer-events: none;"></div>
+                                    @endif
                                 </label>
                             @endforeach
                         </div>
@@ -123,12 +127,13 @@
                     <div class="input-radio-label">
                         <div class="input-radio-label__list">
                             @foreach ($attributeOptions as $option)
-                                <label>
+                                <label style="cursor: pointer;">
                                     <input type="radio" wire:model.live="options.{{ $attribute->id }}"
                                         name="options[{{ $attribute->id }}]" value="{{ $option->id }}"
-                                        class="option-picker">
+                                        class="option-picker" style="display: none;">
                                     <span
-                                        class="p-1 @if (($options[$attribute->id] ?? null) == $option->id) border-primary @endif">{{ $option->name }}</span>
+                                        class="p-2 border rounded d-inline-block @if (($options[$attribute->id] ?? null) == $option->id) border-primary bg-primary text-white @else bg-light @endif"
+                                        style="min-width: 40px; text-align: center; transition: all 0.2s;">{{ $option->name }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -136,6 +141,13 @@
                 @endif
             </div>
         @endforeach
+
+        @error('variation')
+            <div class="alert alert-danger py-2 px-3 mt-2 mb-2" style="font-size: 1rem; font-weight: bold; border-left: 5px solid #dc3545;">
+                <i class="fa fa-exclamation-circle mr-2"></i> {{ $message }}
+            </div>
+        @enderror
+
         <!-- .product__sidebar -->
         <div class="product__sidebar">
             <!-- .product__options -->

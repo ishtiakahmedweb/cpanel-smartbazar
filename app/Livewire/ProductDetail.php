@@ -36,6 +36,7 @@ class ProductDetail extends Component
 
     public function updatedOptions($value, $key): void
     {
+        $this->resetErrorBag('variation');
         $variation = $this->product->variations->first(fn ($item) => $item->options->pluck('id')->diff($this->options)->isEmpty());
 
         if ($variation) {
@@ -60,6 +61,16 @@ class ProductDetail extends Component
 
     public function addToCart($instance = 'default')
     {
+        $optionGroup = $this->product->variations->pluck('options')->flatten()->unique('id')->groupBy('attribute_id');
+        $requiredAttributeIds = $optionGroup->keys();
+        
+        foreach ($requiredAttributeIds as $attrId) {
+            if (empty($this->options[$attrId])) {
+                $this->addError('variation', 'অনুগ্রহ করে কালার এবং সাইজ নির্বাচন করুন');
+                return;
+            }
+        }
+
         return $this->addToKart($this->selectedVar, $this->quantity, $instance, $this->product->selling_price);
     }
 
@@ -68,13 +79,18 @@ class ProductDetail extends Component
         $maxPerProduct = setting('fraud')->max_qty_per_product ?? 3;
         if ($this->product->variations->isNotEmpty()) {
             $segmentSlug = request()->segment(2);
-            $this->selectedVar = $this->product->variations->where('slug', $segmentSlug ? rawurldecode((string) $segmentSlug) : null)->first()
-                ?? $this->product->variations->random();
+            $this->selectedVar = $this->product->variations->where('slug', $segmentSlug ? rawurldecode((string) $segmentSlug) : null)->first();
+            
+            if ($this->selectedVar) {
+                $this->options = $this->selectedVar->options->pluck('id', 'attribute_id')->toArray();
+            } else {
+                $this->selectedVar = $this->product;
+                $this->options = [];
+            }
         } else {
             $this->selectedVar = $this->product;
             $this->showBrandCategory = true;
         }
-        $this->options = $this->selectedVar->options->pluck('id', 'attribute_id')->toArray();
         // Ensure maxQuantity is at least 1 for products that are in stock or don't track stock
         if ($this->selectedVar->should_track) {
             $this->maxQuantity = max(1, min($this->selectedVar->stock_count, $maxPerProduct));

@@ -669,8 +669,8 @@
         }
 
         .widget-connect-right {
-            right: 27px;
-            bottom: 22px
+            right: 20px;
+            bottom: 20px
         }
 
         .widget-connect-left {
@@ -692,16 +692,16 @@
 
         .widget-connect__button {
             display: none;
-            height: 55px;
-            width: 55px;
+            height: 45px;
+            width: 45px;
             margin: auto;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-radius: 50%;
             overflow: hidden;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, .4);
-            font-size: 28px;
+            font-size: 22px;
             text-align: center;
-            line-height: 50px;
+            line-height: 40px;
             color: #fff;
             outline: 0 !important;
             background-position: center center;
@@ -712,8 +712,8 @@
 
         @media (max-width:768px) {
             .widget-connect__button {
-                height: 50px;
-                width: 50px
+                height: 40px;
+                width: 40px
             }
         }
 
@@ -750,8 +750,8 @@
         }
 
         .widget-connect__button-activator-icon {
-            height: 55px;
-            width: 55px;
+            height: 45px;
+            width: 45px;
             background-image: url(/multi-chat.svg);
             background-size: 55%;
             background-position: center center;
@@ -764,8 +764,8 @@
 
         @media (max-width:768px) {
             .widget-connect__button-activator-icon {
-                height: 50px;
-                width: 50px
+                height: 40px;
+                width: 40px
             }
         }
 
@@ -1330,17 +1330,17 @@
     </div>
     @elseif ($phone)
         <a href="https://api.whatsapp.com/send?phone={{ $phone }}"
-            style="position:fixed;width:60px;height:60px;bottom:40px;right:40px;background-color:#25d366;color:#FFF;border-radius:50px;text-align:center;font-size:30px;box-shadow: 2px 2px 3px #999;z-index:100;cursor:pointer; display: flex; align-items: center; justify-content: center;"
+            style="position:fixed;width:45px;height:45px;bottom:30px;right:20px;background-color:#25d366;color:#FFF;border-radius:50px;text-align:center;font-size:24px;box-shadow: 2px 2px 3px #999;z-index:100;cursor:pointer; display: flex; align-items: center; justify-content: center;"
             data-whatsapp-url="https://api.whatsapp.com/send?phone={{ $phone }}"
             onclick="window.location.href=this.getAttribute('data-whatsapp-url')||this.href;return false;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.06 3.973L0 16l4.14-1.086c1.17.637 2.483.973 3.81.975h.003c4.368 0 7.926-3.559 7.93-7.93a7.897 7.897 0 0 0-2.342-5.633zM7.994 14.522a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
             </svg>
         </a>
     @elseif (strlen($messenger) > 13)
         <a href="{{ $messenger }}" target="_blank"
-            style="position:fixed;width:60px;height:60px;bottom:40px;right:40px;background-color:#0084ff;color:#FFF;border-radius:50px;text-align:center;font-size:30px;box-shadow: 2px 2px 3px #999;z-index:100; display: flex; align-items: center; justify-content: center;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" viewBox="0 0 16 16">
+            style="position:fixed;width:45px;height:45px;bottom:30px;right:20px;background-color:#0084ff;color:#FFF;border-radius:50px;text-align:center;font-size:24px;box-shadow: 2px 2px 3px #999;z-index:100; display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M0 7.76C0 3.301 3.493 0 8 0s8 3.301 8 7.76-3.493 7.76-8 7.76c-.81 0-1.586-.112-2.316-.314l-2.361.918c-.282.11-.563-.122-.49-.403l.428-1.637C1.11 12.564 0 10.3 0 7.76zm8.257-3.528-2.613 2.766 2.378 1.01 2.613-2.766-2.378-1.01z"/>
             </svg>
         </a>

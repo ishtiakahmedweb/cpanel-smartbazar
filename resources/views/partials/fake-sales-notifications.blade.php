@@ -66,49 +66,49 @@
     */
     .fake-sales-notification {
         position: fixed;
-        bottom: 25px;
-        left: 25px;
-        z-index: 99999;
-        background: #fff;
-        border-radius: 12px; /* Smoother rounding */
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.05); /* Premium depth */
-        width: auto;
-        max-width: 380px;
+        bottom: 90px; /* Above WhatsApp button (30px + 45px + gap) */
+        right: 20px;
+        z-index: 99998; /* Just below WhatsApp z-index if needed */
+        background: rgba(255, 255, 255, 0.9); /* Glassmorphism base */
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 10px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        width: 320px;
+        max-width: 90vw;
         padding: 0;
         font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
         opacity: 0;
-        transform: translateY(20px) scale(0.98);
-        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        transform: translateX(50px); /* Slide from right start position */
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         pointer-events: none;
-        background-color: #ffffff;
         overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.04); /* Subtle border */
-        border-left: 4px solid #ff6a00; /* ORANGE THEME */
+        border: 1px solid rgba(255,255,255,0.4);
+        border-right: 4px solid #ff6a00; /* Sidebar accent on the right */
     }
 
     .fake-sales-notification.show {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateX(0);
         pointer-events: auto;
     }
 
     .fake-sales-content {
         display: flex;
         align-items: center;
-        padding: 16px;
+        padding: 12px;
         position: relative;
     }
 
     .fake-sales-image-wrapper {
         flex-shrink: 0;
-        width: 65px;
-        height: 65px;
-        border-radius: 8px; /* Matching outer roundness style */
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
         overflow: hidden;
         background: #f8f9fa;
-        margin-right: 15px;
-        border: 1px solid #f0f0f0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-right: 12px;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     .fake-sales-image {
@@ -123,21 +123,20 @@
         flex-direction: column;
         justify-content: center;
         min-width: 0;
-        padding-right: 18px;
+        padding-right: 15px;
     }
 
-    /* Row 1: Header */
     .fs-row-header {
         display: flex;
         align-items: center;
-        margin-bottom: 3px;
-        width: 100%;
+        margin-bottom: 2px;
+        line-height: 1.2;
     }
 
     .fs-customer-name {
         font-weight: 700;
-        font-size: 14px;
-        color: #1a1a1a;
+        font-size: 13px;
+        color: #111;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -146,180 +145,106 @@
     .fs-verified-badge {
         display: inline-flex;
         align-items: center;
-        background: #fff3e0; /* Light Orange Background */
-        color: #e65100; /* Dark Orange Text */
-        font-size: 9px;
-        padding: 1px 6px;
-        border-radius: 10px; /* Pill shape */
-        margin-left: 8px;
+        color: #2e7d32; /* Green for verified */
+        font-size: 8px;
+        margin-left: 5px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
-        border: 1px solid #ffe0b2;
-        height: 18px;
-        flex-shrink: 0;
     }
     
     .fs-verified-badge svg {
-        margin-right: 2px;
-        width: 9px;
-        height: 9px;
+        margin-right: 1px;
+        width: 10px;
+        height: 10px;
     }
 
-    /* Row 2: Label */
     .fs-row-label {
-        font-size: 11px;
-        color: #777;
-        margin-bottom: 2px;
+        font-size: 10px;
+        color: #666;
         line-height: 1;
-        font-weight: 500;
+        margin-bottom: 1px;
     }
 
-    /* Row 3: Product */
     .fs-row-product {
-        margin-bottom: 3px;
         width: 100%;
+        line-height: 1.2;
     }
 
     .fs-product-link, .fs-product-text {
-        font-size: 14px;
-        font-weight: 700;
-        color: #0056b3;
+        font-size: 13px;
+        font-weight: 600;
+        color: #ff6a00;
         display: block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         text-decoration: none;
-        line-height: 1.3;
     }
     .fs-product-link:hover {
         text-decoration: underline;
     }
-    .fs-product-text {
-        color: #111;
-        display: none;
-    }
 
-    /* Row 4: Time */
     .fs-row-time {
-        font-size: 10px;
-        color: #999;
-        line-height: 1;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
+        font-size: 9px;
+        color: #888;
+        margin-top: 2px;
     }
-    
-    /* Add a small check icon before time? Optional, keeping simple for now */
 
     .fs-close {
         position: absolute;
-        top: 6px;
-        right: 6px;
-        background: transparent;
+        top: 4px;
+        right: 4px;
+        background: rgba(0,0,0,0.05);
         border: none;
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #d1d5db; /* Lighter close button */
-        padding: 0;
-        font-size: 18px;
-        line-height: 1;
-        transition: color 0.2s;
+        color: #666;
+        font-size: 14px;
+        transition: background 0.2s;
     }
-    
     .fs-close:hover {
-        color: #4b5563;
+        background: rgba(0,0,0,0.1);
     }
 
-    /* Progress Bar */
     .fs-progress-bar {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 3px;
-        background: #f3f4f6;
+        height: 2px;
+        background: rgba(0,0,0,0.05);
     }
     
     .fs-progress-fill {
         height: 100%;
-        background: #ff6a00; /* ORANGE FILL */
+        background: #ff6a00;
         width: 0%;
         transition: width linear;
     }
 
-    /* MOBILE OPTIMIZATION (Premium) */
+    /* MOBILE OPTIMIZATION */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 20px !important;
-            left: 10px;
-            width: 280px; /* Reduced compact width */
-            height: auto;
-            min-height: auto;
-            max-width: 280px;
-            border-left: 0; 
-            padding: 0; 
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+            bottom: 80px !important;
+            right: 10px;
+            width: 260px;
+            border-right: 3px solid #ff6a00;
         }
-
         .fake-sales-content {
-            padding: 10px 10px 10px 10px; /* Tighter padding */
+            padding: 8px;
         }
-
         .fake-sales-image-wrapper {
-            width: 50px; /* Smaller mobile image */
-            height: 50px;
-            margin-right: 10px;
+            width: 42px;
+            height: 42px;
+            margin-right: 8px;
         }
-        
-        .fs-product-link { display: none !important; }
-        .fs-product-text { display: block !important; }
-
-        .fs-customer-name {
-            font-size: 13px;
-        }
-        
-        .fs-row-product {
-             margin-bottom: 1px; /* Tighter spacing */
-        }
-
-        .fs-product-text {
-            font-size: 13px;
-            color: #000;
-            font-weight: 800;
-            margin-bottom: 0px; 
-            line-height: 1.2;
-        }
-        
-        .fs-row-label {
-            font-size: 10px;
-            margin-bottom: 1px;
-            color: #777;
-        }
-        
-        .fs-row-time {
-             font-size: 9px;
-             margin-top: 1px;
-        }
-
-        .fs-verified-badge {
-            height: 14px;
-            font-size: 8px;
-            padding: 0 4px;
-        }
-        
-        .fs-close {
-            top: 4px;
-            right: 4px;
-            width: 16px;
-            height: 16px;
-            font-size: 16px;
-        }
+        .fs-customer-name { font-size: 12px; }
+        .fs-product-link, .fs-product-text { font-size: 12px; }
     }
 </style>
 

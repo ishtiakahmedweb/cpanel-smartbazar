@@ -38,13 +38,10 @@
                 </span>
             </div>
             
-            <!-- Row 2: Label -->
-            <div class="fs-row-label">অর্ডার করেছেন:</div>
-
-            <!-- Row 3: Product Name -->
+            <!-- Row 3: Product Name with Order Context -->
             <div class="fs-row-product">
+                <span class="fs-order-context">Ordered: </span>
                 <a href="#" id="fs-product-link" class="fs-product-link"></a>
-                <span id="fs-product-text" class="fs-product-text"></span>
             </div>
 
             <!-- Row 4: Time -->
@@ -66,25 +63,25 @@
     */
     .fake-sales-notification {
         position: fixed;
-        bottom: 90px; /* Above WhatsApp button (30px + 45px + gap) */
+        bottom: 120px; /* Shifted higher to clear WhatsApp and bottom UI */
         right: 20px;
-        z-index: 99998; /* Just below WhatsApp z-index if needed */
-        background: rgba(255, 255, 255, 0.9); /* Glassmorphism base */
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: 10px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        width: 320px;
-        max-width: 90vw;
+        z-index: 99998;
+        background: rgba(255, 255, 255, 0.75); /* More transparent glassmorphism */
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        width: 300px; /* Slightly narrower */
+        max-width: 85vw;
         padding: 0;
         font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
         opacity: 0;
-        transform: translateX(50px); /* Slide from right start position */
-        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        transform: translateX(40px);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         pointer-events: none;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.4);
-        border-right: 4px solid #ff6a00; /* Sidebar accent on the right */
+        border: 1px solid rgba(255,255,255,0.5);
+        border-right: 3px solid #ff6a00;
     }
 
     .fake-sales-notification.show {
@@ -158,27 +155,30 @@
         height: 10px;
     }
 
-    .fs-row-label {
-        font-size: 10px;
-        color: #666;
-        line-height: 1;
-        margin-bottom: 1px;
+    .fs-order-context {
+        font-size: 11px;
+        color: #555;
+        font-weight: 500;
+        margin-right: 4px;
     }
 
     .fs-row-product {
+        display: flex;
+        align-items: baseline;
         width: 100%;
         line-height: 1.2;
     }
 
-    .fs-product-link, .fs-product-text {
-        font-size: 13px;
-        font-weight: 600;
-        color: #ff6a00;
-        display: block;
+    .fs-product-link {
+        font-size: 12px;
+        font-weight: 700;
+        color: #e65100; /* Richer orange */
+        display: inline-block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         text-decoration: none;
+        max-width: 100%;
     }
     .fs-product-link:hover {
         text-decoration: underline;
@@ -357,7 +357,6 @@
                     productLinkEl.textContent = product.name;
                     productLinkEl.href = product.url;
                 }
-                if(productTextEl) productTextEl.textContent = product.name;
                 
                 if(timeEl) timeEl.textContent = timeStr;
 

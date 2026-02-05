@@ -35,43 +35,6 @@ class CategoryProductController extends Controller
             },
         ])->paginate($per_page)->appends(request()->query());
 
-        if (GoogleTagManagerFacade::isEnabled()) {
-            $cookieName = 'cat_tracked_' . $category->id . '_24h';
-            $shieldEnabled = setting('data_layer_shield');
-
-            if (! $shieldEnabled || ! $request->cookie($cookieName)) {
-                $eventId = generateEventId();
-                GoogleTagManagerFacade::set([
-                    'event' => 'page_view',
-                    'eventID' => $eventId,
-                    'page_type' => 'category',
-                    'category_name' => $category->name,
-                    'url' => $request->fullUrl(),
-                    'page_location' => $request->fullUrl(),
-                ]);
-
-                GoogleTagManagerFacade::set([
-                    'event' => 'view_item_list',
-                    'eventID' => $eventId,
-                    'ecommerce' => [
-                        'item_list_id' => $category->id,
-                        'item_list_name' => $category->name,
-                        'items' => $products->map(fn ($product): array => [
-                            'item_id' => $product->id,
-                            'item_name' => $product->name,
-                            'price' => $product->selling_price,
-                            'item_category' => $product->category,
-                            'quantity' => 1,
-                        ])->toArray(),
-                    ],
-                ]);
-
-                if ($shieldEnabled) {
-                    \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
-                }
-            }
-        }
-
         // Get filter data - only attributes for products in this category
         $filterData = $this->getProductFilterData($category);
 

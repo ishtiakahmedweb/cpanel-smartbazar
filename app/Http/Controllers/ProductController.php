@@ -102,26 +102,6 @@ class ProductController extends Controller
             },
         ]);
 
-        if (GoogleTagManagerFacade::isEnabled()) {
-            $cookieName = 'prod_view_tracked_' . $product->id . '_24h';
-            $shieldEnabled = setting('data_layer_shield');
-
-            if (! $shieldEnabled || ! request()->cookie($cookieName)) {
-                GoogleTagManagerFacade::set([
-                    'event' => 'page_view',
-                    'eventID' => generateEventId(),
-                    'page_type' => 'product',
-                    'product_name' => $product->name,
-                    'url' => request()->fullUrl(),
-                    'page_location' => request()->fullUrl(),
-                ]);
-
-                if ($shieldEnabled) {
-                    \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
-                }
-            }
-        }
-
         return $this->view(compact('product'));
     }
 }

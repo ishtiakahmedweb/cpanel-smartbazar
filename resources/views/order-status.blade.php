@@ -4,45 +4,54 @@
 
 @if(($isNewPurchase ?? false) && request()->is('thank-you'))
 <script>
-window.dataLayer = window.dataLayer || [];
-window.dataLayer.push({
-  event: "purchase",
-  eventID: "{{ generateEventId() }}",
-  ecommerce: {
-    transaction_id: "{{ (string) $order->id }}",
-    value: {{ (float) ($order->data['subtotal'] ?? 0) }},
-    shipping: {{ (float) ($order->data['shipping_cost'] ?? 0) }},
-    currency: "BDT",
-    items: [
-      @foreach($order->products as $item)
-      {
-        item_id: "{{ $item->product_id ?? $item->id }}",
-        item_name: "{{ $item->name }}",
-        item_category: "{{ (string) ($item->category ?? '') }}",
-        price: {{ (float) $item->price }},
-        quantity: {{ (int) $item->quantity }}
+(function() {
+  const orderId = "{{ (string) $order->id }}";
+  const storageKey = 'purchase_fired_' + orderId;
+  
+  if (!localStorage.getItem(storageKey)) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "purchase",
+      eventID: "{{ generateEventId() }}",
+      ecommerce: {
+        transaction_id: orderId,
+        value: {{ (float) ($order->data['subtotal'] ?? 0) }},
+        shipping: {{ (float) ($order->data['shipping_cost'] ?? 0) }},
+        currency: "BDT",
+        items: [
+          @foreach($order->products as $item)
+          {
+            item_id: "{{ $item->product_id ?? $item->id }}",
+            item_name: "{{ $item->name }}",
+            item_category: "{{ (string) ($item->category ?? '') }}",
+            price: {{ (float) $item->price }},
+            quantity: {{ (int) $item->quantity }}
+          },
+          @endforeach
+        ]
       },
-      @endforeach
-    ]
-  },
-  user_data: {
-    external_id: "{{ (string) ($order->user_id ?? '') }}",
-    email: "{{ $order->email }}",
-    phone: "{{ formatPhone880($order->phone) }}",
-    fbp: "{{ getFbCookie('_fbp') }}",
-    fbc: "{{ getFbCookie('_fbc') }}",
-    client_ip_address: "{{ request()->ip() }}",
-    client_user_agent: "{{ request()->userAgent() }}",
-    "address": {
-      "first_name": "{{ explode(' ', $order->name)[0] ?? '' }}",
-      "last_name": "{{ count(explode(' ', $order->name)) > 1 ? explode(' ', $order->name)[count(explode(' ', $order->name)) - 1] : '' }}",
-      "city": "{{ $order->data['city_name'] ?? 'Dhaka' }}",
-      "region": "{{ getBDIsoCode($order->data['city_name'] ?? 'Dhaka') }}",
-      "street": "{{ (string) $order->address }}",
-      "country": "BD"
-    }
+      user_data: {
+        external_id: "{{ (string) ($order->user_id ?? '') }}",
+        email: "{{ $order->email }}",
+        phone: "{{ formatPhone880($order->phone) }}",
+        fbp: "{{ getFbCookie('_fbp') }}",
+        fbc: "{{ getFbCookie('_fbc') }}",
+        client_ip_address: "{{ request()->ip() }}",
+        client_user_agent: "{{ request()->userAgent() }}",
+        "address": {
+          "first_name": "{{ explode(' ', $order->name)[0] ?? '' }}",
+          "last_name": "{{ count(explode(' ', $order->name)) > 1 ? explode(' ', $order->name)[count(explode(' ', $order->name)) - 1] : '' }}",
+          "city": "{{ $order->data['city_name'] ?? 'Dhaka' }}",
+          "region": "{{ getBDIsoCode($order->data['city_name'] ?? 'Dhaka') }}",
+          "street": "{{ (string) $order->address }}",
+          "country": "BD"
+        }
+      }
+    });
+    
+    localStorage.setItem(storageKey, 'true');
   }
-});
+})();
 </script>
 @endif
 

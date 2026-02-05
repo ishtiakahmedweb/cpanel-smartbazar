@@ -3,45 +3,6 @@
 
 @push('head')
     {!! seo()->for($product) !!}
-    <script>
-    (function() {
-      const shieldEnabled = {{ setting('data_layer_shield') ? 'true' : 'false' }};
-      const productId = "{{ (string) $product->id }}";
-      const storageKey = 'view_item_tracked_' + productId;
-      const lastTracked = localStorage.getItem(storageKey);
-      const now = Date.now();
-      
-      // Fire if shield is disabled OR if it's been > 24 hours
-      if (!shieldEnabled || !lastTracked || (now - parseInt(lastTracked)) > 86400000) {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: "view_item",
-          eventID: "{{ generateEventId() }}",
-          pageType: "product-page",
-          user_data: {
-            external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', '') }}",
-            fbp: "{{ getFbCookie('_fbp') }}",
-            fbc: "{{ getFbCookie('_fbc') }}"
-          },
-          ecommerce: {
-            currency: "BDT",
-            value: {{ (float) $product->selling_price }},
-            items: [{
-              item_id: productId,
-              item_name: "{{ (string) $product->name }}",
-              price: {{ (float) $product->selling_price }},
-              item_category: "{{ (string) $product->category }}",
-              quantity: 1
-            }]
-          }
-        });
-        
-        if (shieldEnabled) {
-          localStorage.setItem(storageKey, now.toString());
-        }
-      }
-    })();
-    </script>
 @endpush
 
 @push('styles')

@@ -28,6 +28,25 @@
         </div>
     </div>
 
+    <!-- Data Layer Shield Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="p-3 mb-4 shadow-sm border-left-primary card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-1 font-weight-bold text-primary">🛡️ 24-Hour Strict Accuracy Shield</h6>
+                        <p class="mb-0 text-muted small">When enabled, key tracking events (ViewItem, Checkout, etc.) will only fire once per user every 24 hours to prevent duplicate data from reloads.</p>
+                    </div>
+                    <div class="custom-control custom-switch custom-switch-lg">
+                        <input type="hidden" name="data_layer_shield" value="0">
+                        <input type="checkbox" class="custom-control-input" id="data_layer_shield" name="data_layer_shield" value="1" {{ ($data_layer_shield ?? false) ? 'checked' : '' }}>
+                        <label class="custom-control-label" for="data_layer_shield"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Catalog Feeds Section -->
     <div class="row">
         <div class="col-md-12">

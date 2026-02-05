@@ -63,6 +63,7 @@ class SettingRequest extends FormRequest
                 'gtm_noscript' => 'sometimes', // Added Body Script
                 'pixel_ids' => 'sometimes',
                 'scripts' => 'sometimes',
+                'data_layer_shield' => 'sometimes|boolean',
             ];
         }
 

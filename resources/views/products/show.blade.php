@@ -5,13 +5,14 @@
     {!! seo()->for($product) !!}
     <script>
     (function() {
+      const shieldEnabled = {{ setting('data_layer_shield') ? 'true' : 'false' }};
       const productId = "{{ (string) $product->id }}";
       const storageKey = 'view_item_tracked_' + productId;
       const lastTracked = localStorage.getItem(storageKey);
       const now = Date.now();
       
-      // 24 hours = 86400000 ms
-      if (!lastTracked || (now - parseInt(lastTracked)) > 86400000) {
+      // Fire if shield is disabled OR if it's been > 24 hours
+      if (!shieldEnabled || !lastTracked || (now - parseInt(lastTracked)) > 86400000) {
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: "view_item",
@@ -34,7 +35,10 @@
             }]
           }
         });
-        localStorage.setItem(storageKey, now.toString());
+        
+        if (shieldEnabled) {
+          localStorage.setItem(storageKey, now.toString());
+        }
       }
     })();
     </script>

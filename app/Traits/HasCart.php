@@ -47,7 +47,9 @@ trait HasCart
     $price = $product->selling_price;
 
         $cookieName = 'cart_tracked_' . $product->id . '_24h';
-        if (! request()->cookie($cookieName)) {
+        $shieldEnabled = setting('data_layer_shield');
+
+        if (! $shieldEnabled || ! request()->cookie($cookieName)) {
             $this->dispatch('dataLayer', [
                 'event' => 'add_to_cart',
                 'eventID' => generateEventId(),
@@ -70,7 +72,10 @@ trait HasCart
                     ],
                 ],
             ]);
-            \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+
+            if ($shieldEnabled) {
+                \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+            }
         }
 
         $this->dispatch('cartUpdated');

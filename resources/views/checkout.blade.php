@@ -3,7 +3,12 @@
 @section('title', 'Checkout')
 
 @section('content')
-@if(!request()->cookie('bt_tracked_24h'))
+@php
+    $shieldEnabled = setting('data_layer_shield');
+    $alreadyTracked = request()->cookie('bt_tracked_24h');
+    $shouldTrack = !$shieldEnabled || !$alreadyTracked;
+@endphp
+@if($shouldTrack)
 <script>
 window.dataLayer = window.dataLayer || [];
 window.dataLayer.push({
@@ -48,11 +53,11 @@ window.dataLayer.push({
   }
 });
 </script>
+@if($shieldEnabled)
 @php
-    // Set cookie for 24 hours (1440 minutes) if not already set
-    // Note: We use queue here so it's sent with the response
     \Illuminate\Support\Facades\Cookie::queue('bt_tracked_24h', '1', 1440);
 @endphp
+@endif
 @endif
 <script>
 // Real-time input scraping for Advanced Matching

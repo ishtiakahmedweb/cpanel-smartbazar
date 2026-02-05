@@ -35,27 +35,30 @@ class CategoryProductController extends Controller
             },
         ])->paginate($per_page)->appends(request()->query());
 
-        $cookieName = 'cat_tracked_' . $category->id . '_24h';
-        $alreadyTracked = $request->cookie($cookieName);
+        if (GoogleTagManagerFacade::isEnabled()) {
+            $cookieName = 'cat_tracked_' . $category->id . '_24h';
+            $shieldEnabled = setting('data_layer_shield');
 
-        if (! $alreadyTracked && GoogleTagManagerFacade::isEnabled()) {
-            GoogleTagManagerFacade::set([
-                'event' => 'view_item_list',
-                'ecommerce' => [
-                    'item_list_id' => $category->id,
-                    'item_list_name' => $category->name,
-                    'items' => $products->map(fn ($product): array => [
-                        'item_id' => $product->id,
-                        'item_name' => $product->name,
-                        'price' => $product->selling_price,
-                        'item_category' => $product->category,
-                        'quantity' => 1,
-                    ])->toArray(),
-                ],
-            ]);
+            if (! $shieldEnabled || ! $request->cookie($cookieName)) {
+                GoogleTagManagerFacade::set([
+                    'event' => 'view_item_list',
+                    'ecommerce' => [
+                        'item_list_id' => $category->id,
+                        'item_list_name' => $category->name,
+                        'items' => $products->map(fn ($product): array => [
+                            'item_id' => $product->id,
+                            'item_name' => $product->name,
+                            'price' => $product->selling_price,
+                            'item_category' => $product->category,
+                            'quantity' => 1,
+                        ])->toArray(),
+                    ],
+                ]);
 
-            // Set cookie for 24 hours (1440 minutes)
-            \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+                if ($shieldEnabled) {
+                    \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+                }
+            }
         }
 
         // Get filter data - only attributes for products in this category

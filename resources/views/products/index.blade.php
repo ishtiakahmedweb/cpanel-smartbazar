@@ -8,6 +8,28 @@
     @elseif(isset($section) && $section instanceof \Illuminate\Database\Eloquent\Model)
         {!! seo()->for($section) !!}
     @endif
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "view_item_list",
+      eventID: "{{ generateEventId() }}",
+      ecommerce: {
+        item_list_id: "{{ isset($category) ? 'cat_'.$category->id : (isset($brand) ? 'brand_'.$brand->id : (isset($section) ? 'section_'.$section->id : 'search')) }}",
+        item_list_name: "{{ isset($category) ? $category->name : (isset($brand) ? $brand->name : (isset($section) ? $section->name : 'Search Results')) }}",
+        items: [
+            @foreach($products->take(12) as $p)
+            {
+              item_id: "{{ $p->id }}",
+              item_name: "{{ $p->name }}",
+              price: {{ (float) $p->selling_price }},
+              item_category: "{{ $p->category }}",
+              quantity: 1
+            }@if(!$loop->last),@endif
+            @endforeach
+        ]
+      }
+    });
+    </script>
 @endpush
 
 @section('title', 'Products')

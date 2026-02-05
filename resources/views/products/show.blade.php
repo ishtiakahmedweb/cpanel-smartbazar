@@ -3,6 +3,24 @@
 
 @push('head')
     {!! seo()->for($product) !!}
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "view_item",
+      eventID: "{{ generateEventId() }}",
+      ecommerce: {
+        currency: "BDT",
+        value: {{ (float) $product->selling_price }},
+        items: [{
+          item_id: "{{ (string) $product->id }}",
+          item_name: "{{ (string) $product->name }}",
+          price: {{ (float) $product->selling_price }},
+          item_category: "{{ (string) $product->category }}",
+          quantity: 1
+        }]
+      }
+    });
+    </script>
 @endpush
 
 @push('styles')

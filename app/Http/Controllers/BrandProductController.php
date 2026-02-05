@@ -39,16 +39,21 @@ class BrandProductController extends Controller
             $shieldEnabled = setting('data_layer_shield');
 
             if (! $shieldEnabled || ! $request->cookie($cookieName)) {
+                $eventId = generateEventId();
                 // Page View
                 \Spatie\GoogleTagManager\GoogleTagManagerFacade::set([
                     'event' => 'page_view',
+                    'eventID' => $eventId,
                     'page_type' => 'brand',
                     'brand_name' => $brand->name,
+                    'url' => $request->fullUrl(),
+                    'page_location' => $request->fullUrl(),
                 ]);
 
                 // Item List View
                 \Spatie\GoogleTagManager\GoogleTagManagerFacade::set([
                     'event' => 'view_item_list',
+                    'eventID' => $eventId,
                     'ecommerce' => [
                         'item_list_id' => 'brand_' . $brand->id,
                         'item_list_name' => 'Brand: ' . $brand->name,

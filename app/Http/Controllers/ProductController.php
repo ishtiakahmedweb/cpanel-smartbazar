@@ -109,8 +109,11 @@ class ProductController extends Controller
             if (! $shieldEnabled || ! request()->cookie($cookieName)) {
                 GoogleTagManagerFacade::set([
                     'event' => 'page_view',
+                    'eventID' => generateEventId(),
                     'page_type' => 'product',
                     'product_name' => $product->name,
+                    'url' => request()->fullUrl(),
+                    'page_location' => request()->fullUrl(),
                 ]);
 
                 if ($shieldEnabled) {

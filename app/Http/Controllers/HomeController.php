@@ -23,7 +23,10 @@ class HomeController extends Controller
             if (! $shieldEnabled || ! $request->cookie($cookieName)) {
                 GoogleTagManagerFacade::set([
                     'event' => 'page_view',
+                    'eventID' => generateEventId(),
                     'page_type' => 'home',
+                    'url' => $request->fullUrl(),
+                    'page_location' => $request->fullUrl(),
                 ]);
 
                 if ($shieldEnabled) {

@@ -22,7 +22,11 @@ class PageController extends Controller
             if (! $shieldEnabled || ! $request->cookie($cookieName)) {
                 GoogleTagManagerFacade::set([
                     'event' => 'page_view',
+                    'eventID' => generateEventId(),
                     'page_type' => 'page',
+                    'page_title' => $page->title,
+                    'url' => $request->fullUrl(),
+                    'page_location' => $request->fullUrl(),
                     'content' => $page->toArray(),
                 ]);
 

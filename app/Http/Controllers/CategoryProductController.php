@@ -40,14 +40,19 @@ class CategoryProductController extends Controller
             $shieldEnabled = setting('data_layer_shield');
 
             if (! $shieldEnabled || ! $request->cookie($cookieName)) {
+                $eventId = generateEventId();
                 GoogleTagManagerFacade::set([
                     'event' => 'page_view',
+                    'eventID' => $eventId,
                     'page_type' => 'category',
                     'category_name' => $category->name,
+                    'url' => $request->fullUrl(),
+                    'page_location' => $request->fullUrl(),
                 ]);
 
                 GoogleTagManagerFacade::set([
                     'event' => 'view_item_list',
+                    'eventID' => $eventId,
                     'ecommerce' => [
                         'item_list_id' => $category->id,
                         'item_list_name' => $category->name,

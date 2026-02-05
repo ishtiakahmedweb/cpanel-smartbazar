@@ -63,25 +63,26 @@
     */
     .fake-sales-notification {
         position: fixed;
-        bottom: 120px; /* Shifted higher to clear WhatsApp and bottom UI */
-        right: 20px;
+        bottom: 50px; /* Ideal height to be noticed but stay clear of most UI */
+        left: 20px;
         z-index: 99998;
-        background: rgba(255, 255, 255, 0.75); /* More transparent glassmorphism */
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        width: 300px; /* Slightly narrower */
-        max-width: 85vw;
+        background: rgba(255, 255, 255, 0.85); /* Premium Glassmorphism */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* Soft premium shadow */
+        width: 320px;
+        max-width: 90vw;
         padding: 0;
         font-family: 'SolaimanLipi', 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
         opacity: 0;
-        transform: translateX(40px);
-        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: translateX(-40px); /* Slide from LEFT */
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy entry */
         pointer-events: none;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.5);
-        border-right: 3px solid #ff6a00;
+        border: 1px solid rgba(255,255,255,0.6);
+        border-left: 4px solid #ff6a00; /* Sidebar accent back on the left */
+        display: flex;
     }
 
     .fake-sales-notification.show {
@@ -93,19 +94,20 @@
     .fake-sales-content {
         display: flex;
         align-items: center;
-        padding: 12px;
+        padding: 12px 14px;
         position: relative;
+        width: 100%;
     }
 
     .fake-sales-image-wrapper {
         flex-shrink: 0;
-        width: 50px;
-        height: 50px;
-        border-radius: 6px;
+        width: 55px;
+        height: 55px;
+        border-radius: 8px;
         overflow: hidden;
         background: #f8f9fa;
-        margin-right: 12px;
-        border: 1px solid rgba(0,0,0,0.05);
+        margin-right: 15px;
+        border: 1px solid rgba(0,0,0,0.03);
     }
 
     .fake-sales-image {
@@ -120,7 +122,7 @@
         flex-direction: column;
         justify-content: center;
         min-width: 0;
-        padding-right: 15px;
+        padding-right: 20px;
     }
 
     .fs-row-header {
@@ -131,8 +133,8 @@
     }
 
     .fs-customer-name {
-        font-weight: 700;
-        font-size: 13px;
+        font-weight: 800;
+        font-size: 14px;
         color: #111;
         white-space: nowrap;
         overflow: hidden;
@@ -142,73 +144,87 @@
     .fs-verified-badge {
         display: inline-flex;
         align-items: center;
-        color: #2e7d32; /* Green for verified */
+        color: #2196F3; /* Pro Blue for Trust */
         font-size: 8px;
-        margin-left: 5px;
+        margin-left: 6px;
         font-weight: 800;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .fs-verified-badge svg {
-        margin-right: 1px;
-        width: 10px;
-        height: 10px;
-    }
-
-    .fs-order-context {
-        font-size: 11px;
-        color: #555;
-        font-weight: 500;
-        margin-right: 4px;
+        margin-right: 2px;
+        width: 11px;
+        height: 11px;
     }
 
     .fs-row-product {
         display: flex;
         align-items: baseline;
         width: 100%;
-        line-height: 1.2;
+        line-height: 1.3;
+        margin-bottom: 2px;
+    }
+
+    .fs-order-context {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+        margin-right: 4px;
     }
 
     .fs-product-link {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
-        color: #e65100; /* Richer orange */
+        color: #000; /* Realistic black */
         display: inline-block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         text-decoration: none;
-        max-width: 100%;
+        max-width: 160px;
     }
     .fs-product-link:hover {
         text-decoration: underline;
+        color: #ff6a00;
     }
 
     .fs-row-time {
-        font-size: 9px;
+        font-size: 10px;
         color: #888;
-        margin-top: 2px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    .fs-row-time::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        background: #4caf50; /* Active dot */
+        border-radius: 50%;
+        margin-right: 5px;
     }
 
     .fs-close {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        background: rgba(0,0,0,0.05);
+        top: 6px;
+        right: 8px;
+        background: transparent;
         border: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
+        width: 20px;
+        height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #666;
-        font-size: 14px;
-        transition: background 0.2s;
+        color: #ccc;
+        font-size: 18px;
+        transition: color 0.2s;
     }
     .fs-close:hover {
-        background: rgba(0,0,0,0.1);
+        color: #666;
     }
 
     .fs-progress-bar {
@@ -216,8 +232,8 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 2px;
-        background: rgba(0,0,0,0.05);
+        height: 2.5px;
+        background: rgba(0,0,0,0.03);
     }
     
     .fs-progress-fill {
@@ -230,21 +246,23 @@
     /* MOBILE OPTIMIZATION */
     @media (max-width: 575px) {
         .fake-sales-notification {
-            bottom: 80px !important;
-            right: 10px;
-            width: 260px;
-            border-right: 3px solid #ff6a00;
+            bottom: 25px !important;
+            left: 10px;
+            width: 280px;
+            border-left: 3px solid #ff6a00;
+            border-right: none;
         }
         .fake-sales-content {
-            padding: 8px;
+            padding: 10px;
         }
         .fake-sales-image-wrapper {
-            width: 42px;
-            height: 42px;
-            margin-right: 8px;
+            width: 48px;
+            height: 48px;
+            margin-right: 12px;
         }
         .fs-customer-name { font-size: 12px; }
-        .fs-product-link, .fs-product-text { font-size: 12px; }
+        .fs-product-link { font-size: 12px; max-width: 130px; }
+        .fs-order-context { font-size: 11px; }
     }
 </style>
 

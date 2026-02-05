@@ -33,6 +33,41 @@ class BrandProductController extends Controller
             },
         ])->paginate($per_page)->appends(request()->query());
 
+        // Tracking
+        if (\Spatie\GoogleTagManager\GoogleTagManagerFacade::isEnabled()) {
+            $cookieName = 'brand_tracked_' . $brand->id . '_24h';
+            $shieldEnabled = setting('data_layer_shield');
+
+            if (! $shieldEnabled || ! $request->cookie($cookieName)) {
+                // Page View
+                \Spatie\GoogleTagManager\GoogleTagManagerFacade::set([
+                    'event' => 'page_view',
+                    'page_type' => 'brand',
+                    'brand_name' => $brand->name,
+                ]);
+
+                // Item List View
+                \Spatie\GoogleTagManager\GoogleTagManagerFacade::set([
+                    'event' => 'view_item_list',
+                    'ecommerce' => [
+                        'item_list_id' => 'brand_' . $brand->id,
+                        'item_list_name' => 'Brand: ' . $brand->name,
+                        'items' => $products->map(fn ($product): array => [
+                            'item_id' => $product->id,
+                            'item_name' => $product->name,
+                            'price' => $product->selling_price,
+                            'item_category' => $product->category,
+                            'quantity' => 1,
+                        ])->toArray(),
+                    ],
+                ]);
+
+                if ($shieldEnabled) {
+                    \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+                }
+            }
+        }
+
         // Get filter data
         $filterData = $this->getProductFilterData();
 

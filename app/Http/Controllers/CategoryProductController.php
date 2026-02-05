@@ -41,6 +41,12 @@ class CategoryProductController extends Controller
 
             if (! $shieldEnabled || ! $request->cookie($cookieName)) {
                 GoogleTagManagerFacade::set([
+                    'event' => 'page_view',
+                    'page_type' => 'category',
+                    'category_name' => $category->name,
+                ]);
+
+                GoogleTagManagerFacade::set([
                     'event' => 'view_item_list',
                     'ecommerce' => [
                         'item_list_id' => $category->id,

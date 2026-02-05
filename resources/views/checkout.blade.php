@@ -3,6 +3,57 @@
 @section('title', 'Checkout')
 
 @section('content')
+@if(!request()->cookie('bt_tracked_24h'))
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "begin_checkout",
+  eventID: "{{ generateEventId() }}",
+  pageType: "checkout",
+  user_data: {
+    external_id: "{{ auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', '') }}",
+    @if(auth('user')->check())
+    email: "{{ auth('user')->user()->email ?? '' }}",
+    phone: "{{ auth('user')->user()->phone ? formatPhone880(auth('user')->user()->phone) : '' }}",
+    @endif
+    fbp: "{{ getFbCookie('_fbp') }}",
+    fbc: "{{ getFbCookie('_fbc') }}"
+  },
+  ecommerce: {
+    currency: "BDT",
+    value: {{ cart()->subTotal() }},
+    items: [
+      @php
+        $groupedItems = cart()->content()->groupBy('id')->map(function ($items) {
+            $first = $items->first();
+            return [
+                'item_id' => (string) $first->id,
+                'item_name' => (string) $first->name,
+                'item_category' => (string) ($first->options->category ?? ''),
+                'price' => (float) $first->price,
+                'quantity' => (int) $items->sum('qty'),
+            ];
+        })->values();
+      @endphp
+      @foreach($groupedItems as $item)
+      {
+        item_id: "{{ $item['item_id'] }}",
+        item_name: "{{ $item['item_name'] }}",
+        item_category: "{{ $item['item_category'] }}",
+        price: {{ $item['price'] }},
+        quantity: {{ $item['quantity'] }}
+      },
+      @endforeach
+    ]
+  }
+});
+</script>
+@php
+    // Set cookie for 24 hours (1440 minutes) if not already set
+    // Note: We use queue here so it's sent with the response
+    \Illuminate\Support\Facades\Cookie::queue('bt_tracked_24h', '1', 1440);
+@endphp
+@endif
 <script>
 // Real-time input scraping for Advanced Matching
 // Capture email/phone as guest types (critical for retargeting abandoners!)

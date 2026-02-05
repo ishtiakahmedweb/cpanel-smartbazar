@@ -15,7 +15,10 @@ class CheckoutController extends Controller
     public function __invoke(CheckoutRequest $request)
     {
         if ($request->isMethod('GET')) {
-            if (GoogleTagManagerFacade::isEnabled()) {
+            $cookieName = 'bt_tracked_24h';
+            $alreadyTracked = $request->cookie($cookieName);
+
+            if (! $alreadyTracked && GoogleTagManagerFacade::isEnabled()) {
                 GoogleTagManagerFacade::set([
                     'event' => 'begin_checkout',
                     'ecommerce' => [
@@ -30,6 +33,9 @@ class CheckoutController extends Controller
                         ])->values(),
                     ],
                 ]);
+
+                // Set cookie for 24 hours (1440 minutes) to prevent duplicate begin_checkout
+                \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
             }
 
             return view('checkout');

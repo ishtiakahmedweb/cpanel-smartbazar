@@ -46,28 +46,32 @@ trait HasCart
     // CRITICAL: Always use selling_price for accurate ROAS (not retail_price, not wholesale)
     $price = $product->selling_price;
 
-    $this->dispatch('dataLayer', [
-        'event' => 'add_to_cart',
-        'eventID' => generateEventId(),
-        'user_data' => [
-            'external_id' => auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', ''),
-            'fbp' => getFbCookie('_fbp'),
-            'fbc' => getFbCookie('_fbc'),
-        ],
-        'ecommerce' => [
-            'currency' => 'BDT',
-            'value' => (float) ($price * $quantity),
-            'items' => [
-                [
-                    'item_id' => (string) $product->id,
-                    'item_name' => (string) $product->varName,
-                    'item_category' => (string) $product->category,
-                    'price' => (float) $price,
-                    'quantity' => (int) $quantity,
+        $cookieName = 'cart_tracked_' . $product->id . '_24h';
+        if (! request()->cookie($cookieName)) {
+            $this->dispatch('dataLayer', [
+                'event' => 'add_to_cart',
+                'eventID' => generateEventId(),
+                'user_data' => [
+                    'external_id' => auth('user')->check() ? (string) auth('user')->id() : request()->cookie('guest_id', ''),
+                    'fbp' => getFbCookie('_fbp'),
+                    'fbc' => getFbCookie('_fbc'),
                 ],
-            ],
-        ],
-    ]);
+                'ecommerce' => [
+                    'currency' => 'BDT',
+                    'value' => (float) ($price * $quantity),
+                    'items' => [
+                        [
+                            'item_id' => (string) $product->id,
+                            'item_name' => (string) $product->varName,
+                            'item_category' => (string) $product->category,
+                            'price' => (float) $price,
+                            'quantity' => (int) $quantity,
+                        ],
+                    ],
+                ],
+            ]);
+            \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
+        }
 
         $this->dispatch('cartUpdated');
         $this->dispatch('notify', ['message' => 'Product added to cart']);

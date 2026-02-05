@@ -35,7 +35,10 @@ class CategoryProductController extends Controller
             },
         ])->paginate($per_page)->appends(request()->query());
 
-        if (GoogleTagManagerFacade::isEnabled()) {
+        $cookieName = 'cat_tracked_' . $category->id . '_24h';
+        $alreadyTracked = $request->cookie($cookieName);
+
+        if (! $alreadyTracked && GoogleTagManagerFacade::isEnabled()) {
             GoogleTagManagerFacade::set([
                 'event' => 'view_item_list',
                 'ecommerce' => [
@@ -50,6 +53,9 @@ class CategoryProductController extends Controller
                     ])->toArray(),
                 ],
             ]);
+
+            // Set cookie for 24 hours (1440 minutes)
+            \Illuminate\Support\Facades\Cookie::queue($cookieName, '1', 1440);
         }
 
         // Get filter data - only attributes for products in this category

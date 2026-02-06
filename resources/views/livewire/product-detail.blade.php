@@ -74,6 +74,117 @@
             @else
                 <span class="product-card__new-price">{!! theMoney($selling) !!}</span>
                 <span class="product-card__old-price">{!! theMoney($selectedVar->price) !!}</span>
+
+                {{-- Urgency Countdown Timer --}}
+                <div class="mt-2 text-left urgency-timer-container" x-data="urgencyTimer({{ $product->id }})" x-init="startTimer()">
+                    <div class="px-3 py-2 urgency-badge d-inline-flex flex-column" 
+                        style="background: rgba(255, 106, 0, 0.05); border: 1px dashed #ff6a00; border-radius: 8px; width: 100%;">
+                        
+                        <div class="mb-2 d-flex align-items-center">
+                            <i class="mr-2 fas fa-bolt text-warning pulse"></i>
+                            <span class="font-weight-bold text-dark" style="font-size: 14px;">অফার শেষ হতে আর বাকি:</span>
+                            <div class="ml-auto d-flex countdown-clock" style="gap: 5px;">
+                                <div class="time-block"><span x-text="hours">00</span></div>
+                                <span class="time-separator">:</span>
+                                <div class="time-block"><span x-text="minutes">00</span></div>
+                                <span class="time-separator">:</span>
+                                <div class="time-block"><span x-text="seconds">00</span></div>
+                            </div>
+                        </div>
+
+                        <p class="mb-0 text-muted" style="font-size: 12px; line-height: 1.4;">
+                            অফারটি শেষ হওয়ার আগে এখনই অর্ডার করুন। অফার শেষ হলে পুনরায় নির্ধারিত দামে ফিরে আসবে।
+                        </p>
+                    </div>
+                </div>
+
+                <style>
+                    .urgency-badge {
+                        box-shadow: 0 4px 15px rgba(255, 106, 0, 0.05);
+                    }
+                    .countdown-clock {
+                        font-family: 'Courier New', Courier, monospace;
+                    }
+                    .time-block {
+                        background: #ff6a00;
+                        color: white;
+                        border-radius: 4px;
+                        padding: 2px 6px;
+                        font-weight: 800;
+                        font-size: 14px;
+                        min-width: 30px;
+                        text-align: center;
+                    }
+                    .time-separator {
+                        font-weight: 800;
+                        color: #ff6a00;
+                        animation: blink 1s infinite;
+                    }
+                    .pulse {
+                        animation: pulse-animation 1.5s infinite;
+                    }
+                    @keyframes blink {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.3; }
+                    }
+                    @keyframes pulse-animation {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.2); }
+                        100% { transform: scale(1); }
+                    }
+                </style>
+
+                <script>
+                    document.addEventListener('alpine:init', () => {
+                        Alpine.data('urgencyTimer', (productId) => ({
+                            hours: '00',
+                            minutes: '00',
+                            seconds: '00',
+                            timer: null,
+                            
+                            startTimer() {
+                                const storageKey = `urgency_timer_${productId}`;
+                                let endTime = localStorage.getItem(storageKey);
+                                
+                                // Validate if endTime is in the future
+                                if (!endTime || parseInt(endTime) < Date.now()) {
+                                    // Generate 3-6 hours random seconds (10800 to 21600)
+                                    const randomSeconds = Math.floor(Math.random() * (21600 - 10800 + 1)) + 10800;
+                                    endTime = Date.now() + (randomSeconds * 1000);
+                                    localStorage.setItem(storageKey, endTime);
+                                }
+
+                                this.update(endTime);
+                                this.timer = setInterval(() => {
+                                    const now = Date.now();
+                                    const distance = endTime - now;
+
+                                    if (distance < 0) {
+                                        clearInterval(this.timer);
+                                        localStorage.removeItem(storageKey);
+                                        this.startTimer(); // Auto restart
+                                        return;
+                                    }
+
+                                    this.update(endTime);
+                                }, 1000);
+                            },
+
+                            update(endTime) {
+                                const now = Date.now();
+                                const distance = endTime - now;
+                                
+                                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                this.hours = String(h).padStart(2, '0');
+                                this.minutes = String(m).padStart(2, '0');
+                                this.seconds = String(s).padStart(2, '0');
+                            }
+                        }));
+                    });
+                </script>
             @endif
         </div>
         @if (isOninda())

@@ -258,37 +258,45 @@ final class FeedController extends Controller
         $shippingInside = $this->formatPrice($product->shipping_inside);
         $shippingOutside = $this->formatPrice($product->shipping_outside);
 
+        // Category Path
+        $categoryPath = $product->categories->first()?->full_name_path ?? 'Uncategorized';
+
+        // Quantity Logic: Use stock_count or default to 10 if missing but marked as in stock
+        $quantity = $product->stock_count;
+        if ($quantity === null || $quantity <= 0) {
+            $quantity = $product->in_stock ? 10 : 0;
+        }
+
         fputcsv($file, [
-            // Use products.id as the content ID (unique per product row)
-            $product->id,
-            $title,
-            $description,
-            $product->in_stock ? 'in stock' : 'out of stock',
-            'new',
-            $price.' BDT',
-            rtrim(config('app.url'), '/') . '/products/' . $product->slug,
-            $product->base_image ? (str_starts_with($product->base_image->src, 'http') ? $product->base_image->src : rtrim(config('app.url'), '/') . '/' . ltrim($product->base_image->src, '/')) : '',
-            $product->categories->first()?->full_name_path ?? 'Uncategorized',
-            $product->categories->first()?->full_name_path ?? 'Uncategorized',
-            $product->stock_count ?? 50,
-            ($product->price > $product->selling_price) ? $sellingPrice.' BDT' : '',
-            now()->addDays(30)->format('Y-m-d\TH:i\Z').'/'.now()->addDays(60)->format('Y-m-d\TH:i\Z'),
-            // Keep group stable across variants. Use provided parent identifier.
-            $itemGroupId,
-            'unisex',
-            '',
-            '',
-            'adult',
-            '',
-            '',
-            'BD:Dhaka::Courier:'.$shippingInside.' BDT,BD:Outside Dhaka::Courier:'.$shippingOutside.' BDT',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
+            $product->id,                                      // 1. id
+            $title,                                            // 2. title
+            $description,                                      // 3. description
+            $product->in_stock ? 'in stock' : 'out of stock',  // 4. availability
+            'new',                                             // 5. condition
+            $price . ' BDT',                                   // 6. price
+            rtrim(config('app.url'), '/') . '/products/' . $product->slug, // 7. link
+            $product->base_image ? (str_starts_with($product->base_image->src, 'http') ? $product->base_image->src : rtrim(config('app.url'), '/') . '/' . ltrim($product->base_image->src, '/')) : '', // 8. image_link
+            $product->brand?->name ?? 'SmartBazar',            // 9. brand
+            $categoryPath,                                     // 10. google_product_category
+            $categoryPath,                                     // 11. fb_product_category
+            $quantity,                                         // 12. quantity_to_sell_on_facebook
+            ($product->price > $product->selling_price) ? $sellingPrice . ' BDT' : '', // 13. sale_price
+            now()->addDays(30)->format('Y-m-d\TH:i\Z') . '/' . now()->addDays(60)->format('Y-m-d\TH:i\Z'), // 14. sale_price_effective_date
+            $itemGroupId,                                      // 15. item_group_id
+            'unisex',                                          // 16. gender
+            '',                                                // 17. color
+            '',                                                // 18. size
+            'adult',                                           // 19. age_group
+            '',                                                // 20. material
+            '',                                                // 21. pattern
+            'BD:Dhaka::Courier:' . $shippingInside . ' BDT,BD:Outside Dhaka::Courier:' . $shippingOutside . ' BDT', // 22. shipping
+            '',                                                // 23. shipping_weight
+            '',                                                // 24. gtin
+            '',                                                // 25. video[0].url
+            '',                                                // 26. video[0].tag[0]
+            '',                                                // 27. product_tags[0]
+            '',                                                // 28. product_tags[1]
+            '',                                                // 29. style[0]
         ]);
     }
 
@@ -365,6 +373,12 @@ final class FeedController extends Controller
         $imageLink = $product->base_image ? (str_starts_with($product->base_image->src, 'http') ? $product->base_image->src : $appUrl . '/' . ltrim($product->base_image->src, '/')) : '';
         $categoryPath = $product->categories->first()?->full_name_path ?? 'Uncategorized';
 
+        // Quantity Logic: Use stock_count or default to 10 if missing but marked as in stock
+        $quantity = $product->stock_count;
+        if ($quantity === null || $quantity <= 0) {
+            $quantity = $product->in_stock ? 10 : 0;
+        }
+
         echo '  <item>' . PHP_EOL;
         echo '    <g:id>' . e($product->id) . '</g:id>' . PHP_EOL;
         echo '    <g:title>' . e($title) . '</g:title>' . PHP_EOL;
@@ -372,7 +386,7 @@ final class FeedController extends Controller
         echo '    <g:link>' . e($appUrl . '/products/' . $product->slug) . '</g:link>' . PHP_EOL;
         echo '    <g:image_link>' . e($imageLink) . '</g:image_link>' . PHP_EOL;
         echo '    <g:availability>' . ($product->in_stock ? 'in stock' : 'out of stock') . '</g:availability>' . PHP_EOL;
-        echo '    <g:inventory>' . e($product->in_stock ? ($product->stock_count > 0 ? $product->stock_count : 100) : 0) . '</g:inventory>' . PHP_EOL;
+        echo '    <g:inventory>' . e($quantity) . '</g:inventory>' . PHP_EOL;
         
         // Price Logic: g:price is regular, g:sale_price is discounted
         if ($product->price > $product->selling_price) {
@@ -386,7 +400,7 @@ final class FeedController extends Controller
         echo '    <g:condition>new</g:condition>' . PHP_EOL;
         echo '    <g:google_product_category>' . e($categoryPath) . '</g:google_product_category>' . PHP_EOL;
         echo '    <g:fb_product_category>' . e($categoryPath) . '</g:fb_product_category>' . PHP_EOL;
-        echo '    <g:quantity_to_sell_on_facebook>' . ($product->stock_count ?? 50) . '</g:quantity_to_sell_on_facebook>' . PHP_EOL;
+        echo '    <g:quantity_to_sell_on_facebook>' . e($quantity) . '</g:quantity_to_sell_on_facebook>' . PHP_EOL;
         echo '    <g:item_group_id>' . e($itemGroupId) . '</g:item_group_id>' . PHP_EOL;
         
         // Shipping Blocks

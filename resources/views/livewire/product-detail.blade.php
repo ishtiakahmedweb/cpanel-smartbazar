@@ -197,38 +197,64 @@
                             minutes: '00',
                             seconds: '00',
                             timer: null,
+                            endTime: null,
+                            
+                            init() {
+                                // Call startTimer immediately when component initializes
+                                this.startTimer();
+                            },
                             
                             startTimer() {
-                                const storageKey = `urgency_timer_${productId}`;
-                                let endTime = localStorage.getItem(storageKey);
-                                
-                                // Validate if endTime is in the future
-                                if (!endTime || parseInt(endTime) < Date.now()) {
-                                    // Generate 3-6 hours random seconds (10800 to 21600)
-                                    const randomSeconds = Math.floor(Math.random() * (21600 - 10800 + 1)) + 10800;
-                                    endTime = Date.now() + (randomSeconds * 1000);
-                                    localStorage.setItem(storageKey, endTime);
-                                }
-
-                                this.update(endTime);
-                                this.timer = setInterval(() => {
-                                    const now = Date.now();
-                                    const distance = endTime - now;
-
-                                    if (distance < 0) {
-                                        clearInterval(this.timer);
-                                        localStorage.removeItem(storageKey);
-                                        this.startTimer(); // Auto restart
-                                        return;
+                                try {
+                                    const storageKey = `urgency_timer_${productId}`;
+                                    let endTime = localStorage.getItem(storageKey);
+                                    
+                                    // Validate if endTime is in the future
+                                    if (!endTime || parseInt(endTime) < Date.now()) {
+                                        // Generate 3-6 hours random seconds (10800 to 21600)
+                                        const randomSeconds = Math.floor(Math.random() * (21600 - 10800 + 1)) + 10800;
+                                        endTime = Date.now() + (randomSeconds * 1000);
+                                        localStorage.setItem(storageKey, endTime);
                                     }
 
-                                    this.update(endTime);
-                                }, 1000);
+                                    this.endTime = parseInt(endTime);
+                                    
+                                    // Update immediately to show initial time
+                                    this.update();
+                                    
+                                    // Clear any existing timer
+                                    if (this.timer) {
+                                        clearInterval(this.timer);
+                                    }
+                                    
+                                    // Start interval
+                                    this.timer = setInterval(() => {
+                                        const now = Date.now();
+                                        const distance = this.endTime - now;
+
+                                        if (distance < 0) {
+                                            clearInterval(this.timer);
+                                            localStorage.removeItem(storageKey);
+                                            this.startTimer(); // Auto restart
+                                            return;
+                                        }
+
+                                        this.update();
+                                    }, 1000);
+                                } catch (error) {
+                                    console.error('Timer initialization error:', error);
+                                    // Fallback: set a default time
+                                    this.hours = '03';
+                                    this.minutes = '00';
+                                    this.seconds = '00';
+                                }
                             },
 
-                            update(endTime) {
+                            update() {
                                 const now = Date.now();
-                                const distance = endTime - now;
+                                const distance = this.endTime - now;
+                                
+                                if (distance < 0) return;
                                 
                                 const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                                 const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -237,6 +263,13 @@
                                 this.hours = String(h).padStart(2, '0');
                                 this.minutes = String(m).padStart(2, '0');
                                 this.seconds = String(s).padStart(2, '0');
+                            },
+                            
+                            destroy() {
+                                // Cleanup when component is destroyed
+                                if (this.timer) {
+                                    clearInterval(this.timer);
+                                }
                             }
                         }));
                     });

@@ -357,7 +357,12 @@
                     {{-- <label class="product__option-label" for="product-quantity">Quantity</label> --}}
                     <div
                         class="pt-1 product__actions-item d-flex justify-content-between align-items-center border-top">
-                        <big>Quantity</big>
+                        <div>
+                            <big>Quantity</big>
+                            <div class="text-muted" style="font-size: 11px; line-height: 1.3; margin-top: 2px;">
+                                (একাধিক পণ্য নিতে + চাপুন)
+                            </div>
+                        </div>
                         <div class="input-number product__quantity">
                             <input id="product-quantity" class="input-number__input form-control"
                                 wire:model.live="quantity" type="number" min="1" max="{{ $maxQuantity }}"

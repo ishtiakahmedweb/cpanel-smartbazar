@@ -377,9 +377,7 @@
             }
         })();
     </script>
-    </script>
 
-    @livewireStyles
     <!-- css -->
     {{-- Google Tag Manager is injected manually via backend settings (line 12) --}}
     {{-- Spatie GTM package removed to prevent duplicate GTM containers --}}

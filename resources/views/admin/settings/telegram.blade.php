@@ -27,13 +27,13 @@
             নোটিফিকেশন পেতে হলে আপনার বটটিকে প্রথমে স্টার্ট (Start) করতে হবে।
         </p>
         <button type="button" 
-                onclick="if(confirm('Send a test message to Telegram?')) { document.getElementById('telegram-test-form').submit(); }" 
+                onclick="event.preventDefault(); if(confirm('Send a test message to Telegram?')) { document.getElementById('telegram-test-form-direct').submit(); }" 
                 class="btn btn-info btn-sm shadow">
             <i class="fas fa-paper-plane mr-1"></i> Send Test Message
         </button>
     </div>
-
-    <form id="telegram-test-form" action="{{ route('admin.telegram-test') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
 </div>
+
+<form id="telegram-test-form-direct" action="{{ route('admin.telegram-test') }}" method="POST" style="display: none;">
+    @csrf
+</form>

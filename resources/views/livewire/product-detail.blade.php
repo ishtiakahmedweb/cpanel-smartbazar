@@ -409,6 +409,62 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Cash on Delivery Badge --}}
+                <div class="mt-3 mb-2 cod-badge-container">
+                    <div class="px-3 py-3 cod-badge" 
+                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
+                               border-radius: 10px; 
+                               box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+                               border: 2px solid rgba(255, 255, 255, 0.3);">
+                        
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="fas fa-shield-alt text-white mr-2" style="font-size: 20px;"></i>
+                            <span class="font-weight-bold text-white" style="font-size: 16px;">
+                                ক্যাশ অন ডেলিভারি সুবিধা
+                            </span>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="mb-2 text-white" style="font-size: 14px; line-height: 1.6;">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                পণ্য হাতে পেয়ে টাকা পরিশোধ করুন
+                            </p>
+                            <p class="mb-0 text-white" style="font-size: 13px; opacity: 0.95;">
+                                <i class="fas fa-map-marked-alt mr-1"></i>
+                                সারা বাংলাদেশে হোম ডেলিভারি
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .cod-badge {
+                        transition: all 0.3s ease;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .cod-badge::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+                        transform: rotate(45deg);
+                        animation: shine 3s infinite;
+                    }
+                    @keyframes shine {
+                        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+                    }
+                    .cod-badge:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+                    }
+                </style>
+
                 <div class="p-1 mt-2 text-center call-for-order" style="border: 2px dashed #dedede;">
                     <div>এই পণ্য সম্পর্কে প্রশ্ন আছে? অনুগ্রহপূর্বক কল করুন:</div>
                     @foreach (explode(' ', setting('call_for_order')) as $phone)

@@ -26,14 +26,47 @@
         <p class="text-muted small mb-0">
             নোটিফিকেশন পেতে হলে আপনার বটটিকে প্রথমে স্টার্ট (Start) করতে হবে।
         </p>
-        <button type="button" 
-                onclick="event.preventDefault(); if(confirm('Send a test message to Telegram?')) { document.getElementById('telegram-test-form-direct').submit(); }" 
-                class="btn btn-info btn-sm shadow">
+        <button type="button" id="telegram-test-btn" class="btn btn-info btn-sm shadow">
             <i class="fas fa-paper-plane mr-1"></i> Send Test Message
         </button>
     </div>
 </div>
 
-<form id="telegram-test-form-direct" action="{{ route('admin.telegram-test') }}" method="POST" style="display: none;">
-    @csrf
-</form>
+@push('scripts')
+<script>
+document.getElementById('telegram-test-btn')?.addEventListener('click', function() {
+    if (!confirm('Send a test message to Telegram?')) return;
+    
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Sending...';
+    
+    fetch('{{ route('admin.telegram-test') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        
+        if (data.success || data.message?.includes('successfully')) {
+            alert('✅ ' + (data.message || 'Test message sent successfully!'));
+        } else {
+            alert('❌ ' + (data.message || data.error || 'Failed to send message.'));
+        }
+    })
+    .catch(error => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        alert('❌ Error: ' + error.message);
+    });
+});
+</script>
+@endpush

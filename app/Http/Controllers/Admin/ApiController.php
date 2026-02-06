@@ -38,12 +38,12 @@ class ApiController extends Controller
             $result = $telegram->sendMessage("⚡ <b>SmartBazar Bot Test</b>\n\nYour connection is working perfectly! ✅");
 
             if ($result) {
-                return back()->withSuccess('Test message sent successfully!');
+                return response()->json(['success' => true, 'message' => 'Test message sent successfully! Check your Telegram.']);
             }
 
-            return back()->with('error', 'Failed to send message. Please check settings.');
+            return response()->json(['success' => false, 'message' => 'Failed to send message. Please check settings.'], 500);
         } catch (\Exception $e) {
-            return back()->with('error', 'Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }

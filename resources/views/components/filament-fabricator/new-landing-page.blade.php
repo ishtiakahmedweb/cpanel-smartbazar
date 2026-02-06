@@ -854,9 +854,11 @@
     <link rel='stylesheet' id='elementor-gf-local-montserrat-css'
         href='https://isolatefashionsbd.com/wp-content/uploads/elementor/google-fonts/css/montserrat.css?ver=1745045357'
         media='all' />
+{{--
     <script id="jquery-core-js-extra">
         var pysFacebookRest = {"restApiUrl":"https:\/\/isolatefashionsbd.com\/wp-json\/pys-facebook\/v1\/event","debug":""};
     </script>
+--}}
     <script src="https://isolatefashionsbd.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js">
     </script>
     <script src="https://isolatefashionsbd.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"
@@ -920,11 +922,13 @@ let check_otp = jQuery("input[name='check_otp']").val();jQuery(document).on('cli
         id="js-cookie-pys-js"></script>
     <script src="https://isolatefashionsbd.com/wp-content/plugins/pixelyoursite/dist/scripts/tld.min.js?ver=2.3.1"
         id="js-tld-js"></script>
+{{--
     <script id="pys-js-extra">
         var pysOptions = {"staticEvents":{"facebook":{"woo_initiate_checkout":[{"delay":0,"type":"static","name":"InitiateCheckout","pixelIds":["2135130206844559"],"eventID":"28262814-7ade-46ff-b61e-4621b4bd4c5d","params":{"content_type":"product","content_ids":["31811"],"content_name":"Men's padding jacket \/Black IF2502","category_name":"Uncategorized","contents":[{"id":"31811","quantity":"1"}],"num_items":1,"subtotal":1550,"value":"1550","currency":"BDT","page_title":"MENS padding jacket","post_type":"cartflows_step","post_id":31816,"plugin":"PixelYourSite","user_role":"guest","event_url":"isolatefashionsbd.com\/step\/padding-jacket-2-7-2\/"},"e_id":"woo_initiate_checkout","ids":[],"hasTimeWindow":false,"timeWindow":0,"woo_order":"","edd_order":""}],"init_event":[{"delay":0,"type":"static","ajaxFire":false,"name":"PageView","pixelIds":["2135130206844559"],"eventID":"509062db-30b1-4633-bfc7-9399e2c532be","params":{"page_title":"MENS padding jacket","post_type":"cartflows_step","post_id":31816,"plugin":"PixelYourSite","user_role":"guest","event_url":"isolatefashionsbd.com\/step\/padding-jacket-2-7-2\/"},"e_id":"init_event","ids":[],"hasTimeWindow":false,"timeWindow":0,"woo_order":"","edd_order":""}]}},"dynamicEvents":[],"triggerEvents":[],"triggerEventTypes":[],"facebook":{"pixelIds":["2135130206844559"],"advancedMatching":{"external_id":"caadaadafeeccdefbdacbabefaad"},"advancedMatchingEnabled":true,"removeMetadata":false,"wooVariableAsSimple":false,"serverApiEnabled":true,"wooCRSendFromServer":false,"send_external_id":null,"enabled_medical":false,"do_not_track_medical_param":["event_url","post_title","page_title","landing_page","content_name","categories","category_name","tags"],"meta_ldu":false},"debug":"","siteUrl":"https:\/\/isolatefashionsbd.com","ajaxUrl":"https:\/\/isolatefashionsbd.com\/wp-admin\/admin-ajax.php","ajax_event":"b77fc3fb23","enable_remove_download_url_param":"1","cookie_duration":"7","last_visit_duration":"60","enable_success_send_form":"","ajaxForServerEvent":"1","ajaxForServerStaticEvent":"1","useSendBeacon":"1","send_external_id":"1","external_id_expire":"180","track_cookie_for_subdomains":"1","google_consent_mode":"1","gdpr":{"ajax_enabled":false,"all_disabled_by_api":false,"facebook_disabled_by_api":false,"analytics_disabled_by_api":false,"google_ads_disabled_by_api":false,"pinterest_disabled_by_api":false,"bing_disabled_by_api":false,"externalID_disabled_by_api":false,"facebook_prior_consent_enabled":true,"analytics_prior_consent_enabled":true,"google_ads_prior_consent_enabled":null,"pinterest_prior_consent_enabled":true,"bing_prior_consent_enabled":true,"cookiebot_integration_enabled":false,"cookiebot_facebook_consent_category":"marketing","cookiebot_analytics_consent_category":"statistics","cookiebot_tiktok_consent_category":"marketing","cookiebot_google_ads_consent_category":"marketing","cookiebot_pinterest_consent_category":"marketing","cookiebot_bing_consent_category":"marketing","consent_magic_integration_enabled":false,"real_cookie_banner_integration_enabled":false,"cookie_notice_integration_enabled":false,"cookie_law_info_integration_enabled":false,"analytics_storage":{"enabled":true,"value":"granted","filter":false},"ad_storage":{"enabled":true,"value":"granted","filter":false},"ad_user_data":{"enabled":true,"value":"granted","filter":false},"ad_personalization":{"enabled":true,"value":"granted","filter":false}},"cookie":{"disabled_all_cookie":false,"disabled_start_session_cookie":false,"disabled_advanced_form_data_cookie":false,"disabled_landing_page_cookie":false,"disabled_first_visit_cookie":false,"disabled_trafficsource_cookie":false,"disabled_utmTerms_cookie":false,"disabled_utmId_cookie":false},"tracking_analytics":{"TrafficSource":"direct","TrafficLanding":"https:\/\/isolatefashionsbd.com\/step\/padding-jacket-2-7-2\/","TrafficUtms":{"utm_source":"fb","utm_medium":"paid","utm_campaign":"120238609720780013","utm_term":"120238609720770013","utm_content":"120238609720760013"},"TrafficUtmsId":[]},"GATags":{"ga_datalayer_type":"default","ga_datalayer_name":"dataLayerPYS"},"woo":{"enabled":true,"enabled_save_data_to_orders":true,"addToCartOnButtonEnabled":true,"addToCartOnButtonValueEnabled":true,"addToCartOnButtonValueOption":"price","singleProductId":null,"removeFromCartSelector":"form.woocommerce-cart-form .remove","addToCartCatchMethod":"add_cart_hook","is_order_received_page":false,"containOrderId":false},"edd":{"enabled":false},"cache_bypass":"1762844220"};
     </script>
     <script src="https://isolatefashionsbd.com/wp-content/plugins/pixelyoursite/dist/scripts/public.js?ver=11.1.1"
         id="pys-js"></script>
+--}}
     <script
         src="https://isolatefashionsbd.com/wp-content/plugins/woocommerce/assets/js/jquery-cookie/jquery.cookie.min.js?ver=1.4.1-wc.10.3.4"
         id="wc-jquery-cookie-js" data-wp-strategy="defer"></script>
@@ -1941,9 +1945,11 @@ let check_otp = jQuery("input[name='check_otp']").val();jQuery(document).on('cli
                 }
             }
     </script>
+{{--
     <div id='pys_late_event' style='display:none'
         dir='{"facebook":{"delay":0,"type":"static","name":"AddToCart","pixelIds":["2135130206844559"],"eventID":"5122bc94-37d0-4eef-b6e3-596ef02a4db7","params":{"content_type":"product","content_ids":["31811"],"contents":[{"id":"31811","quantity":"1"}],"content_name":"Men\u0027s padding jacket \/Black IF2502","category_name":"Uncategorized","value":"1550","currency":"BDT","page_title":"MENS padding jacket","post_type":"cartflows_step","post_id":31816,"plugin":"PixelYourSite","user_role":"guest","event_url":"isolatefashionsbd.com\/step\/padding-jacket-2-7-2\/"},"e_id":"woo_add_to_cart_on_button_click","ids":[],"hasTimeWindow":false,"timeWindow":0,"woo_order":"","edd_order":""}}'>
     </div>
+--}}
     <script>
         const lazyloadRunObserver = () => {
 					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
@@ -1970,12 +1976,14 @@ let check_otp = jQuery("input[name='check_otp']").val();jQuery(document).on('cli
 					document.addEventListener( event, lazyloadRunObserver );
 				} );
     </script>
+{{--
     <noscript><img height="1" width="1" style="display: none;"
             src="https://www.facebook.com/tr?id=2135130206844559&ev=InitiateCheckout&noscript=1&cd%5Bcontent_type%5D=product&cd%5Bcontent_ids%5D=%5B%2231811%22%5D&cd%5Bcontent_name%5D=Men%27s+padding+jacket+%2FBlack+IF2502&cd%5Bcategory_name%5D=Uncategorized&cd%5Bcontents%5D=%5B%7B%22id%22%3A%2231811%22%2C%22quantity%22%3A%221%22%7D%5D&cd%5Bnum_items%5D=1&cd%5Bsubtotal%5D=1550&cd%5Bvalue%5D=1550&cd%5Bcurrency%5D=BDT&cd%5Bpage_title%5D=MENS+padding+jacket&cd%5Bpost_type%5D=cartflows_step&cd%5Bpost_id%5D=31816&cd%5Bplugin%5D=PixelYourSite&cd%5Buser_role%5D=guest&cd%5Bevent_url%5D=isolatefashionsbd.com%2Fstep%2Fpadding-jacket-2-7-2%2F"
             alt=""></noscript>
     <noscript><img height="1" width="1" style="display: none;"
             src="https://www.facebook.com/tr?id=2135130206844559&ev=PageView&noscript=1&cd%5Bpage_title%5D=MENS+padding+jacket&cd%5Bpost_type%5D=cartflows_step&cd%5Bpost_id%5D=31816&cd%5Bplugin%5D=PixelYourSite&cd%5Buser_role%5D=guest&cd%5Bevent_url%5D=isolatefashionsbd.com%2Fstep%2Fpadding-jacket-2-7-2%2F"
             alt=""></noscript>
+--}}
     <script>
         (function () {
 			var c = document.body.className;

@@ -76,49 +76,91 @@
                 <span class="product-card__old-price">{!! theMoney($selectedVar->price) !!}</span>
 
                 {{-- Urgency Countdown Timer --}}
-                <div class="mt-2 text-left urgency-timer-container" x-data="urgencyTimer({{ $product->id }})" x-init="startTimer()">
-                    <div class="px-3 py-2 urgency-badge d-inline-flex flex-column" 
-                        style="background: rgba(255, 106, 0, 0.05); border: 1px dashed #ff6a00; border-radius: 8px; width: 100%;">
+                <div class="mt-3 urgency-timer-container" x-data="urgencyTimer({{ $product->id }})" x-init="startTimer()">
+                    <div class="px-3 py-3 urgency-badge" 
+                        style="background: linear-gradient(135deg, rgba(255, 106, 0, 0.08) 0%, rgba(255, 193, 7, 0.05) 100%); 
+                               border: 2px dashed #ff6a00; 
+                               border-radius: 10px; 
+                               box-shadow: 0 4px 20px rgba(255, 106, 0, 0.1);">
                         
-                        <div class="mb-2 d-flex align-items-center">
-                            <i class="mr-2 fas fa-bolt text-warning pulse"></i>
-                            <span class="font-weight-bold text-dark" style="font-size: 14px;">অফার শেষ হতে আর বাকি:</span>
-                            <div class="ml-auto d-flex countdown-clock" style="gap: 5px;">
-                                <div class="time-block"><span x-text="hours">00</span></div>
-                                <span class="time-separator">:</span>
-                                <div class="time-block"><span x-text="minutes">00</span></div>
-                                <span class="time-separator">:</span>
-                                <div class="time-block"><span x-text="seconds">00</span></div>
+                        <div class="mb-2 d-flex align-items-center justify-content-center">
+                            <i class="mr-2 fas fa-bolt text-warning pulse" style="font-size: 18px;"></i>
+                            <span class="font-weight-bold text-dark" style="font-size: 15px;">অফার শেষ হতে আর বাকি</span>
+                        </div>
+
+                        <div class="d-flex justify-content-center align-items-center countdown-display" style="gap: 12px;">
+                            <div class="time-unit">
+                                <div class="time-block">
+                                    <span x-text="hours">00</span>
+                                </div>
+                                <div class="time-label">ঘণ্টা</div>
+                            </div>
+                            
+                            <span class="time-separator">:</span>
+                            
+                            <div class="time-unit">
+                                <div class="time-block">
+                                    <span x-text="minutes">00</span>
+                                </div>
+                                <div class="time-label">মিনিট</div>
+                            </div>
+                            
+                            <span class="time-separator">:</span>
+                            
+                            <div class="time-unit">
+                                <div class="time-block">
+                                    <span x-text="seconds">00</span>
+                                </div>
+                                <div class="time-label">সেকেন্ড</div>
                             </div>
                         </div>
 
-                        <p class="mb-0 text-muted" style="font-size: 12px; line-height: 1.4;">
-                            অফারটি শেষ হওয়ার আগে এখনই অর্ডার করুন। অফার শেষ হলে পুনরায় নির্ধারিত দামে ফিরে আসবে।
+                        <p class="mb-0 mt-2 text-center text-muted" style="font-size: 13px; line-height: 1.5;">
+                            <i class="fas fa-exclamation-triangle mr-1" style="font-size: 11px;"></i>
+                            অফারটি শেষ হওয়ার আগে এখনই অর্ডার করুন। অফার শেষ হলে পুনরায় নির্ধারিত দামে ফিরে আসবে।
                         </p>
                     </div>
                 </div>
 
                 <style>
                     .urgency-badge {
-                        box-shadow: 0 4px 15px rgba(255, 106, 0, 0.05);
+                        transition: all 0.3s ease;
                     }
-                    .countdown-clock {
+                    .countdown-display {
                         font-family: 'Courier New', Courier, monospace;
                     }
+                    .time-unit {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 6px;
+                    }
                     .time-block {
-                        background: #ff6a00;
+                        background: linear-gradient(135deg, #ff6a00 0%, #ff8533 100%);
                         color: white;
-                        border-radius: 4px;
-                        padding: 2px 6px;
+                        border-radius: 8px;
+                        padding: 8px 12px;
                         font-weight: 800;
-                        font-size: 14px;
-                        min-width: 30px;
+                        font-size: 22px;
+                        min-width: 50px;
                         text-align: center;
+                        box-shadow: 0 3px 10px rgba(255, 106, 0, 0.3);
+                        letter-spacing: 1px;
+                    }
+                    .time-label {
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: #666;
+                        text-transform: none;
+                        font-family: 'SolaimanLipi', 'Hind Siliguri', sans-serif;
                     }
                     .time-separator {
                         font-weight: 800;
                         color: #ff6a00;
+                        font-size: 24px;
                         animation: blink 1s infinite;
+                        margin: 0 -2px;
+                        padding-bottom: 20px;
                     }
                     .pulse {
                         animation: pulse-animation 1.5s infinite;
@@ -129,8 +171,22 @@
                     }
                     @keyframes pulse-animation {
                         0% { transform: scale(1); }
-                        50% { transform: scale(1.2); }
+                        50% { transform: scale(1.15); }
                         100% { transform: scale(1); }
+                    }
+                    
+                    @media (max-width: 576px) {
+                        .time-block {
+                            font-size: 20px;
+                            padding: 6px 10px;
+                            min-width: 45px;
+                        }
+                        .time-label {
+                            font-size: 10px;
+                        }
+                        .time-separator {
+                            font-size: 20px;
+                        }
                     }
                 </style>
 

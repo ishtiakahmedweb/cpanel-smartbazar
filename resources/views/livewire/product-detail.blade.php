@@ -76,7 +76,7 @@
                 <span class="product-card__old-price">{!! theMoney($selectedVar->price) !!}</span>
 
                 {{-- Urgency Countdown Timer --}}
-                <div class="mt-3 urgency-timer-container" x-data="urgencyTimer({{ $product->id }})" x-init="startTimer()">
+                <div class="mt-3 urgency-timer-container" id="urgency-timer-{{ $product->id }}">
                     <div class="px-3 py-3 urgency-badge" 
                         style="background: linear-gradient(135deg, rgba(255, 106, 0, 0.08) 0%, rgba(255, 193, 7, 0.05) 100%); 
                                border: 2px dashed #ff6a00; 
@@ -91,7 +91,7 @@
                         <div class="d-flex justify-content-center align-items-center countdown-display" style="gap: 12px;">
                             <div class="time-unit">
                                 <div class="time-block">
-                                    <span x-text="hours">00</span>
+                                    <span class="timer-hours">00</span>
                                 </div>
                                 <div class="time-label">ঘণ্টা</div>
                             </div>
@@ -100,7 +100,7 @@
                             
                             <div class="time-unit">
                                 <div class="time-block">
-                                    <span x-text="minutes">00</span>
+                                    <span class="timer-minutes">00</span>
                                 </div>
                                 <div class="time-label">মিনিট</div>
                             </div>
@@ -109,7 +109,7 @@
                             
                             <div class="time-unit">
                                 <div class="time-block">
-                                    <span x-text="seconds">00</span>
+                                    <span class="timer-seconds">00</span>
                                 </div>
                                 <div class="time-label">সেকেন্ড</div>
                             </div>
@@ -191,88 +191,67 @@
                 </style>
 
                 <script>
-                    document.addEventListener('alpine:init', () => {
-                        Alpine.data('urgencyTimer', (productId) => ({
-                            hours: '00',
-                            minutes: '00',
-                            seconds: '00',
-                            timer: null,
-                            endTime: null,
-                            
-                            init() {
-                                // Call startTimer immediately when component initializes
-                                this.startTimer();
-                            },
-                            
-                            startTimer() {
-                                try {
-                                    const storageKey = `urgency_timer_${productId}`;
-                                    let endTime = localStorage.getItem(storageKey);
-                                    
-                                    // Validate if endTime is in the future
-                                    if (!endTime || parseInt(endTime) < Date.now()) {
-                                        // Generate 3-6 hours random seconds (10800 to 21600)
-                                        const randomSeconds = Math.floor(Math.random() * (21600 - 10800 + 1)) + 10800;
-                                        endTime = Date.now() + (randomSeconds * 1000);
-                                        localStorage.setItem(storageKey, endTime);
+                    (function() {
+                        const productId = {{ $product->id }};
+                        const storageKey = `urgency_timer_${productId}`;
+                        let timerInterval = null;
+                        let endTime = null;
+
+                        function initTimer() {
+                            try {
+                                const container = document.getElementById('urgency-timer-' + productId);
+                                if (!container) return;
+
+                                const hoursEl = container.querySelector('.timer-hours');
+                                const minutesEl = container.querySelector('.timer-minutes');
+                                const secondsEl = container.querySelector('.timer-seconds');
+
+                                if (!hoursEl || !minutesEl || !secondsEl) return;
+
+                                let storedEndTime = localStorage.getItem(storageKey);
+                                
+                                if (!storedEndTime || parseInt(storedEndTime) < Date.now()) {
+                                    const randomSeconds = Math.floor(Math.random() * (21600 - 10800 + 1)) + 10800;
+                                    endTime = Date.now() + (randomSeconds * 1000);
+                                    localStorage.setItem(storageKey, endTime);
+                                } else {
+                                    endTime = parseInt(storedEndTime);
+                                }
+
+                                function updateTimer() {
+                                    const now = Date.now();
+                                    const distance = endTime - now;
+
+                                    if (distance < 0) {
+                                        localStorage.removeItem(storageKey);
+                                        clearInterval(timerInterval);
+                                        initTimer();
+                                        return;
                                     }
 
-                                    this.endTime = parseInt(endTime);
-                                    
-                                    // Update immediately to show initial time
-                                    this.update();
-                                    
-                                    // Clear any existing timer
-                                    if (this.timer) {
-                                        clearInterval(this.timer);
-                                    }
-                                    
-                                    // Start interval
-                                    this.timer = setInterval(() => {
-                                        const now = Date.now();
-                                        const distance = this.endTime - now;
+                                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                    const s = Math.floor((distance % (1000 * 60)) / 1000);
 
-                                        if (distance < 0) {
-                                            clearInterval(this.timer);
-                                            localStorage.removeItem(storageKey);
-                                            this.startTimer(); // Auto restart
-                                            return;
-                                        }
-
-                                        this.update();
-                                    }, 1000);
-                                } catch (error) {
-                                    console.error('Timer initialization error:', error);
-                                    // Fallback: set a default time
-                                    this.hours = '03';
-                                    this.minutes = '00';
-                                    this.seconds = '00';
+                                    hoursEl.textContent = String(h).padStart(2, '0');
+                                    minutesEl.textContent = String(m).padStart(2, '0');
+                                    secondsEl.textContent = String(s).padStart(2, '0');
                                 }
-                            },
 
-                            update() {
-                                const now = Date.now();
-                                const distance = this.endTime - now;
-                                
-                                if (distance < 0) return;
-                                
-                                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                                const s = Math.floor((distance % (1000 * 60)) / 1000);
-
-                                this.hours = String(h).padStart(2, '0');
-                                this.minutes = String(m).padStart(2, '0');
-                                this.seconds = String(s).padStart(2, '0');
-                            },
-                            
-                            destroy() {
-                                // Cleanup when component is destroyed
-                                if (this.timer) {
-                                    clearInterval(this.timer);
-                                }
+                                updateTimer();
+                                if (timerInterval) clearInterval(timerInterval);
+                                timerInterval = setInterval(updateTimer, 1000);
+                            } catch (error) {
+                                console.error('Timer error:', error);
                             }
-                        }));
-                    });
+                        }
+
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initTimer);
+                        } else {
+                            initTimer();
+                        }
+                    })();
                 </script>
             @endif
         </div>

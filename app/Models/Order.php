@@ -103,7 +103,7 @@ class Order extends Model
             cacheMemo()->forget('order_activities:'.$order->id);
 
             // Send Telegram Notification
-            \Illuminate\Support\Facades\defer(function () use ($order) {
+            $notify = function () use ($order) {
                 try {
                     $telegram = new \App\Services\TelegramService();
                     $message = \App\Services\TelegramService::formatOrderMessage($order);
@@ -111,7 +111,13 @@ class Order extends Model
                 } catch (\Exception $e) {
                     logger()->error('Telegram Notification failed', ['error' => $e->getMessage()]);
                 }
-            });
+            };
+
+            if (function_exists('defer')) {
+                defer($notify);
+            } else {
+                $notify();
+            }
         });
 
         static::updated(function (Order $order): void {

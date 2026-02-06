@@ -13,8 +13,8 @@ class TelegramService
     public function __construct()
     {
         $telegram = setting('Telegram');
-        $this->token = $telegram->token ?? null;
-        $this->chatId = $telegram->chat_id ?? null;
+        $this->token = $telegram?->token ?? null;
+        $this->chatId = $telegram?->chat_id ?? null;
     }
 
     /**

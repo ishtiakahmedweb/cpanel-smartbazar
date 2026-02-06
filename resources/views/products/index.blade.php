@@ -14,8 +14,8 @@
       event: "view_item_list",
       eventID: "{{ generateEventId() }}",
       ecommerce: {
-        item_list_id: "{{ isset($category) ? 'cat_'.$category->id : (isset($brand) ? 'brand_'.$brand->id : (isset($section) ? 'section_'.$section->id : 'search')) }}",
-        item_list_name: "{{ isset($category) ? $category->name : (isset($brand) ? $brand->name : (isset($section) ? $section->name : 'Search Results')) }}",
+        item_list_id: "{{ (isset($category) && is_object($category)) ? 'cat_'.$category->id : ((isset($brand) && is_object($brand)) ? 'brand_'.$brand->id : ((isset($section) && is_object($section)) ? 'section_'.$section->id : 'search')) }}",
+        item_list_name: "{{ (isset($category) && is_object($category)) ? $category->name : ((isset($brand) && is_object($brand)) ? $brand->name : ((isset($section) && is_object($section)) ? $section->name : 'Search Results')) }}",
         items: [
             @foreach($products->take(12) as $p)
             {

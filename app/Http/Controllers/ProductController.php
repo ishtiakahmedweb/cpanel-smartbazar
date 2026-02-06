@@ -29,10 +29,11 @@ class ProductController extends Controller
             $cols = $productsPage->cols ?? 5;
         }
         $per_page = $request->get('per_page', $rows * $cols);
-        if ($section = request('filter_section', 0)) {
-            $section = HomeSection::with('categories')->findOrFail($section);
+        if ($filter_section = request('filter_section', 0)) {
+            $section = HomeSection::with('categories')->findOrFail($filter_section);
             $products = $section->products($per_page);
         } else {
+            $section = null;
             $query = Product::whereIsActive(1)->whereNull('parent_id');
 
             // Apply filters

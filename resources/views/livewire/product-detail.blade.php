@@ -75,120 +75,32 @@
                 <span class="product-card__new-price">{!! theMoney($selling) !!}</span>
                 <span class="product-card__old-price">{!! theMoney($selectedVar->price) !!}</span>
 
-                {{-- Urgency Countdown Timer --}}
-                <div class="mt-3 urgency-timer-container" id="urgency-timer-{{ $product->id }}">
-                    <div class="px-3 py-3 urgency-badge" 
-                        style="background: linear-gradient(135deg, rgba(255, 106, 0, 0.08) 0%, rgba(255, 193, 7, 0.05) 100%); 
-                               border: 2px dashed #ff6a00; 
-                               border-radius: 10px; 
-                               box-shadow: 0 4px 20px rgba(255, 106, 0, 0.1);">
-                        
-                        <div class="mb-2 d-flex align-items-center justify-content-center">
-                            <i class="mr-2 fas fa-bolt text-warning pulse" style="font-size: 18px;"></i>
-                            <span class="font-weight-bold text-dark" style="font-size: 15px;">অফার শেষ হতে আর বাকি</span>
-                        </div>
-
-                        <div class="d-flex justify-content-center align-items-center countdown-display" style="gap: 12px;">
-                            <div class="time-unit">
-                                <div class="time-block">
-                                    <span class="timer-hours">00</span>
-                                </div>
-                                <div class="time-label">ঘণ্টা</div>
-                            </div>
-                            
-                            <span class="time-separator">:</span>
-                            
-                            <div class="time-unit">
-                                <div class="time-block">
-                                    <span class="timer-minutes">00</span>
-                                </div>
-                                <div class="time-label">মিনিট</div>
-                            </div>
-                            
-                            <span class="time-separator">:</span>
-                            
-                            <div class="time-unit">
-                                <div class="time-block">
-                                    <span class="timer-seconds">00</span>
-                                </div>
-                                <div class="time-label">সেকেন্ড</div>
-                            </div>
-                        </div>
-
-                        <p class="mb-0 mt-2 text-center text-muted" style="font-size: 13px; line-height: 1.5;">
-                            <i class="fas fa-exclamation-triangle mr-1" style="font-size: 11px;"></i>
-                            অফারটি শেষ হওয়ার আগে এখনই অর্ডার করুন। অফার শেষ হলে পুনরায় নির্ধারিত দামে ফিরে আসবে।
-                        </p>
-                    </div>
+                {{-- Compact COD Badge --}}
+                <div class="mt-2 mb-1">
+                    <span class="px-3 py-1 d-inline-flex align-items-center" 
+                        style="background: #28a745; border-radius: 6px; font-size: 13px; color: white; font-weight: 600;">
+                        <i class="fas fa-shield-alt mr-1" style="font-size: 12px;"></i>
+                        পণ্য হাতে পেয়ে টাকা পরিশোধ করুন
+                    </span>
                 </div>
 
-                <style>
-                    .urgency-badge {
-                        transition: all 0.3s ease;
-                    }
-                    .countdown-display {
-                        font-family: 'Courier New', Courier, monospace;
-                    }
-                    .time-unit {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        gap: 6px;
-                    }
-                    .time-block {
-                        background: linear-gradient(135deg, #ff6a00 0%, #ff8533 100%);
-                        color: white;
-                        border-radius: 8px;
-                        padding: 8px 12px;
-                        font-weight: 800;
-                        font-size: 22px;
-                        min-width: 50px;
-                        text-align: center;
-                        box-shadow: 0 3px 10px rgba(255, 106, 0, 0.3);
-                        letter-spacing: 1px;
-                    }
-                    .time-label {
-                        font-size: 11px;
-                        font-weight: 600;
-                        color: #666;
-                        text-transform: none;
-                        font-family: 'SolaimanLipi', 'Hind Siliguri', sans-serif;
-                    }
-                    .time-separator {
-                        font-weight: 800;
-                        color: #ff6a00;
-                        font-size: 24px;
-                        animation: blink 1s infinite;
-                        margin: 0 -2px;
-                        padding-bottom: 20px;
-                    }
-                    .pulse {
-                        animation: pulse-animation 1.5s infinite;
-                    }
-                    @keyframes blink {
-                        0%, 100% { opacity: 1; }
-                        50% { opacity: 0.3; }
-                    }
-                    @keyframes pulse-animation {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.15); }
-                        100% { transform: scale(1); }
-                    }
-                    
-                    @media (max-width: 576px) {
-                        .time-block {
-                            font-size: 20px;
-                            padding: 6px 10px;
-                            min-width: 45px;
-                        }
-                        .time-label {
-                            font-size: 10px;
-                        }
-                        .time-separator {
-                            font-size: 20px;
-                        }
-                    }
-                </style>
+                {{-- Compact Urgency Timer --}}
+                <div class="mt-2" id="urgency-timer-{{ $product->id }}">
+                    <div class="px-3 py-2 d-flex align-items-center justify-content-between" 
+                        style="background: rgba(255, 106, 0, 0.08); border-left: 3px solid #ff6a00; border-radius: 4px;">
+                        <span class="text-dark" style="font-size: 13px; font-weight: 600;">
+                            <i class="fas fa-bolt text-warning mr-1"></i>
+                            অফার শেষ হতে বাকি:
+                        </span>
+                        <div class="d-flex align-items-center" style="gap: 8px; font-family: 'Courier New', monospace;">
+                            <span class="px-2 py-1 timer-hours" style="background: #ff6a00; color: white; border-radius: 4px; font-weight: 700; font-size: 14px; min-width: 32px; text-align: center;">00</span>
+                            <span style="color: #ff6a00; font-weight: 700;">:</span>
+                            <span class="px-2 py-1 timer-minutes" style="background: #ff6a00; color: white; border-radius: 4px; font-weight: 700; font-size: 14px; min-width: 32px; text-align: center;">00</span>
+                            <span style="color: #ff6a00; font-weight: 700;">:</span>
+                            <span class="px-2 py-1 timer-seconds" style="background: #ff6a00; color: white; border-radius: 4px; font-weight: 700; font-size: 14px; min-width: 32px; text-align: center;">00</span>
+                        </div>
+                    </div>
+                </div>
 
                 <script>
                     (function() {
@@ -409,61 +321,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- Cash on Delivery Badge --}}
-                <div class="mt-3 mb-2 cod-badge-container">
-                    <div class="px-3 py-3 cod-badge" 
-                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
-                               border-radius: 10px; 
-                               box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
-                               border: 2px solid rgba(255, 255, 255, 0.3);">
-                        
-                        <div class="d-flex align-items-center justify-content-center mb-2">
-                            <i class="fas fa-shield-alt text-white mr-2" style="font-size: 20px;"></i>
-                            <span class="font-weight-bold text-white" style="font-size: 16px;">
-                                ক্যাশ অন ডেলিভারি সুবিধা
-                            </span>
-                        </div>
-
-                        <div class="text-center">
-                            <p class="mb-2 text-white" style="font-size: 14px; line-height: 1.6;">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                পণ্য হাতে পেয়ে টাকা পরিশোধ করুন
-                            </p>
-                            <p class="mb-0 text-white" style="font-size: 13px; opacity: 0.95;">
-                                <i class="fas fa-map-marked-alt mr-1"></i>
-                                সারা বাংলাদেশে হোম ডেলিভারি
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <style>
-                    .cod-badge {
-                        transition: all 0.3s ease;
-                        position: relative;
-                        overflow: hidden;
-                    }
-                    .cod-badge::before {
-                        content: '';
-                        position: absolute;
-                        top: -50%;
-                        left: -50%;
-                        width: 200%;
-                        height: 200%;
-                        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-                        transform: rotate(45deg);
-                        animation: shine 3s infinite;
-                    }
-                    @keyframes shine {
-                        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-                        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-                    }
-                    .cod-badge:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
-                    }
-                </style>
 
                 <div class="p-1 mt-2 text-center call-for-order" style="border: 2px dashed #dedede;">
                     <div>এই পণ্য সম্পর্কে প্রশ্ন আছে? অনুগ্রহপূর্বক কল করুন:</div>

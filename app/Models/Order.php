@@ -101,6 +101,17 @@ class Order extends Model
         static::created(function (Order $order): void {
             // Clear EditOrder component caches (activities cache will be empty initially, but clear to be safe)
             cacheMemo()->forget('order_activities:'.$order->id);
+
+            // Send Telegram Notification
+            \Illuminate\Support\Facades\defer(function () use ($order) {
+                try {
+                    $telegram = new \App\Services\TelegramService();
+                    $message = \App\Services\TelegramService::formatOrderMessage($order);
+                    $telegram->sendMessage($message);
+                } catch (\Exception $e) {
+                    logger()->error('Telegram Notification failed', ['error' => $e->getMessage()]);
+                }
+            });
         });
 
         static::updated(function (Order $order): void {

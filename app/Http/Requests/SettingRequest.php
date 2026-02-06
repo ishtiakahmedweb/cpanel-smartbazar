@@ -89,6 +89,14 @@ class SettingRequest extends FormRequest
             ];
         }
 
+        if ($this->get('tab') == 'telegram') {
+            return [
+                'Telegram' => 'required|array',
+                'Telegram.token' => 'required',
+                'Telegram.chat_id' => 'required',
+            ];
+        }
+
         if ($this->get('tab') == 'color') {
             $rules = [];
             foreach (['topbar', 'header', 'search', 'navbar', 'category_menu', 'section', 'badge', 'footer', 'primary', 'add_to_cart', 'order_now'] as $key) {

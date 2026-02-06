@@ -397,6 +397,14 @@
                     </li>
 
                     <li>
+                        <a class="nav-link menu-title link-nav {{ request()->is('admin/settings*') && request('tab') == 'telegram' ? 'active' : '' }}"
+                            href="{{ route('admin.settings', ['tab' => 'telegram']) }}">
+                            <i data-feather="bell"> </i>
+                            <span>Telegram Alerts</span>
+                        </a>
+                    </li>
+
+                    <li>
                         <a class="nav-link menu-title link-nav {{ request()->is('admin/settings*') && request('tab') == 'fraud' ? 'active' : '' }}"
                             href="{{ route('admin.settings', ['tab' => 'fraud']) }}">
                             <i data-feather="alert-triangle"> </i>

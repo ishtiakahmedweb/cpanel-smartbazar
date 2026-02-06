@@ -41,7 +41,7 @@ class ApiController extends Controller
                 return back()->withSuccess('Test message sent successfully!');
             }
 
-            return back()->with('error', 'Failed to send message. Please check logs for details.');
+            return back()->with('error', 'Failed to send message. Please check settings.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }

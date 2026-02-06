@@ -25,9 +25,11 @@ class TelegramService
      */
     public function sendMessage(string $message): bool
     {
-        if (!$this->token || !$this->chatId) {
-            Log::warning('Telegram notification skipped: Missing Token or Chat ID.');
-            return false;
+        if (!$this->token) {
+            throw new \Exception('Telegram Bot Token is missing.');
+        }
+        if (!$this->chatId) {
+            throw new \Exception('Telegram Chat ID is missing.');
         }
 
         try {
@@ -43,17 +45,18 @@ class TelegramService
                 return true;
             }
 
+            $error = $response->json('description') ?? $response->body();
             Log::error('Telegram API Error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
 
-            return false;
+            throw new \Exception("Telegram API Error: " . $error);
         } catch (\Exception $e) {
             Log::error('Telegram Service Exception', [
                 'message' => $e->getMessage(),
             ]);
-            return false;
+            throw $e;
         }
     }
 

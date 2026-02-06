@@ -83,6 +83,7 @@ Route::group(['as' => 'admin.'], function (): void {
         Route::post('/orders/change-status', [OrderController::class, 'status'])->name('orders.status');
         Route::post('/orders/change-staff', [OrderController::class, 'staff'])->name('orders.staff');
         Route::post('/orders/check-fraud', [OrderController::class, 'checkFraud'])->name('orders.check-fraud');
+        Route::post('/telegram-test', [ApiController::class, 'telegramTest'])->name('telegram-test');
         Route::patch('/orders/{order}/update-quantity', [OrderController::class, 'updateQuantity'])->name('orders.update-quantity');
         Route::post('/logout-others/{admin}', [ApiController::class, 'logoutOthers'])->name('logout-others');
         Route::get('/customers', CustomerController::class)->name('customers');

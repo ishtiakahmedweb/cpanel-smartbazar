@@ -22,9 +22,18 @@
         </div>
     </div>
 
-    <div class="mt-3 border-top pt-3">
-        <p class="text-muted small">
+    <div class="mt-3 border-top pt-3 d-flex justify-content-between align-items-center">
+        <p class="text-muted small mb-0">
             নোটিফিকেশন পেতে হলে আপনার বটটিকে প্রথমে স্টার্ট (Start) করতে হবে।
         </p>
+        <button type="button" 
+                onclick="if(confirm('Send a test message to Telegram?')) { document.getElementById('telegram-test-form').submit(); }" 
+                class="btn btn-info btn-sm shadow">
+            <i class="fas fa-paper-plane mr-1"></i> Send Test Message
+        </button>
     </div>
+
+    <form id="telegram-test-form" action="{{ route('admin.telegram-test') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 </div>

@@ -30,4 +30,20 @@ class ApiController extends Controller
 
         return back()->withErrors(['password' => 'Password is incorrect']);
     }
+
+    public function telegramTest()
+    {
+        try {
+            $telegram = new \App\Services\TelegramService();
+            $result = $telegram->sendMessage("⚡ <b>SmartBazar Bot Test</b>\n\nYour connection is working perfectly! ✅");
+
+            if ($result) {
+                return back()->withSuccess('Test message sent successfully!');
+            }
+
+            return back()->with('error', 'Failed to send message. Please check logs for details.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
 }

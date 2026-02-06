@@ -32,11 +32,11 @@ class TelegramService
 
         try {
             $response = Http::withOptions([
-                'verify' => false, // Bypass SSL verification for local/restricted environments
+                'verify' => false,
             ])->post("https://api.telegram.org/bot{$this->token}/sendMessage", [
                 'chat_id' => $this->chatId,
                 'text' => $message,
-                'parse_mode' => 'Markdown',
+                'parse_mode' => 'HTML',
             ]);
 
             if ($response->successful()) {
@@ -57,30 +57,35 @@ class TelegramService
         }
     }
 
-    /**
-     * Helper to format order details for Telegram.
-     *
-     * @param \App\Models\Order $order
-     * @return string
-     */
     public static function formatOrderMessage($order): string
     {
         $items = "";
-        foreach ((array) $order->products as $product) {
+        $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
+        foreach ((array) ($products ?? []) as $product) {
             $product = (object) $product;
-            $items .= "• " . ($product->name ?? 'N/A') . " x " . ($product->quantity ?? 1) . "\n";
+            $name = htmlspecialchars($product->name ?? 'N/A');
+            $qty = $product->quantity ?? 1;
+            $items .= "• " . $name . " x " . $qty . "\n";
         }
 
-        $total = $order->condition; // This should be the total amount including shipping
+        $data = is_string($order->data) ? json_decode($order->data, true) : $order->data;
+        $subtotal = (float) ($data['subtotal'] ?? 0);
+        $shipping = (float) ($data['shipping_cost'] ?? 0);
+        $discount = (float) ($data['discount'] ?? 0) + (float) ($data['retail_discount'] ?? 0);
+        $total = ($subtotal + $shipping) - $discount;
 
-        $message = "🔔 *New Order Received!*\n\n";
-        $message .= "*Order ID:* #{$order->id}\n";
-        $message .= "*Customer:* {$order->name}\n";
-        $message .= "*Phone:* {$order->phone}\n";
-        $message .= "*Address:* {$order->address}\n\n";
-        $message .= "*Items:*\n{$items}\n";
-        $message .= "*Total Amount:* ৳" . number_format($total, 2) . "\n";
-        $message .= "\nView in Panel: " . route('admin.orders.edit', $order->id);
+        $name = htmlspecialchars($order->name);
+        $phone = htmlspecialchars($order->phone);
+        $address = htmlspecialchars($order->address);
+
+        $message = "🔔 <b>New Order Received!</b>\n\n";
+        $message .= "<b>Order ID:</b> #{$order->id}\n";
+        $message .= "<b>Customer:</b> {$name}\n";
+        $message .= "<b>Phone:</b> {$phone}\n";
+        $message .= "<b>Address:</b> {$address}\n\n";
+        $message .= "<b>Items:</b>\n{$items}\n";
+        $message .= "<b>Total Amount:</b> ৳" . number_format($total, 2) . "\n";
+        $message .= "\n<a href=\"" . url('/admin/orders/' . $order->id . '/edit') . "\">View in Panel</a>";
 
         return $message;
     }

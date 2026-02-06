@@ -38,6 +38,7 @@
                     svg4everybody();
                 }
             });
+        }
     }
 </script>
 
